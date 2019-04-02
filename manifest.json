@@ -1,0 +1,33 @@
+{
+    "manifest_version": 2,
+    "name": "查权重插件",
+    "description": "查权重插件,满足你对指数的需求。",
+    "version": "1.2",
+    "icons": {
+        "16": "images/icon.png",
+        "48": "images/icon.png",
+        "128": "images/icon.png"
+    },
+   "background": {
+       "scripts": ["js/jquery-3.2.1.min.js", "js/background.js"]
+   },
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+   "permissions": ["tabs", "http://www.chaquanzhong.com/*", "http://*/*", "https://*/*", "debugger", "storage"],
+   "content_scripts": [
+        {
+            "matches": ["https://sycm.taobao.com/*"],
+            "js": ["js/jquery-3.2.1.min.js", "js/jquery.dataTables.min.js", "js/dataTables.buttons.min.js", "js/buttons.html5.min.js", "js/crypto-js.min.js", "js/echarts.common.min.js", "js/content_script.js"],
+            "css": ["css/style.css","css/jquery.dataTables.min.css", "css/buttons.dataTables.min.css"
+            ],
+            "run_at": "document_start"
+        },
+        {
+             "matches": ["http://116.62.18.166:8090/*"],
+             "js": ["js/jquery-3.2.1.min.js", "js/chaqz.js"],
+             "run_at": "document_end"
+            
+        }
+    ],
+    "web_accessible_resources": ["css/*", "js/*", "images/*"],
+    "update_url": "http://upext.chrome.360.cn/intf.php?method=ExtUpdate.query"
+}
