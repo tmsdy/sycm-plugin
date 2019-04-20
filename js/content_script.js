@@ -38,7 +38,6 @@ var responseData = {
     cartHit: [],
     cltHit: []
 };
-// 对应模块数据存储
 var dataWrapper = {
     'monitShop': {
         urlReg: 'https:\/\/sycm\.taobao\.com\/mc(\/live\/|\/)ci\/shop\/monitor\/listShop\.json',
@@ -108,36 +107,31 @@ var dataWrapper = {
         urlReg: 'https:\/\/sycm\.taobao\.com\/ipoll\/activity\/getCurrentTime\.json'
     }
 }
-var tableInstance = null; //table实例对象
-var echartsInstance = null; //echarts实例对象
-var competeSelectId = 0; // 选择竞品id
-var isLogin = false; //是否登录
-var VERSION = '1.0.5'; //版本号
+var tableInstance = null;  
+var echartsInstance = null;  
+var competeSelectId = 0;
+var isLogin = false;
+var VERSION = '1.0.5'; 
 var BASE_URL = 'http://116.62.18.166:8090';
 // var BASE_URL = 'http://www.chaquanzhong.com';
 var SAVE_MEMBER = {};
 var SAVE_BIND = {};
 var PLAN_LIST = [];
 var updataTime = '';
-// 触发数据监听
 chrome.runtime.sendMessage({
     type: 'hello',
     fitlerArr: dataWrapper
 }, function (response) { });
-// 判断是否登录
 chrome.storage.local.get('chaqz_token', function (valueArray) {
     var tok = valueArray.chaqz_token;
     if (tok) {
         localStorage.setItem('chaqz_token', tok);
         isLogin = true;
-        //  userInfoRes()
     } else {
         isLogin = false;
     }
 });
-//  判断是否首次安装
 clearLocalstorage();
-//  市场搜索分析关键词
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == 'secahKeywords') {
         getCookie(request.keywords, sendResponse);
@@ -146,44 +140,36 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 $(function () {
-    // 登录
     $(document).on('click', '#loginbtn', function () {
         anyDom.init();
         return false
     });
-    //更新用户信息
     userInfoRes();
-    // 个人信息
     $(document).on('click', '#userBtn', function () {
         anyDom.getInfo();
         return false
     });
     updataTime = getTimeNode();
-    // 竞品分析显示隐藏
     competePop()
-    /**竞争模块添加事件 */
     $('#app').on('DOMNodeInserted', function (e) {
-        // console.log(e.target.id, ',', e.target.className)
-        if (e.target.className == 'oui-index-picker') { //竞争-监控店铺
+        if (e.target.className == 'oui-index-picker') {
             $('.mc-shopMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
         }
-        if (e.target.className == 'oui-index-picker-group') { //竞争-监控商品
+        if (e.target.className == 'oui-index-picker-group') {
             $('.mc-ItemMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
         }
-        if (e.target.id == 'itemAnalysisTrend') { //竞争-分析竞品
+        if (e.target.id == 'itemAnalysisTrend') {
             $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header').append(showBtn())
         }
-        if (e.target.id == 'sycm-mc-flow-analysis') { //竞争-分析竞品-入口来源
+        if (e.target.id == 'sycm-mc-flow-analysis') {
             $('.sycm-mc-flow-analysis .oui-card-header').append(showBtn())
         }
         if (e.target.className == 'mc-marketMonitor') {
             $('.mc-marketMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
-            // $('#app').off('DOMNodeInserted')
         }
         if (e.target.className == 'tree-menu common-menu tree-scroll-menu-level-2') {
             $('.op-mc-market-monitor-industryCard .oui-card-header-item-pull-right').prepend(showBtn())
         }
-        //市场排行类
         if (e.target.className == 'industry-tab-index') {
             $('.op-mc-market-rank-container  .oui-card-header-wrapper .oui-card-header').append(showBtn())
         }
@@ -194,21 +180,18 @@ $(function () {
             $('.op-mc-market-rank-container .oui-card-header').append(showBtn())
         }
     });
-    // all-竞品解析
     $(document).on('click', '#parsing', function () {
-        //  if (!isNewVersion()) {
-        //      return false
-        //  };
+         if (!isNewVersion()) {
+             return false
+         };
         popUp.init('competingGoodsAnalysis')
     });
-    // all-权重解析
     $(document).on('click', '#weightParsing', function () {
-        //  if (!isNewVersion()) {
-        //      return false
-        //  };
+         if (!isNewVersion()) {
+             return false
+         };
         popUp.init('competingTopAnalysis')
     });
-    //竞争-监控店铺
     $(document).on('click', '.mc-shopMonitor #search', function () {
         if (!isNewVersion()) {
             return false
@@ -275,14 +258,12 @@ $(function () {
             }, '监控店铺')
         })
     });
-    //竞争-监控商品
     $(document).on('click', '.mc-ItemMonitor #search', function () {
         if (!isNewVersion()) {
             return false
         }
         MonitorItem('page')
     });
-    //竞争-分析竞品
     $(document).on('click', '#itemAnalysisTrend .oui-card-header #search', function () {
         if (!isNewVersion()) {
             return false
@@ -381,7 +362,6 @@ $(function () {
                 }, '关键词指标对比')
             })
     });
-    //竞争-分析竞品-入口来源
     $(document).on('click', '#sycm-mc-flow-analysis .oui-card-header #search', function () {
         if (!isNewVersion()) {
             return false
@@ -500,12 +480,11 @@ $(function () {
         tableInstance = null;
         echartsInstance = null;
     })
-    //竞争-分析竞品一键加权
     $(document).on('click', '#vesting', function () {
         var reg = /https:\/\/sycm\.taobao\.com\/mc\/ci\/item\/analysis/;
         var currentUrl = window.location.href
         var matchUrl = reg.test(currentUrl)
-        if (!matchUrl) { // 判断是否为精品分析页面
+        if (!matchUrl) {
             popUp.init('goChoose')
             return false
         }
@@ -540,8 +519,6 @@ $(function () {
             }
         })
     })
-    /*市场模块添加事件 */
-    //市场店铺的按钮是否显示控制
     $(document).on('click', '.mc-marketMonitor .oui-tab-switch .oui-tab-switch-item', function () {
         if ($(this).index() == 2) {
             $('.mc-marketMonitor #search').hide()
@@ -549,7 +526,6 @@ $(function () {
             $('.mc-marketMonitor #search').show()
         }
     })
-    //市场行业监控品牌不需要转换
     $(document).on('click', '.op-mc-market-monitor-industryCard .oui-tab-switch .oui-tab-switch-item', function () {
         if ($(this).index() == 2) {
             $('.op-mc-market-monitor-industryCard #search').hide()
@@ -557,35 +533,31 @@ $(function () {
             $('.op-mc-market-monitor-industryCard #search').show()
         }
     })
-    //市场-我的监控-店铺 商品
     $(document).on('click', '.mc-marketMonitor #search', function () {
         if (!isNewVersion()) {
             return false
         }
         marketMonitorShop("page")
     })
-    //市场-行业监控-热门店铺、商品
     $(document).on('click', '.op-mc-market-monitor-industryCard .oui-card-header-item-pull-right #search', function () {
         if (!isNewVersion()) {
             return false
         }
         marketMonitorItem('pageType')
     })
-    // 市场-市场排行
     $(document).on('click', '.op-mc-market-rank-container #search', function () {
-        //  if (!isNewVersion()) {
-        //      return false
-        //  }
+         if (!isNewVersion()) {
+             return false
+         }
         marketRank('pagetype')
     })
-    // 市场-市场排行- 趋势分析
-    $(document).on('click', '.op-mc-market-rank-container .alife-dt-card-common-table-right-column', function (e) { //趋势分析
+    $(document).on('click', '.op-mc-market-rank-container .alife-dt-card-common-table-right-column', function (e) {
         if (!isLogin) {
             return false;
         }
         var maskWrap = $('.ant-modal-mask:not(.ant-modal-mask-hidden)').siblings('.ant-modal-wrap')
         var maskHead = maskWrap.find('.ant-modal-header')
-        var chooseList = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index() //0店铺，1商品，2品牌
+        var chooseList = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index()
         var switchType = chooseList == 1 ? 'item' : chooseList == 2 ? 'brand' : 'shop'
         if ($(maskHead).find('.serachBtn').length) {
             return false
@@ -710,7 +682,6 @@ $(function () {
             })
         })
     })
-    // 竞品解析-切换终端-数据解析
     $(document).on('click', '.chaqz-wrapper .switchData', function () {
         if ($(this).hasClass('active')) {
             return false;
@@ -720,7 +691,6 @@ $(function () {
         $(this).addClass('active').siblings().removeClass('active')
         competeDataAnaly(competeSelectId, btnArr[btnIndex])
     })
-    // 竞品解析-切换终端-流量解析
     $(document).on('click', '.chaqz-wrapper .switchFlow', function () {
         if ($(this).hasClass('active')) {
             return false;
@@ -730,7 +700,6 @@ $(function () {
         $(this).addClass('active').siblings().removeClass('active')
         competeFlowAnaly(competeSelectId, btnArr[btnIndex])
     })
-    // 竞品解析-切换终端-关键词解析
     $(document).on('click', '.chaqz-wrapper .switchKey', function () {
         if ($(this).hasClass('active')) {
             return false;
@@ -741,7 +710,6 @@ $(function () {
         competeKeywordAnaly(competeSelectId, btnArr[btnIndex])
     })
 })
-//竞争模块table
 function domStruct(data, title) {
     var curTime = $('.ebase-FaCommonFilter__top .oui-date-picker-current-date').text()
     var wrapper = '<div class="chaqz-wrapper"><div class="content"><div class="cha-box"><div class="head"><div class="title"><span class="chaqz-table-title">' + title + '</span><span class="time">' + curTime + '</span></div></div><div class="table-box"><table id="chaqz-table" style="width:100%"></table></div></div><span class="chaqz-close">×</span></div></div>'
@@ -776,7 +744,6 @@ function domStruct(data, title) {
         ]
     });
 }
-//市场模块table
 function domStructMark(data, title, type) {
     var curTime = $('.ebase-FaCommonFilter__top .oui-date-picker-current-date').text()
     var isSmall = type == 2 ? 'small' : ''
@@ -832,7 +799,6 @@ function domStructMark(data, title, type) {
             if (hasSave) {
                 listenShop()
             } else {
-                // 监听消息 
                 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                     if (request.type = 'holdup') {
                         var reg1 = new RegExp(dataWrapper['marketShop'])
@@ -852,7 +818,6 @@ function domStructMark(data, title, type) {
             if (hasSave) {
                 marketMonitorItem()
             } else {
-                // 监听消息
                 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                     if (request.type = 'holdup') {
                         var reg1 = new RegExp(dataWrapper['marketHotShop'])
@@ -872,7 +837,6 @@ function domStructMark(data, title, type) {
             if (hasSave) {
                 MonitorItem()
             } else {
-                // 监听消息
                 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                     if (request.type = 'holdup') {
                         var reg = new RegExp(dataWrapper['monitFood'])
@@ -890,7 +854,6 @@ function domStructMark(data, title, type) {
     })
     $('.chaqz-wrapper').fadeIn(100);
 }
-// 趋势table
 function domStructTrend(data, title, eDate, edata) {
     var wrapper = '<div class="chaqz-wrapper"><div class="content"><div class="cha-box"><div class="head"><div class="title"><span class="chaqz-table-title">趋势分析</span></div><div><img src="' + title.picUrl + '"><span>' + title.name + '</span></div></div><div id="chaqzx-echarts-wrap"></div><div class="table-box"><table id="chaqz-table-trend" class="trend-table"></table></div></div><span class="chaqz-close">×</span></div></div>'
     $('#app').append(wrapper)
@@ -1033,7 +996,6 @@ function domStructTrend(data, title, eDate, edata) {
     myChart.setOption(option);
     LoadingPop()
 }
-// 竞品解析
 function domStructEchart(data, eDate, edata, time, chartType) {
     var switchType = chartType == 1 ? '<button class="switchBtn active switchFlow">移动数据</button><button class="switchBtn switchFlow">pc数据</button>' : chartType == 2 ? '<button class="switchBtn active switchKey">移动数据</button><button class="switchBtn switchKey">pc数据</button>' : '<button class="active switchBtn switchData">总数据</button><button class="switchBtn switchData">移动数据</button><button class="switchBtn switchData">pc数据</button>';
     var title = chartType == 1 ? '竞品流量解析' : chartType == 2 ? '竞品关键词解析' : '竞品数据解析';
@@ -1322,7 +1284,6 @@ function domStructEchart(data, eDate, edata, time, chartType) {
     echartsInstance.setOption(option);
     LoadingPop()
 }
-//  权重解析
 function domStructweightPars(info, eData) {
     var wrapper = '<div class="chaqz-wrapper weight-pop"><div class="content"><div class="cha-box"><div class="parsing-title">竞品权重解析</div><div class="weight-parsing"><div class="left"><div class="head-info"><img src="' + info.pic + '" alt="pic"><div class="name"><p>' + info.title + '</p><span class="price">' + info.priceRange + '</span></div></div><div id="chaqzx-echarts-wrap"></div></div><div class="right"><div class="scores"><p class="sorce-head">本次权重得分</p><p class="dScore"></p><p class="moreShop">超过市场' + eData.rank + '%商品</p></div><div class="proposal"><div class="propos-title">优化方案</div><ul class="prompt-list"><li><span>标题热度提升</span><button>优化</button></li><li><span>补冲流量，稳定转化</span><button>优化</button></li><li><span>补充单量</span><button>优化</button></li></ul></div></div></div></div><span class="chaqz-close">×</span></div></div>'
     $('#app').append(wrapper)
@@ -1334,9 +1295,6 @@ function domStructweightPars(info, eData) {
     }, {
             duration: 1000,
             easing: 'swing',
-            // complete: function () {
-            //     console.log("success");
-            // },
             step: function (a, b) {
                 $(this).html(parseInt(b.pos * eData.combat));
             }
@@ -1346,22 +1304,15 @@ function domStructweightPars(info, eData) {
     option = {
         grid: {
             top: "10%",
-            // left: '5%',
         },
         tooltip: {},
         radar: {
-            // shape: 'circle',
             name: {
                 textStyle: {
                     color: '#888',
                     fontSize: 14
                 }
             },
-            //  splitArea: {
-            //      areaStyle: {
-            //          color: ['rgba(0,0,0)', 'rgba(50,50,50)']
-            //      }
-            //  },
             splitNumber: 4,
             indicator: [{
                 name: '流量',
@@ -1389,7 +1340,6 @@ function domStructweightPars(info, eData) {
             }
             ]
         },
-        // backgroundColor: '#000',
         series: [{
             name: '商品权重',
             type: 'radar',
@@ -1412,7 +1362,6 @@ function domStructweightPars(info, eData) {
     myChart.setOption(option);
     LoadingPop()
 }
-/**------ 登录模块-------------------*/
 var anyDom = {
     loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + BASE_URL + '/reg" class="right" target="_blank">免费注册</a><a href="' + BASE_URL + '/findP" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
     infoDom: function (memInfo, bindedInfo) {
@@ -1506,18 +1455,15 @@ var anyDom = {
                 $(this).siblings('.tips').hide()
             }
         })
-        // 登录处理
         $(document).on('click', '.chaqz-info-wrapper .login-btn', function () {
             _that.login()
         })
-        //回车搜索
         $('.chaqz-info-wrapper #pwd').bind('keydown', function (event) {
             var evt = window.event || event;
             if (evt.keyCode == 13) {
                 _that.login()
             }
         });
-        // 关闭登录弹窗
         $(document).on('click', '.chaqz-info-wrapper .hided', function () {
             $('.chaqz-info-wrapper.login').remove()
         })
@@ -1560,7 +1506,6 @@ var anyDom = {
             $(document).on('click', '#logout', function () {
                 $('.chaqz-info-wrapper.user').hide();
                 changeLoginStatus('out')
-                // $('.chaqz-btns').html('<button id="loginbtn" class="serachBtn user">登录</button>')
                 chrome.storage.local.clear(function () { });
                 localStorage.removeItem('chaqz_token')
 
@@ -1572,7 +1517,6 @@ var anyDom = {
         }
     }
 }
-// 显示按钮切换
 function showBtn() {
     var reDom = '';
     if (isLogin) {
@@ -1582,7 +1526,6 @@ function showBtn() {
     }
     return reDom
 }
-// 竞品分析弹窗显示隐藏
 function competePop() {
     var url = window.location.href;
     if (url.indexOf('https://sycm.taobao.com/custom/login.htm') != -1) {
@@ -1595,7 +1538,6 @@ function competePop() {
         $('.chaqz-compete-wrap').remove();
     }
 }
-// 登录状态切换
 function changeLoginStatus(type) {
     if (type == 'out') {
         $('.chaqz-btns').html('<button id="loginbtn" class="serachBtn user">登录</button>');
@@ -1605,21 +1547,19 @@ function changeLoginStatus(type) {
         $('body').append('<div class="chaqz-compete-wrap"><div class="head"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content" id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div></div>')
     }
 }
-//check is pass
 function isNewVersion() {
-    // if (CHAQZ_VERSION != '1.0.5') {
-    //     popUp.init('version')
-    //     return false
-    // }
+    if (CHAQZ_VERSION != LOCAL_VERSION) {
+        popUp.init('version')
+        return false
+    }
     var allInfo = SAVE_MEMBER
     if (!allInfo) {
         popUp.init('noShopInfo');
         return false;
     }
-    var memInfo = allInfo.member; //会员信息
-    var bindInfo = SAVE_BIND; //绑定信息
-    var shopInfo = dealShopInfo(); //店铺信息
-    //不是否为会员
+    var memInfo = allInfo.member;
+    var bindInfo = SAVE_BIND;
+    var shopInfo = dealShopInfo();
     if (!memInfo.level) {
         popUp.init('orderMem')
         return false;
@@ -1627,13 +1567,12 @@ function isNewVersion() {
     var star_time = allInfo.time;
     var star_end = memInfo.expireAt;
     var remian = new Date(star_end) - star_time * 1000;
-    //会员过期
     if (remian <= 0) {
         popUp.init('overdue')
         return false;
     }
-    var hasBind = bindInfo.data.length; //已绑定数量
-    var totalBind = bindInfo.count; //可绑定数量
+    var hasBind = bindInfo.data.length;
+    var totalBind = bindInfo.count;
     var isSelf = false
     var isClose = false
     var activeNum = 0
@@ -1646,7 +1585,7 @@ function isNewVersion() {
             activeNum++
         }
     })
-    if (!isSelf) { // 不是本店铺
+    if (!isSelf) {
         if (hasBind < totalBind) {
             popUp.init('binding')
             return false
@@ -1658,10 +1597,10 @@ function isNewVersion() {
         popUp.init('bindLimit')
         return false
     }
-    if (isClose == 0) { //激活
+    if (isClose == 0) {
         return true;
     }
-    if (activeNum < totalBind) { //未达激活上限
+    if (activeNum < totalBind) {
         popUp.init('active2')
         return false
     }
@@ -1672,7 +1611,6 @@ function isNewVersion() {
     popUp.init('bindLimit')
     return false
 }
-// 退出登录
 function LogOut() {
     isLogin = false;
     changeLoginStatus('out');
@@ -1681,7 +1619,6 @@ function LogOut() {
     $('.chaqz-compete-wrap').remove();
     LoadingPop()
 }
-// 弹窗模块
 var popUp = {
     version: '<p class="tips">当前插件已更新，请到官网下载最新版本。</p><div class="cha-btns"><a class="btn" href="' + BASE_URL + '/pluginIntro" target="_blank"><button class="btn">前往下载</button></a></div>',
     orderMem: '<p class="tips">账户未开通会员，请联系客服或订购会员。</p><div class="cha-btns"><a class="mr_30 btn" href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><button class="btn">联系客服</button></a><button class="btn buyBtn">订购</button></div>',
@@ -1747,9 +1684,7 @@ var popUp = {
         var _html = wrapFont + resultDom + wrapEnd;
         var _that = this
         $('#app').append(_html)
-        // 事件加载
         $('.chaqz-info-wrapper.pop').on('click', '.hides', function () {
-            //c创建计划弹窗
             var hidePlan = $('.chaqz-info-wrapper.pop').find('#giveupPlan')
             if (hidePlan.length) {
                 _that.init("selectPlan", PLAN_LIST)
@@ -1767,7 +1702,7 @@ var popUp = {
             chrome.storage.local.clear(function () { });
             localStorage.removeItem('chaqz_token')
         })
-        $('.chaqz-info-wrapper.pop').on('click', '#goBind', function () { //绑定店铺
+        $('.chaqz-info-wrapper.pop').on('click', '#goBind', function () {
             var curShop = dealShopInfo()
             var saveToke = localStorage.getItem('chaqz_token')
             chrome.runtime.sendMessage({
@@ -1810,10 +1745,10 @@ var popUp = {
             })
             $('.chaqz-info-wrapper.pop').hide();
         })
-        $('.chaqz-info-wrapper.pop').on('click', '#pageRefresh', function () { //刷新
+        $('.chaqz-info-wrapper.pop').on('click', '#pageRefresh', function () {
             window.location.reload();
         })
-        $('.chaqz-info-wrapper.pop').on('change', '.table-wrap input', function () { //判断是否达到帮I定上限
+        $('.chaqz-info-wrapper.pop').on('change', '.table-wrap input', function () {
             var checkNum = $('.chaqz-info-wrapper.pop input:checked').length;
             var totalBindNum = SAVE_BIND.count;
             if (checkNum > totalBindNum) {
@@ -1876,7 +1811,7 @@ var popUp = {
                 return false
             }
         })
-        $('.chaqz-info-wrapper.pop').on('click', '.planBtn', function () { //生成计划
+        $('.chaqz-info-wrapper.pop').on('click', '.planBtn', function () {
             var planName = $('.chaqz-info-wrapper.pop .editor').val();
             var purpose = $('.chaqz-info-wrapper.pop .selcet').val();
             var hasCreatePlan = PLAN_LIST
@@ -1915,7 +1850,7 @@ var popUp = {
                 }
             })
         })
-        $('.chaqz-info-wrapper.pop').on('click', '#vestBtn', function () { //加权计划
+        $('.chaqz-info-wrapper.pop').on('click', '#vestBtn', function () {
             LoadingPop('show')
             var planName = $('.chaqz-info-wrapper.pop .form-list .selcet').val()
             var selectPlan = _that.chosePlan(PLAN_LIST, planName)
@@ -1933,7 +1868,6 @@ var popUp = {
             var fact = $('#itemAnalysisTrend .ant-select-selection-selected-value').attr('title')
             var device = fact == '所有终端' ? '0' : fact == 'PC端' ? '1' : fact == '无线端' ? '2' : '';
             var recent7Key = fontKey + device + idParams
-            // 判断本地是否缓存
             if (localStorage.getItem(recent7Key)) {
                 _that.getDay(productInfo, recent7Key, selectPlan)
             } else {
@@ -1956,7 +1890,7 @@ var popUp = {
         $(document).on('blur', '.chaqz-info-wrapper.pop .anayEditor', function () {
             $(this).siblings('.good-tips').removeClass('alert')
         })
-        $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞品解析
+        $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () {
             var iptVal = $('.chaqz-info-wrapper.pop .anayEditor').val();
             var tips = $('.chaqz-info-wrapper.pop .good-tips')
             if (!iptVal) {
@@ -1985,7 +1919,7 @@ var popUp = {
             }
             $('.chaqz-info-wrapper.pop').hide()
         })
-        $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn2', function () { //权重解析
+        $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn2', function () {
             LoadingPop('show');
             var iptVal = $('.chaqz-info-wrapper.pop .anayEditor').val();
             var tips = $('.chaqz-info-wrapper.pop .good-tips');
@@ -2053,7 +1987,6 @@ var popUp = {
             dataType: key
         }, function (res) {
             $(".oui-date-picker .oui-canary-btn:contains('日')").click()
-            // 判断屏幕高度以及是否要滑动
             var cltHeight = window.innerHeight;
             var remianHei = 900 - cltHeight;
             if (remianHei > 0) {
@@ -2150,7 +2083,6 @@ var popUp = {
         })
     },
     checkRepeat: function (data, name) {
-        //判断是否创建过的计划
         if (!data) {
             return false
         }
@@ -2163,7 +2095,6 @@ var popUp = {
         return isHas
     },
     filterKeywords: function (data) {
-        //关键词筛选
         if (!data) {
             return []
         }
@@ -2176,7 +2107,6 @@ var popUp = {
         return resBox
     },
     chosePlan: function (data, aim) {
-        //选择计划项
         if (!data) {
             return {}
         }
@@ -2188,7 +2118,6 @@ var popUp = {
 
     },
     changeDom: function (type, data) {
-        //弹窗存在更换内容
         var changeHtml = ''
         if (typeof this[type] == 'function') {
             changeHtml = this[type](data)
@@ -2216,7 +2145,6 @@ var popUp = {
         return result
     }
 }
-// 竞品解析-验证url
 function testUrl(val) {
     var urlReg = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/
     var numReg = /^\d+$/;
@@ -2239,7 +2167,6 @@ function testUrl(val) {
     }
     return false
 }
-// 更新用户信息
 function userInfoRes() {
     var saveToke = localStorage.getItem('chaqz_token')
     anyDom.getShopBind()
@@ -2266,13 +2193,11 @@ function userInfoRes() {
 
 function popTip(text, style, time) {
     var st = style ? style : ''
-    // var tm = time?time: 500
     $('#app').append('<div class="small-alert" style="' + style + '">' + text + '</div>');
     setTimeout(function () {
         $('#app .small-alert').fadeOut(300)
     }, 500)
 }
-// loading
 function LoadingPop(status) {
     if (!status) {
         $('.load-pop').fadeOut(100)
@@ -2284,7 +2209,6 @@ function LoadingPop(status) {
     }
     $('body').append('<div class="load-pop"><div class="spinner"><div class="spinner-container container1"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="circle4"></div></div><div class="spinner-container container2"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="circle4"></div></div><div class="spinner-container container3"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="circle4"></div></div></div>')
 }
-// 获取店铺信息的firstCateId
 function getFirstCateId() {
     var deaultId = localStorage.getItem('shopCateId');
     var cateIdF = JSON.parse(localStorage.getItem('tree_history_op-mc._cate_picker'));
@@ -2301,14 +2225,12 @@ function getFirstCateId() {
     })
     return resData
 }
-// 清除缓存
 function clearLocalstorage() {
     if (!localStorage.getItem('isFirstInstallPlugin')) {
         localStorage.clear();
         localStorage.setItem('isFirstInstallPlugin', 'hasInstall')
     }
 }
-// 获取存储时间
 function getCurrentTime(dayType) {
     var upTime = updataTime.updateNDay;
     var up1Time = updataTime.update1Day;
@@ -2319,7 +2241,6 @@ function getCurrentTime(dayType) {
     }
     return saveTime
 }
-
 function setDateRange(data, type) {
     var recentDay = data
     var fontDate = formate('yyyy-MM-dd', new Date(recentDay))
@@ -2335,7 +2256,6 @@ function setDateRange(data, type) {
     var endDate = formate('yyyy-MM-dd', new Date(recent30))
     return endDate + '|' + fontDate
 }
-// 获取更新数据时间节点
 function getTimeNode() {
     var allLocal = localStorage.valueOf();
     var dateBox = '';
@@ -2351,8 +2271,6 @@ function getTimeNode() {
     var res = JSON.parse(dateBox).split("|")[1];
     return JSON.parse(res).value._d;
 }
-/**===========================市场竞争数字格式化方法以及页面信息======================================= */
-// 店铺信息处理了
 function dealShopInfo() {
     var info = dataWrapper.shopInfo.data
     var localShop = localStorage.getItem('chaqz_shopInfo')
@@ -2365,13 +2283,11 @@ function dealShopInfo() {
         return resd
     }
 }
-
 function getLocalSelfList() {
     var localSelf = JSON.parse(localStorage.getItem('/mc/rivalShop/recommend/item.json'))
     var getLocal = localSelf ? JSON.parse(localSelf.split("|")[1]).value._d : '';
     return Decrypt(getLocal)
 }
-// 获取竞争分析商品id
 function getproduceIds(product, type) {
 
     var selfListJson = localStorage.getItem('chaqz_compareSelfList') || getLocalSelfList();
@@ -2412,7 +2328,6 @@ function getproduceIds(product, type) {
         return item1 + item2 + self
     }
 }
-// 计算公式
 function formula(val, val2, type) {
     if (val == "undefined" || val === '' || val == '-' || !val2 || val2 == '-' || val2 == '0') {
         return '-'
@@ -2426,7 +2341,6 @@ function formula(val, val2, type) {
         }
     }
 }
-// 取整/格式化
 function integer(val, type) {
     if (val == 0) {
         return 0
@@ -2443,7 +2357,6 @@ function integer(val, type) {
         }
     }
 }
-// 返回数据格式修改
 function delePoint(val) {
     val = (val + '').replace(',', '')
     if (val.indexOf('%') !== -1) {
@@ -2453,7 +2366,6 @@ function delePoint(val) {
     }
 
 }
-//竞品页面判断选择几项了
 function searchItemhas() {
     var params = window.location.search.split('?')[1]
     var keyValue = params.split('&')
@@ -2471,7 +2383,6 @@ function searchItemhas() {
     })
     return obj
 }
-// 获取商品信息
 function getProductInfo() {
     var items = $('#itemAnalysisSelect .sycm-common-select-wrapper .alife-dt-card-sycm-common-select')
     var info = {
@@ -2512,36 +2423,33 @@ function getProductInfo() {
     }
     return info
 }
-// 获取查询项信息
 function getSearchParams(key, page, pagesize, dealType) {
-    // 获取时间范围
     var dayIndex = $('.oui-date-picker .ant-btn-primary').text()
     var dateType = dayIndex == '实 时' ? 'today' : dayIndex == '7天' ? 'recent7' : dayIndex == '30天' ? 'recent30' : dayIndex == '日' ? 'day' : dayIndex == '周' ? 'week' : dayIndex == '月' ? 'month' : 'today';
-    var endpointTyep = $('.ebase-FaCommonFilter__root .fa-common-filter-device-select .oui-select-container-value').html() //终端类型
-    var shopType = $('.ebase-FaCommonFilter__root .sellerType-select .ant-select-selection-selected-value').attr('title') //店铺  天猫淘宝
-    var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text()
-    var device = endpointTyep == '所有终端' ? '0' : endpointTyep == 'PC端' ? '1' : endpointTyep == '无线端' ? '2' : ''
-    var sellType = shopType == '全部' ? '-1' : shopType == '天猫' ? '1' : shopType == '淘宝' ? '0' : ''
-    var spliteTime = timeRnage.split(' ')
+    var endpointTyep = $('.ebase-FaCommonFilter__root .fa-common-filter-device-select .oui-select-container-value').html();
+    var shopType = $('.ebase-FaCommonFilter__root .sellerType-select .ant-select-selection-selected-value').attr('title');
+    var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text();
+    var device = endpointTyep == '所有终端' ? '0' : endpointTyep == 'PC端' ? '1' : endpointTyep == '无线端' ? '2' : '';
+    var sellType = shopType == '全部' ? '-1' : shopType == '天猫' ? '1' : shopType == '淘宝' ? '0' : '';
+    var spliteTime = timeRnage.split(' ');
     var splitLen = spliteTime.length;
-    var finalTime = ''
+    var finalTime = '';
     if (splitLen == 3 || splitLen == 2) {
-        finalTime = spliteTime[1] + '|' + spliteTime[1]
+        finalTime = spliteTime[1] + '|' + spliteTime[1];
     } else if (splitLen == 4) {
-        finalTime = dealType ? (spliteTime[3] + '|' + spliteTime[3]) : (spliteTime[1] + '|' + spliteTime[3])
+        finalTime = dealType ? (spliteTime[3] + '|' + spliteTime[3]) : (spliteTime[1] + '|' + spliteTime[3]);
     }
     page = page ? page : 1;
     pagesize = pagesize ? pagesize : 10;
     if (key == 'allTrend') {
-        finalTime = setDateRange(getCurrentTime(), 'day')
+        finalTime = setDateRange(getCurrentTime(), 'day');
     }
-    var localCateId = localStorage.getItem('shopCateId')
+    var localCateId = localStorage.getItem('shopCateId');
     if (dealType) {
         return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=day' + '&device=' + device + '&sellerType=' + sellType
     }
     return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&page=' + page + '&pageSize=' + pagesize + '&sellerType=' + sellType
 }
-//数据处理-竞品分析
 function operatcPmpareData(v1, v2, v3) {
     v1 = (v1 + '').replace(',', '')
     v2 = (v2 + '').replace(',', '')
@@ -2562,7 +2470,6 @@ function operatcPmpareData(v1, v2, v3) {
     }
     return result
 }
-//计算支付人数
 function computedPayByr(v1, v2, v3) {
     var result = {
         res1: 0,
@@ -2585,7 +2492,6 @@ function computedPayByr(v1, v2, v3) {
     }
     return result
 }
-// 日期格式化
 function formate(fmt, date) {
     if (!date) {
         return ''
@@ -2606,7 +2512,6 @@ function formate(fmt, date) {
             fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
-// 关键词解析-不同的类型
 function keywordUrl(rivalId, device, type) {
     var nowTime = getCurrentTime();
     var dateRange = setDateRange(nowTime, 'day');
@@ -2621,7 +2526,6 @@ function keywordUrl(rivalId, device, type) {
         time: dateRange
     }
 }
-// 关键词解析--合并数组
 function concatArr(decryData, decryDataTwo) {
     if (!decryData.length) {
         return decryDataTwo
@@ -2642,7 +2546,6 @@ function concatArr(decryData, decryDataTwo) {
     }
     return decryData.concat(decryDataTwo)
 }
-// 竞品解析
 function getDateRange(data, fm) {
     var resArr = []
     var fmt = fm ? fm : 'yyyy-MM-dd';
@@ -2651,7 +2554,6 @@ function getDateRange(data, fm) {
     }
     return resArr
 }
-// 权重解析
 function findFirstItme(arr) {
     var firstItem = '';
     if (!arr.length) {
@@ -2666,7 +2568,6 @@ function findFirstItme(arr) {
     }
     return firstItem;
 }
-// 权重数组合并
 function mergeArr(arr, arr1) {
     var sendDecryData = {
         cartHits: [],
@@ -2682,8 +2583,6 @@ function mergeArr(arr, arr1) {
     }
     return sendDecryData
 }
-/**=========================== 市场竞争table数据获取 ======================================= */
-// 监控商品
 function MonitorItem(pageType) {
     var curPage = $('.mc-ItemMonitor .ant-pagination .ant-pagination-item-active').attr('title')
     var curPageSize = $('.mc-ItemMonitor .oui-page-size .ant-select-selection-selected-value').text()
@@ -2805,11 +2704,9 @@ function MonitorItem(pageType) {
         }
     })
 }
-// 竞品解析-数据解析
 function competeDataAnaly(rivalId, device) {
     LoadingPop('show')
     var nowTime = getCurrentTime('moreDay');
-    //  var dateRange = setDateRange(nowTime, 'day');
     var dateRange = setDateRange(nowTime);
     var titleDate = dateRange.replace('|', '~');
     var localCateId = localStorage.getItem('shopCateId')
@@ -2915,7 +2812,6 @@ function competeDataAnaly(rivalId, device) {
                         obj.searRate = formula(res.seIpvUvHits[i], res.uvIndex[i], 2)
                         obj.scRate = formula(res.cltHits[i], res.uvIndex[i], 2)
                         obj.jgRate = formula(res.cartHits[i], res.uvIndex[i], 2)
-                        //  echarts数据
                         res.uvPrice.push(obj.uvPrice);
                         res.searchRate.push(obj.searRate.slice(0, -1));
                         res.cangRate.push(obj.scRate.slice(0, -1));
@@ -3039,7 +2935,6 @@ function competeDataAnaly(rivalId, device) {
         })
     })
 }
-// 竞品解析-流量解析
 function competeFlowAnaly(rivalId, device) {
     LoadingPop('show')
     var nowTime = getCurrentTime();
@@ -3203,7 +3098,6 @@ function competeFlowAnaly(rivalId, device) {
         })
     })
 }
-// 竞品解析-关键词解析
 function competeKeywordAnaly(rivalId, device) {
     LoadingPop('show')
     var finalUrl = keywordUrl(rivalId, device);
@@ -3233,7 +3127,6 @@ function competeKeywordAnaly(rivalId, device) {
                 }
                 ]
             })
-
         } else {
             domStructEchart({
                 data: saveData.tableData,
@@ -3385,7 +3278,6 @@ function competeKeywordAnaly(rivalId, device) {
         })
     })
 }
-// 权重解析
 function weightParsing(rivald, category, itemInfo) {
     var nowTime = getCurrentTime('moreDay');
     var dateRange = setDateRange(nowTime, 'recent7');
@@ -3423,7 +3315,6 @@ function weightParsing(rivald, category, itemInfo) {
         })
     })
 }
-// 获取竞品数据
 function getCompareData(params) {
     var nowTime = getCurrentTime('moreDay');
     var dateRange = setDateRange(nowTime, 'recent7');
@@ -3440,10 +3331,6 @@ function getCompareData(params) {
             LoadingPop()
         },
         success: function (res) {
-            //  if(res.code == 1009){
-            //     weightParsing(rivald,1)
-            //     return false
-            //  }
             if (res.code !== 0 || !res.data) {
                 popTip('获取数据失败请重试！')
                 LoadingPop()
@@ -3486,7 +3373,6 @@ function getCompareData(params) {
         }
     })
 }
-// 权重解析--解析
 function parsingAnaly(dealRes, info) {
     var sendData = {},
         sendData2 = {}
@@ -3529,7 +3415,6 @@ function parsingAnaly(dealRes, info) {
         LoadingPop();
     })
 }
-// listen shop\
 function marketMonitorShop(pageType) {
     var chooseTop = $('.mc-marketMonitor .oui-tab-switch .oui-tab-switch-item-active').index()
     var curPage = $('.mc-marketMonitor .ant-pagination .ant-pagination-item-active').attr('title')
@@ -3662,7 +3547,6 @@ function marketMonitorShop(pageType) {
         }
     })
 }
-// hotShop 
 function marketMonitorItem(pageType) {
     var hotType = $('.op-mc-market-monitor-industryCard .oui-card-header-item .oui-tab-switch-item-active').index()
     var curPage = $('.op-mc-market-monitor-industryCard .ant-pagination .ant-pagination-item-active').attr('title')
@@ -3772,18 +3656,18 @@ function dealTradeGrowth(data) {
 }
 
 function marketRank(pageType) {
-    var chooseItem = $('.op-mc-market-rank-container .oui-card-header-wrapper .oui-tab-switch .oui-tab-switch-item-active').index() //0高交易，1高流量，2高意向
-    var chooseList = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index() //0店铺，1商品，2品牌
-    var curPage = $('.op-mc-market-rank-container .ant-pagination .ant-pagination-item-active').attr('title')
-    var curPageSize = $('.op-mc-market-rank-container .oui-page-size .ant-select-selection-selected-value').text()
+    var chooseItem = $('.op-mc-market-rank-container .oui-card-header-wrapper .oui-tab-switch .oui-tab-switch-item-active').index();
+    var chooseList = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index();
+    var curPage = $('.op-mc-market-rank-container .ant-pagination .ant-pagination-item-active').attr('title');
+    var curPageSize = $('.op-mc-market-rank-container .oui-page-size .ant-select-selection-selected-value').text();
     curPage = curPage ? Number(curPage) : 1;
-    curPageSize = Number(curPageSize)
+    curPageSize = Number(curPageSize);
     var hotType = chooseItem == 1 ? 'hotsearch' : chooseItem == 2 ? 'hotpurpose' : 'hotsale';
     var rankType = chooseList == 1 ? 'item' : chooseList == 2 ? 'brand' : 'shop';
-    var itemKey = getSearchParams(hotType)
-    var localData = JSON.parse(localStorage.getItem(rankType + '/' + itemKey))
+    var itemKey = getSearchParams(hotType);
+    var localData = JSON.parse(localStorage.getItem(rankType + '/' + itemKey));
     var totalCont = localData.length;
-    var marketData = localData.slice((curPage - 1) * curPageSize, curPage * curPageSize)
+    var marketData = localData.slice((curPage - 1) * curPageSize, curPage * curPageSize);
     dealIndex({
         type: hotType,
         dataType: marketData
@@ -3806,17 +3690,14 @@ function marketRank(pageType) {
             }
             obj.tradeIndex = res.tradeIndex[i] != '超出范围,请使用插件最高支持7.8亿' ? res.tradeIndex[i] : '超出范围'
             if (chooseItem == 0) {
-                //  obj.tradeIndex = res.tradeIndex[i] != '超出范围,请使用插件最高支持7.8亿' ? res.tradeIndex[i]:'超出范围'
                 obj.growth = dealTradeGrowth(marketData[i].tradeGrowthRange.value)
                 obj.payRate = res.payRate[i] + "%"
             } else if (chooseItem == 1) {
-                //  obj.tradeIndex = res.tradeIndex[i]
                 obj.uvIndex = res.uvIndex[i]
                 obj.seIpv = res.seIpv[i]
                 obj.searRate = formula(res.seIpv[i], res.uvIndex[i], 2)
                 obj.uvPrice = formula(res.tradeIndex[i], res.uvIndex[i], 1)
             } else {
-                //  obj.tradeIndex = res.tradeIndex[i]
                 obj.cltHit = res.cltHit[i]
                 obj.cartHit = res.cartHit[i]
             }
@@ -3948,7 +3829,6 @@ function marketRank(pageType) {
         }
     })
 }
-// /////////////////////////////////////--------背景数据处理-------//////////////////////////////////////////////
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.type == 'holdup') {
@@ -3957,7 +3837,6 @@ chrome.runtime.onMessage.addListener(
             if (baseUrl) {
                 for (var k in dataWrapper) {
                     if ((new RegExp(dataWrapper[k].urlReg)).test(baseUrl)) {
-                        // 根据期限存储数据
                         var hasEncryp = JSON.parse(resData).data ? JSON.parse(resData).data : '';
                         var finaData = (typeof hasEncryp == 'object') ? resData : Decrypt(hasEncryp);
                         if (k == 'monitShop' || k == 'getMonitoredList') {
@@ -3978,7 +3857,6 @@ chrome.runtime.onMessage.addListener(
                         } else if (k == 'monitResource') {
                             var dataTypes = getParamsItem(baseUrl, 'com')
                             localStorage.setItem(k + dataTypes, finaData)
-                            // 获取ids
                             dataWrapper[k].ids = getItemId(baseUrl, 'url')
                         } else if (k == 'hotsale' || k == 'hotsearch' || k == 'hotpurpose') {
                             var dataTypes = getParamsItem(baseUrl)
@@ -4107,7 +3985,6 @@ function dealIndex(request, sendResponse) {
     }
     return true;
 }
-
 function getAjax(data, type, sendResponse, num, fType, lastData, compareItem) {
     var filterType = (type == 'payRate' || type == 'payRateIndex') ? 1 : type == 'tradeIndex' ? 2 : (type == 'payByr' || type == 'payByrCntIndex') ?
         3 : type == 'uvIndex' ? 4 : (type == 'seIpv' || type == 'seIpvUvHits') ? 5 : (type == 'cartHit' || type == 'cartHits') ? 6 : (type == 'cltHit' || type == 'cltHits') ? 7 : '';
@@ -4157,8 +4034,6 @@ function getAjax(data, type, sendResponse, num, fType, lastData, compareItem) {
             }
         })
 }
-// ------------------------data operator--------------------------------//
-// 数据排序
 function bubbleSort(data) {
     if (!data) {
         return ''
@@ -4176,7 +4051,6 @@ function bubbleSort(data) {
     }
     return JSON.stringify(arr);
 }
-// 数据转对象
 function jsonParse(data, type) {
     if (!data) {
         return ''
@@ -4217,8 +4091,6 @@ function Decrypt(word) {
     let decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
     return decryptedStr.toString();
 }
-/* 竞争-监控店铺  */
-// -- --//
 function filterMinoShop(data) {
     if (data) {
         data.forEach((item) => {
@@ -4239,7 +4111,6 @@ function filterMinoShop(data) {
         });
     }
 }
-// -- --//
 function moinShopTable(finaData) {
     var resData = []
     var length = responseData.payRate.length
@@ -4269,8 +4140,6 @@ function moinShopTable(finaData) {
     }
     return resData
 }
-/* 竞争-监控商品 */
-// 监控商品过滤
 function filterMinoFood(data) {
     if (data) {
         data.forEach((item) => {
@@ -4327,8 +4196,6 @@ function moinFoodTable(finaData) {
     }
     return resData
 }
-/**竞品分析 */
-// 竞品分析过滤
 function filterMoinCompare(data) {
     if (data) {
         var dataArrr = [data['selfItem'], data["rivalItem1"], data["rivalItem2"]].filter(function (item) {
@@ -4337,14 +4204,12 @@ function filterMoinCompare(data) {
         dataArrr.forEach(function (item) {
             var va1 = item.payRateIndex ? item.payRateIndex.value : 0;
             var va2 = item.tradeIndex ? item.tradeIndex.value : 0;
-            //  var va3 = item.payByrCntIndex ? item.payByrCntIndex.value : 0;
             var va4 = item.uvIndex ? item.uvIndex.value : 0;
             var va5 = item.seIpvUvHits ? item.seIpvUvHits.value : 0;
             var va6 = item.cartHits ? item.cartHits.value : 0;
             var va7 = item.cltHits ? item.cltHits.value : 0;
             responseData.payRate.push(va1);
             responseData.tradeIndex.push(va2);
-            //   indexTypes.payByr.value.push(item.payByrCntIndex.value);
             responseData.uvIndex.push(va4);
             responseData.seIpv.push(va5);
             responseData.cartHit.push(va6);
@@ -4352,8 +4217,6 @@ function filterMoinCompare(data) {
         })
     }
 }
-/**竞品分析-入口来源 */
-// 竞品来源入口
 function filterMoinRes(data, produceData) {
     var sourceIndex = {
         'selfItem': {
@@ -4417,8 +4280,6 @@ function filterMoinRes(data, produceData) {
     }
     return sourceIndex
 }
-/**市场-监控看板-我的监控 */
-// 监控店铺过滤
 function filterMarketShop(data) {
     if (data) {
         data.forEach((item) => {
@@ -4486,12 +4347,10 @@ function marketTableShop(finaData, who) {
         var vStart = visualData.slice(0, (curPage - 1) * curPageSize)
         var vEndIndex = (curPage - 1) * curPageSize + curPageSize
         var vEnd = vEndIndex < totalCont ? visualData.slice(vEndIndex) : []
-        // visualData.splice((curPage - 1) * curPageSize, curPageSize, resData)
         resData = vStart.concat(resData, vEnd)
     }
     return resData
 }
-/**市场-监控看板-行业监控 */
 function marketRankType(url) {
     var res = ''
     if (url.match('item')) {
@@ -4503,7 +4362,6 @@ function marketRankType(url) {
     }
     return res
 }
-// 监控店铺过滤
 function filterMarketHot(data) {
     var obj = {
         tradeIndex: []
@@ -4515,7 +4373,6 @@ function filterMarketHot(data) {
         return obj
     }
 }
-// 市场排行-高交易
 function filterMarketHotsale(data) {
     var res = {
         tradeIndex: [],
@@ -4530,7 +4387,6 @@ function filterMarketHotsale(data) {
     })
     return res
 }
-// 市场排行-高流量
 function filterMarketHotsearch(data) {
     var res = {
         seIpv: [],
@@ -4547,7 +4403,6 @@ function filterMarketHotsearch(data) {
     })
     return res
 }
-// 市场排行-高意向
 function filterMarketHotpurpose(data) {
     var res = {
         cartHit: [],
@@ -4564,7 +4419,6 @@ function filterMarketHotpurpose(data) {
     })
     return res
 }
-// 竞品解析
 function fliterSingleCompete(data) {
     if (!data) {
         return ''
@@ -4573,22 +4427,17 @@ function fliterSingleCompete(data) {
         payRate: [],
         tradeIndex: [],
         payByr: [],
-        // uvIndex: []
     }
     data.forEach(function (item) {
         var itemb1 = item.rivalItem1PayRateIndex ? item.rivalItem1PayRateIndex.value : 0
         var itemb2 = item.rivalItem1TradeIndex ? item.rivalItem1TradeIndex.value : 0
         var itemb3 = item.rivalItem1PayByrCntIndex ? item.rivalItem1PayByrCntIndex.value : 0
-        // var itemb4 = item.rivalItem1Uv ? item.rivalItem1Uv.value : 0
         res.payRate.push(itemb1);
         res.tradeIndex.push(itemb2);
         res.payByr.push(itemb3);
-        // rivalBox.uvIndex.push(itemb4);
     })
     return res
 }
-/*-------tools---------*/
-//   获取竞品分析项的id
 function getItemId(para) {
     var ids = {}
     if (para) {
@@ -4607,7 +4456,6 @@ function getItemId(para) {
     }
     return ids
 }
-
 function getParamsItem(para, com, trend) {
     var keyObj = {}
     var key = ''
@@ -4643,8 +4491,7 @@ function getParamsItem(para, com, trend) {
 chrome.runtime.sendMessage({
     type: 'listenContat'
 }, function () { })
-
-function getCookie(keyword, sendResponse) { //获取搜索词
+function getCookie(keyword, sendResponse) {
     $(".oui-date-picker .oui-canary-btn:contains('7天')").click()
     chrome.storage.local.get('transitId', function (val) {
         var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text()

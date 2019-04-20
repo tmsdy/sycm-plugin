@@ -1,4 +1,5 @@
 var CHAQZ_VERSION = "";
+var LOCAL_VERSION = '1.0.5'
 // $(function () {
     // 获取线上资源
     function loadCDNCss(cssUrl) {
