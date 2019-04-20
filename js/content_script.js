@@ -1548,10 +1548,10 @@ function changeLoginStatus(type) {
     }
 }
 function isNewVersion() {
-    if (CHAQZ_VERSION != LOCAL_VERSION) {
-        popUp.init('version')
-        return false
-    }
+    // if (CHAQZ_VERSION != LOCAL_VERSION) {
+    //     popUp.init('version')
+    //     return false
+    // }
     var allInfo = SAVE_MEMBER
     if (!allInfo) {
         popUp.init('noShopInfo');
