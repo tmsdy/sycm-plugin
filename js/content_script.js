@@ -111,9 +111,8 @@ var tableInstance = null;
 var echartsInstance = null;  
 var competeSelectId = 0;
 var isLogin = false;
-var VERSION = '1.0.5'; 
-var BASE_URL = 'http://116.62.18.166:8090';
-// var BASE_URL = 'http://www.chaquanzhong.com';
+var VERSION = '1.0.6'; 
+var BASE_URL = 'http://www.chaquanzhong.com';
 var SAVE_MEMBER = {};
 var SAVE_BIND = {};
 var PLAN_LIST = [];
@@ -1941,7 +1940,7 @@ var popUp = {
             chrome.runtime.sendMessage({
                 key: 'getData',
                 options: {
-                    url: BASE_URL + '/py/api/v1/item?id=' + iptVal,
+                    url: BASE_URL + '/py/api/v1/item?id=' + isPassReg,
                     type: "GET",
                     headers: {
                         Authorization: "Bearer " + saveToke
@@ -2217,12 +2216,7 @@ function getFirstCateId() {
     if (!cateIdT) {
         return deaultId;
     }
-    var resData = ''
-    cateIdT.forEach(function (item) {
-        if (item.realObj.cateId == deaultId) {
-            resData = item.realObj.cateLevel1Id;
-        }
-    })
+     var resData = cateIdT[0].realObj.cateLevel1Id;
     return resData
 }
 function clearLocalstorage() {
@@ -2444,7 +2438,7 @@ function getSearchParams(key, page, pagesize, dealType) {
     if (key == 'allTrend') {
         finalTime = setDateRange(getCurrentTime(), 'day');
     }
-    var localCateId = localStorage.getItem('shopCateId');
+    var localCateId = getFirstCateId();
     if (dealType) {
         return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=day' + '&device=' + device + '&sellerType=' + sellType
     }
@@ -2515,7 +2509,7 @@ function formate(fmt, date) {
 function keywordUrl(rivalId, device, type) {
     var nowTime = getCurrentTime();
     var dateRange = setDateRange(nowTime, 'day');
-    var localCateId = localStorage.getItem('shopCateId');
+    var localCateId = getFirstCateId();
     var defaultEnd = '&topType=trade&indexCode=tradeIndex';
     if (type) {
         defaultEnd = '&topType=flow&indexCode=uv'
@@ -2709,7 +2703,7 @@ function competeDataAnaly(rivalId, device) {
     var nowTime = getCurrentTime('moreDay');
     var dateRange = setDateRange(nowTime);
     var titleDate = dateRange.replace('|', '~');
-    var localCateId = localStorage.getItem('shopCateId')
+    var localCateId = getFirstCateId();
     var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent30&dateRange=" + dateRange + "&device=" + device + "&cateId=" + localCateId + "&rivalItem1Id=" + rivalId;
     var localData = localStorage.getItem(finalUrl);
     var hasWrap = $('.chaqz-wrapper').length
@@ -2768,6 +2762,7 @@ function competeDataAnaly(rivalId, device) {
                 LoadingPop()
             },
             success: function (res) {
+                console.log(res)
                 var decryData = JSON.parse(Decrypt(res.data)).rivalItem1
                 if (!decryData) {
                     popTip('获取数据失败请重试！')
@@ -2922,6 +2917,7 @@ function competeDataAnaly(rivalId, device) {
                             cols: cols
                         }, eDateArr, res, titleDate)
                     }
+                    console.log(resData, eDateArr)
                     localStorage.setItem(finalUrl, JSON.stringify({
                         tableData: resData,
                         tableClos: cols,
@@ -2940,7 +2936,7 @@ function competeFlowAnaly(rivalId, device) {
     var nowTime = getCurrentTime();
     var dateRange = setDateRange(nowTime, 'day');
     var titleDate = dateRange.replace('|', '~');
-    var localCateId = localStorage.getItem('shopCateId')
+    var localCateId = getFirstCateId();
     var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getFlowSource.json?device=" + device + "&cateId=" + localCateId + "&rivalItem1Id=" + rivalId + "&dateType=day&dateRange=" + dateRange + "&indexCode=uv&orderBy=uv&order=desc";
     var localData = localStorage.getItem(finalUrl);
     var hasWrap = $('.chaqz-wrapper').length
@@ -3281,7 +3277,7 @@ function competeKeywordAnaly(rivalId, device) {
 function weightParsing(rivald, category, itemInfo) {
     var nowTime = getCurrentTime('moreDay');
     var dateRange = setDateRange(nowTime, 'recent7');
-    var localCateId = localStorage.getItem('shopCateId')
+    var localCateId = getFirstCateId();
     var finalUrl = "https://sycm.taobao.com/mc/mq/mkt/rank/item/hotsale.json?dateRange=" + dateRange + "&dateType=recent7&pageSize=100&page=2&order=desc&orderBy=tradeIndex&cateId=" + category + "&device=0&sellerType=-1&indexCode=cateRankId%2CtradeIndex%2CtradeGrowthRange%2CpayRateIndex";
     chrome.storage.local.get('transitId', function (val) {
         $.ajax({
@@ -3318,7 +3314,7 @@ function weightParsing(rivald, category, itemInfo) {
 function getCompareData(params) {
     var nowTime = getCurrentTime('moreDay');
     var dateRange = setDateRange(nowTime, 'recent7');
-    var localCateId = localStorage.getItem('shopCateId')
+    var localCateId = getFirstCateId();
     var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreIndexes.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + params.category + "&rivalItem1Id=" + params.rivald;
     $.ajax({
         url: finalUrl,
