@@ -22,7 +22,7 @@
             "run_at": "document_start"
         },
         {
-             "matches": ["http://116.62.18.166:8090/*"],
+             "matches": ["http://www.chaquanzhong.com/*"],
              "js": ["js/jquery-3.2.1.min.js", "js/chaqz.js"],
              "run_at": "document_end"
             

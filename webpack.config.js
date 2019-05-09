@@ -2,25 +2,26 @@ const webpack = require('webpack')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const MangleJsClassPlugin = require('mangle-js-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const path = require('path')
 module.exports = {
   // devtool: 'inline-source-map',
   mode:'production',
   entry: {
     // content-scripts
-    'content-script.js': ['./plugins/js/contentModule/index.js', './plugins/js/contentModule/variableAnaly.js'],
-    'content-script1.js': ['./plugins/js/contentModule/monitor.js', './plugins/js/contentModule/market.js'],
-    'contentScript.js': './plugins/js/contentScript.js',
-    'chaqz_web.js': './plugins/js/chaqz_web.js',
-    'chaqz.js': './plugins/js/chaqz.js',
+    'content-script.js': ['./src/plugins/contentModule/index.js', './src/plugins/contentModule/variableAnaly.js'],
+    'content-script1.js': ['./src/plugins/contentModule/monitor.js', './src/plugins/contentModule/market.js'],
+    'contentScript.js': './src/plugins/contentScript.js',
+    'chaqz_web.js': './src/plugins/chaqz_web.js',
+    'chaqz.js': './src/plugins/chaqz.js',
 
     // background-scripts
-    'background.js': './plugins/js/background.js',
+    'background.js': './src/plugins/background.js',
 
   },
   output: {
-    path: path.resolve(__dirname, 'js'),
-    filename: './[name]'
+    // path: path.resolve(__dirname, 'js'),
+    filename: './js/[name]'
   },
   module: {
     rules: [
@@ -70,7 +71,13 @@ module.exports = {
   // },
    plugins: [
      new UglifyJSPlugin(),
-      // new CleanWebpackPlugin(),
+     new CopyWebpackPlugin([
+       {
+         from:__dirname+'/src/assets',
+         to:''
+       }
+     ]),
+      new CleanWebpackPlugin(),
       // new webpack.ProvidePlugin({
       //   $: 'jquery',
       //   jQuery: 'jquery',
