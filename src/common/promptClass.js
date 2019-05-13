@@ -1,6 +1,7 @@
 //  弹窗，吐司呀，loading
 import {
-    BASE_URL
+    BASE_URL,
+    LOCAL_VERSION
 } from './constState'
  // 弹窗模块
  export var popUp = {
@@ -34,7 +35,7 @@ import {
      },
      createPlan: '<p class="head-title" id="giveupPlan">新建计划</p><div class="form-list"><div class="item"><span>计划目的</span><select class="selcet"><option value="新品">新品</option></select></div><div><span>计划名称</span><input type="text" class="editor selcet" placeholder="请输入计划名称"></div></div><div class="cha-btns"><button class="btn planBtn">确定</button></div>',
      active2: function () {
-         var bindList = SAVE_BIND.data;
+         var bindList = SAVE_BIND2.data;
          var len = bindList.length;
          var html = '';
          for (var i = 0; i < len; i++) {
@@ -144,12 +145,12 @@ import {
   }
   //check is pass
   export function isNewVersion() {
-      //  if (process.env.NODE_ENV == 'production') {
-      //      if (CHAQZ_VERSION != '1.0.5') {
-      //          popUp.init('version')
-      //          return false
-      //      }
-      //  }
+       if (process.env.NODE_ENV == 'production') {
+           if (CHAQZ_VERSION != LOCAL_VERSION) {
+               popUp.init('version')
+               return false
+           }
+       }
       var allInfo = window.SAVE_MEMBER2
       if (!allInfo) {
           popUp.init('noShopInfo');

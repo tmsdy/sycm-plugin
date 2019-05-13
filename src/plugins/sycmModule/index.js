@@ -1,11 +1,14 @@
-import {BASE_URL, LOCAL_VERSION} from './constState'
+import {
+    BASE_URL,
+    LOCAL_VERSION
+} from '../../common/constState'
 import {
     popTip,
     popUp,
     dealShopInfo,
     changeLoginStatus,
     LogOut
-} from './promptClass'
+} from '../../common/promptClass'
 var isLogin = false; //是否登录
 var SAVE_MEMBER = {};
 var SAVE_BIND = {};
@@ -103,6 +106,7 @@ chrome.storage.local.get('chaqz_token', function (valueArray) {
     }
 });
 $(function () {
+    console.log(process.argv)
     // 登录
     $(document).on('click', '#loginbtn', function () {
         anyDom.init();

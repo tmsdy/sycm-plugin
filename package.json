@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_ENV=testing  webpack --mode production",
     "dev": "webpack --mode development",
     "build": "webpack --mode production"
   },
@@ -17,6 +17,7 @@
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
     "copy-webpack-plugin": "^5.0.3",
+    "cross-env": "^5.2.0",
     "css-loader": "^0.28.7",
     "style-loader": "^0.19.0",
     "uglifyjs-webpack-plugin": "^1.0.0-rc.0",

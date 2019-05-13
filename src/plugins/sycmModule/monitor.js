@@ -1,7 +1,7 @@
-import {dealIndex} from './dealIndex'
+import {dealIndex} from '../../common/dealIndex'
 import {
     BASE_URL
-} from './constState'
+} from '../../common/constState'
  import {
      formula,
      computedPayByr,
@@ -10,14 +10,14 @@ import {
      operatcPmpareData,
      getProductInfo,
      getproduceIds
- } from './commonFuns'
+ } from '../../common/commonFuns'
  import {
      LoadingPop,
      popTip,
      popUp,
      isNewVersion,
      LogOut
- } from './promptClass'
+ } from '../../common/promptClass'
 var tableInstance = null; //table实例对象
 var echartsInstance = null; //echarts实例对象   
 var PLAN_LIST = [];
@@ -217,12 +217,12 @@ var PLAN_LIST = [];
              if (!isNewVersion()) {
                  return false
              }
-             var productInfo = getProductInfo()
-            if (productInfo.rivalItem1.title && productInfo.rivalItem2.title) {
+             var prodctv = getProductInfo()
+            if (prodctv.rivalItem1.title && prodctv.rivalItem2.title) {
                 popUp.init('onlyOne')
                 return false
             }
-            if (!productInfo.rivalItem1.title && !productInfo.rivalItem2.title) {
+            if (!prodctv.rivalItem1.title && !prodctv.rivalItem2.title) {
                 popUp.init('emptyChoose')
                 return false
             }
@@ -309,24 +309,24 @@ var PLAN_LIST = [];
              var timer = null;
              var countNum = 0;
              $(".oui-date-picker .oui-canary-btn:contains('7天')").click()
-             var productInfo = getProductInfo()
-             var idParams = getproduceIds(productInfo, dataWrapper2)
+             var prodctVes = getProductInfo()
+             var idParams = getproduceIds(prodctVes, dataWrapper2)
              var localCache = false;
              var itemKey = getSearchParams('monitCompareFood').split('&page')[0] + idParams;
              var localKey = getSearchParams('monitCompareFood', 0, 0, 'local') + idParams;
              // 判断本地是否缓存
              if (localStorage.getItem(itemKey)) {
-                 getDay(productInfo, itemKey, selectPlan);
+                 getDay(prodctVes, itemKey, selectPlan);
              } else if (localStorage.getItem(localKey)) {
                  localCache = true;
-                 getDay(productInfo, localKey, selectPlan, localCache);
+                 getDay(prodctVes, localKey, selectPlan, localCache);
              } else {
                  timer = setInterval(function () {
                      countNum++;
                      if (localStorage.getItem(itemKey)) {
                          clearInterval(timer)
                          timer = null;
-                         getDay(productInfo, itemKey, selectPlan)
+                         getDay(prodctVes, itemKey, selectPlan)
 
                      } else if (countNum > 10) {
                          clearInterval(timer)
@@ -338,7 +338,7 @@ var PLAN_LIST = [];
              }
          })
         //  加权计划方法
-          function getDay(productInfo, key, planName,  localCache) {
+          function getDay(prodctDay, key, planName,  localCache) {
               var timer = null;
               var countNum = 0;
               dealIndex({
@@ -353,7 +353,7 @@ var PLAN_LIST = [];
                   if (remianHei > 0) {
                       $(document).scrollTop(remianHei)
                   }
-                  var wordsIds = getproduceIds(productInfo, dataWrapper2, 'idObj')
+                  var wordsIds = getproduceIds(prodctDay, dataWrapper2, 'idObj')
                   var keyWrap = $('.op-mc-item-analysis #itemAnalysisKeyword')
                   if (!keyWrap.length) {
                       return false
@@ -711,11 +711,12 @@ var PLAN_LIST = [];
       })
   }
  function compareResource() {
-      var productInfo = getProductInfo();
-      if (productInfo.ispass) {
+      var prodctRes = getProductInfo();
+      if (prodctRes.totalNum < 2) {
           alert('请选择比较商品');
           return false;
       };
+      var idParams = getproduceIds(prodctRes, dataWrapper2);
       var localCache = false;
       var finalKey = '';
       var itemKey = getSearchParams('monitResource').split('&page')[0];
@@ -738,15 +739,15 @@ var PLAN_LIST = [];
           var Length = findRes['selfItem']['payRate'].length
           var resData = []
           for (var i = 0; i < Length; i++) {
-              var itemAcct = productInfo.totalNum
+              var itemAcct = prodctRes.totalNum
               var wItem = itemAcct == 2 ? findRes['rivalItem1'] ? 'rivalItem1' : 'rivalItem2' : ''
               for (var j = 0; j < itemAcct; j++) {
                   var obj = {
                       shop: {}
                   }
                   obj.shop = {
-                      url: j == 0 ? productInfo.selfItem.imgurl : itemAcct == 3 ? productInfo['rivalItem' + j].imgurl : productInfo[wItem].imgurl,
-                      title: j == 0 ? productInfo.selfItem.title : itemAcct == 3 ? productInfo['rivalItem' + j].title : productInfo[wItem].title
+                      url: j == 0 ? prodctRes.selfItem.imgurl : itemAcct == 3 ? prodctRes['rivalItem' + j].imgurl : prodctRes[wItem].imgurl,
+                      title: j == 0 ? prodctRes.selfItem.title : itemAcct == 3 ? prodctRes['rivalItem' + j].title : prodctRes[wItem].title
                   }
                   obj.name = {}
                   obj.name = j == 0 ? {
@@ -826,12 +827,13 @@ var PLAN_LIST = [];
       }, dataWrapper2)
 }
  function compareItem(){
-      var productInfo = getProductInfo();
-      if (productInfo.totalNum < 2) {
+      var prodctItem = getProductInfo();
+      if (prodctItem.totalNum < 2) {
           alert('请选择比较商品');
+          popTip('请选择比较商品')
           return false
       };
-      var idParams = getproduceIds(productInfo, dataWrapper2);
+      var idParams = getproduceIds(prodctItem, dataWrapper2);
        var localCache = false;
        var finalKey = '';
        var itemKey = getSearchParams('monitCompareFood').split('&page')[0];
@@ -850,21 +852,21 @@ var PLAN_LIST = [];
           },
           function (res) {
               var resData = []
-              var length = productInfo.totalNum
+              var length = prodctItem.totalNum
               for (var i = 0; i < length; i++) {
                   var obj = {
                       shop: {}
                   }
                   obj.shop = {
-                      url: i == 0 ? productInfo.selfItem.imgurl : productInfo["rivalItem" + (i)].imgurl ? productInfo["rivalItem" + (i)].imgurl : productInfo["rivalItem" + (i + 1)].imgurl,
-                      title: i == 0 ? productInfo.selfItem.title : productInfo["rivalItem" + (i)].title ? productInfo["rivalItem" + (i)].title : productInfo["rivalItem" + (i + 1)].title
+                      url: i == 0 ? prodctItem.selfItem.imgurl : prodctItem["rivalItem" + (i)].imgurl ? prodctItem["rivalItem" + (i)].imgurl : prodctItem["rivalItem" + (i + 1)].imgurl,
+                      title: i == 0 ? prodctItem.selfItem.title : prodctItem["rivalItem" + (i)].title ? prodctItem["rivalItem" + (i)].title : prodctItem["rivalItem" + (i + 1)].title
                   }
                   obj.name = {}
                   obj.name = i == 0 ? {
                           name: '本店竞品',
                           class: ''
                       } :
-                      productInfo["rivalItem" + (i)].title ? {
+                      prodctItem["rivalItem" + (i)].title ? {
                           name: ('竞品' + i),
                           class: 'red'
                       } : {

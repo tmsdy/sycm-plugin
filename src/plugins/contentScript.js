@@ -1,5 +1,7 @@
-var CHAQZ_VERSION = "";
-var LOCAL_VERSION = '1.0.5'
+import {
+    BASE_URL
+} from '../common/constState';
+window.CHAQZ_VERSION = "1.0.7";
 // $(function () {
     // 获取线上资源
     function loadCDNCss(cssUrl) {
@@ -39,16 +41,20 @@ var LOCAL_VERSION = '1.0.5'
         chrome.runtime.sendMessage({
             key: 'getData',
             options:{
-                url: 'http://www.chaquanzhong.com/api/v1/plugin/getConfig',
+                url: BASE_URL +'/api/v1/plugin/getConfig',
                 type:'GET'
             }
         }, function (res) {
             if (res.code == 200) {
                 CHAQZ_VERSION = res.data.version
                 var cssurl = res.data.css.main
-                var jsurl = res.data.js.content
-                loadCDNJs(jsurl);
+                var jsurl = res.data.js
                 loadCDNCss(cssurl);
+                for(var k in jsurl){
+                    if(k != 'web_script'){
+                        loadCDNJs(jsurl[k])
+                    }
+                }
             }
         });
     // }, 500);

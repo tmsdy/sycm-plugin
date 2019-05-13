@@ -393,12 +393,12 @@ export function dealIndex(request, sendResponse, dataWrapper) {
                 getAjax(responseData[key], key, sendResponse, Object.keys(responseData).length, 'monitShop', moniShopData)
             }
         } else if (request.type == 'monitFood') {
-            var saveData = localStorage.getItem(request.dataType);
-            if (!saveData) {
+            var saveData1 = localStorage.getItem(request.dataType);
+            if (!saveData1) {
                 popTip('获取数据失败！')
                 return false;
             }
-            var pageData = jsonFoodParse(saveData, request.localCache);
+            var pageData = jsonFoodParse(saveData1, request.localCache);
             var markShop = pageData.data.data ? pageData.data.data : pageData.data;
             var sendPageData = pageData.recordCount ? pageData : pageData.data;
             filterMarketShop(markShop)
@@ -406,23 +406,23 @@ export function dealIndex(request, sendResponse, dataWrapper) {
                 getAjax(responseData[key], key, sendResponse, Object.keys(responseData).length, 'marketShop', sendPageData)
             }
         } else if (request.type == 'monitCompareFood') {
-            var saveData = localStorage.getItem(request.dataType);
-            if (!saveData) {
+            var saveData2 = localStorage.getItem(request.dataType);
+            if (!saveData2) {
                 popTip('获取数据失败！')
                 return false;
             }
-            var moniComData = jsonParse(saveData, request.localCache)
+            var moniComData = jsonParse(saveData2, request.localCache)
             filterMoinCompare(moniComData)
             for (var key in responseData) {
                 getAjax(responseData[key], key, sendResponse, Object.keys(responseData).length, 'monitCompareFood', moniComData)
             }
         } else if (request.type == 'monitResource') {
-           var saveData = localStorage.getItem(request.dataType);
-           if (!saveData) {
+           var saveData3 = localStorage.getItem(request.dataType);
+           if (!saveData3) {
                popTip('获取数据失败！')
                return false;
            }
-           var moniResData = jsonParse(saveData, request.localCache)
+           var moniResData = jsonParse(saveData3, request.localCache)
             var itemIds = dataWrapper['monitResource'].ids
             var resouceIndex = filterMoinRes(moniResData, itemIds)
             var ajaxNum = Object.keys(resouceIndex).length == 2 ? 6 : 9
@@ -440,36 +440,36 @@ export function dealIndex(request, sendResponse, dataWrapper) {
             }
 
         } else if (request.type == 'marketShop' || request.type == 'marketFood') {
-             var saveData = localStorage.getItem(request.dataType);
-             if (!saveData) {
+             var saveData4 = localStorage.getItem(request.dataType);
+             if (!saveData4) {
                  popTip('获取数据失败！')
                  return false;
              }
-             var pageData = jsonFoodParse(saveData, request.localCache);
-            var markShop = pageData.data.data ? pageData.data.data : pageData.data;
-            var sendPageData = pageData.recordCount ? pageData : pageData.data;
-            filterMarketShop(markShop)
+             var pageData1 = jsonFoodParse(saveData4, request.localCache);
+            var markShop1 = pageData1.data.data ? pageData1.data.data : pageData1.data;
+            var sendPageData1 = pageData1.recordCount ? pageData1 : pageData.data;
+            filterMarketShop(markShop1)
             for (var key in responseData) {
-                getAjax(responseData[key], key, sendResponse, Object.keys(responseData).length, 'marketShop', sendPageData)
+                getAjax(responseData[key], key, sendResponse, Object.keys(responseData).length, 'marketShop', sendPageData1)
             }
         } else if (request.type == 'marketHotShop' || request.type == 'marketHotFood') {
-           var saveData = localStorage.getItem(request.dataType);
-           if (!saveData) {
+           var saveData5 = localStorage.getItem(request.dataType);
+           if (!saveData5) {
                popTip('获取数据失败！')
                return false;
            }
-           var pageData = jsonFoodParse(saveData, request.localCache)
-            var marketHot = pageData.data
-            var markHotIndex = filterMarketHot(marketHot)
-            for (var key in markHotIndex) {
-                getAjax(markHotIndex[key], key, sendResponse, Object.keys(markHotIndex).length, 'marketHotShop', pageData)
+           var pageData2 = jsonFoodParse(saveData5, request.localCache)
+            var marketHot2 = pageData2.data
+            var markHotIndex2 = filterMarketHot(marketHot2)
+            for (var key in markHotIndex2) {
+                getAjax(markHotIndex2[key], key, sendResponse, Object.keys(markHotIndex2).length, 'marketHotShop', pageData2)
             }
         } else if (request.type == 'marketHotShop' || request.type == 'marketHotFood') {
-            var pageData = jsonFoodParse(localStorage.getItem(request.dataType), 'page')
-            var marketHot = pageData.data
-            var markHotIndex = filterMarketHot(marketHot)
-            for (var key in markHotIndex) {
-                getAjax(markHotIndex[key], key, sendResponse, Object.keys(markHotIndex).length, 'marketHotShop', pageData)
+            var pageData3 = jsonFoodParse(localStorage.getItem(request.dataType), 'page')
+            var marketHot3 = pageData3.data
+            var markHotIndex3 = filterMarketHot(marketHot3)
+            for (var key in markHotIndex3) {
+                getAjax(markHotIndex3[key], key, sendResponse, Object.keys(markHotIndex3).length, 'marketHotShop', pageData3)
             }
         } else if (request.type == 'hotsearch' || request.type == 'hotpurpose' || request.type == 'hotsale') {
             var hotsearch = request.type == 'hotsearch' ? filterMarketHotsearch(request.dataType) : request.type == 'hotpurpose' ? filterMarketHotpurpose(request.dataType) : filterMarketHotsale(request.dataType);

@@ -1,3 +1,7 @@
+import {
+    BASE_URL
+}
+from '../common/constState';
 var CHAQZ_VERSION = "";
 $(function () {
     // 获取线上资源
@@ -38,7 +42,7 @@ $(function () {
         chrome.runtime.sendMessage({
             key: 'getData',
             options: {
-                url: 'http://116.62.18.166:8090/api/v1/plugin/getConfig',
+                url: BASE_URL +'/api/v1/plugin/getConfig',
                 type: 'GET'
             }
         }, function (res) {

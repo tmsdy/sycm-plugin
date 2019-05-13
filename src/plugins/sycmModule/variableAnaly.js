@@ -6,18 +6,23 @@ import {
     formula,
     Decrypt,
     testUrl
-} from './commonFuns'
+}
+from '../../common/commonFuns'
 import {
     LoadingPop,
     popTip,
     popUp,
      isNewVersion,
      LogOut
-} from './promptClass'
+}
+from '../../common/promptClass'
 import {
     dealIndex
-} from './dealIndex'
-import {BASE_URL} from './constState'
+}
+from '../../common/dealIndex'
+import {
+    BASE_URL
+} from '../../common/constState'
 var tableInstance = null; //table实例对象
 var echartsInstance = null; //echarts实例对象
 var competeSelectId =0;

@@ -223,7 +223,7 @@ export function getSearchParams(key, page, pagesize, dealType) {
     page = page ? page : 1;
     pagesize = pagesize ? pagesize : 10;
     var localCateId = getFirstCateId();
-    if (key == 'marketFood' || key == 'marketShop') {
+    if (key == 'marketFood' || key == 'marketShop' || key == 'marketHotFood' || key == 'marketHotShop') {
         var aHtml = $('.op-mc-market-monitor-marketMonitor .industry-index-wrapper .trend').attr('href').split('cateId=')[1];
         localCateId = aHtml || localStorage.getItem('shopCateId');
     }

@@ -6,14 +6,14 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const path = require('path')
 module.exports = {
   // devtool: 'inline-source-map',
-  mode:'production',
+  // mode:'production',
   entry: {
     // content-scripts
-    'content-script.js': ['./src/plugins/contentModule/index.js', './src/plugins/contentModule/variableAnaly.js'],
-    'content-script1.js': ['./src/plugins/contentModule/monitor.js', './src/plugins/contentModule/market.js'],
+    'content_script.js': ['./src/plugins/sycmModule/index.js', './src/plugins/sycmModule/variableAnaly.js'],
+    'content_script1.js': ['./src/plugins/sycmModule/monitor.js', './src/plugins/sycmModule/market.js'],
     'contentScript.js': './src/plugins/contentScript.js',
     'chaqz_web.js': './src/plugins/chaqz_web.js',
-    'chaqz.js': './src/plugins/chaqz.js',
+    'chaqz.js': './src/plugins/chaqzModule/chaqz.js',
 
     // background-scripts
     'background.js': './src/plugins/background.js',
@@ -57,18 +57,18 @@ module.exports = {
       // }
     ]
   },
-  // optimization: {
-  //   splitChunks: {
-  //     cacheGroups: {
-  //       commons: {
-  //         chunks: "all",
-  //         minChunks: 1,
-  //         maxInitialRequests: 5, // The default limit is too small to showcase the effect
-  //         minSize: 0 // This is example is too small to create commons chunks
-  //       }
-  //     }
-  //   }
-  // },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          name: "commons.js",
+            chunks: "initial",
+            minChunks: 2,
+            minSize: 0
+        }
+      }
+    }
+  },
    plugins: [
      new UglifyJSPlugin(),
      new CopyWebpackPlugin([
@@ -78,6 +78,9 @@ module.exports = {
        }
      ]),
       new CleanWebpackPlugin(),
+       new webpack.DefinePlugin({
+         'process.env.ASSET_PATH': JSON.stringify(process.env.NODE_ENV)
+       }),
       // new webpack.ProvidePlugin({
       //   $: 'jquery',
       //   jQuery: 'jquery',

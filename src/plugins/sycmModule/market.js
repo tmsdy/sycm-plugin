@@ -1,6 +1,6 @@
 import {
     dealIndex
-} from './dealIndex'
+} from '../../common/dealIndex'
 import {
     formula,
     computedPayByr,
@@ -9,11 +9,11 @@ import {
     getFirstCateId,
     getDateRange,
     filterLocalData
-} from './commonFuns';
+} from '../../common/commonFuns';
 import {
     LoadingPop,
     isNewVersion
-} from './promptClass'
+} from '../../common/promptClass'
 var tableInstance = null; //table实例对象
 var echartsInstance = null; //echarts实例对象
 function dealCycle(data) {
@@ -125,27 +125,7 @@ function dealTradeGrowth(data) {
                  });
              }
 
-         } else if (type == 3) {
-             $('.chaqz-wrapper .chaqz-mask').show(100);
-             $('#mqItemMonitor .ant-pagination .ant-pagination-item-' + (info.page + 1)).click();
-             var localKey = getSearchParams('monitFood', (info.page + 1), data.paging.pageSize);
-             var localCacheKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize, 'local');
-             var hasSave = localStorage.getItem(localKey);
-             var localSave = localStorage.getItem(localCacheKey);
-             if (hasSave || localSave) {
-                 MonitorItem()
-             } else {
-                 // 监听消息
-                 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-                     if (request.type = 'holdup') {
-                         var reg = new RegExp(window.dataWrapper2['monitFood'])
-                         if (reg.test(request.url)) {
-                             MonitorItem()
-                         }
-                     }
-                 });
-             }
-         } else if (type == 4) {
+         }  else if (type == 4) {
              $('.chaqz-wrapper .chaqz-mask').show(100)
              $('.op-mc-market-rank-container .ant-pagination .ant-pagination-item-' + (info.page + 1)).click()
              marketRank()
@@ -499,43 +479,43 @@ function dealTradeGrowth(data) {
         type: backT,
         dataType: finalKey,
         localCache: localCache
-    }, function (val) {
-        var res = val.value
-        var finaData = val.final.data
-        var totalCont = val.final.recordCount
+    }, function (vals) {
+        var res = vals.value
+        var finaData = vals.final.data
+        var totalCont = vals.final.recordCount
         var resData = []
         var length = res.payRate.length
-        for (var i = 0; i < length; i++) {
-            var trandeOver = res.tradeIndex[i] != '超出范围,请使用插件最高支持7.8亿' ? Math.round(res.tradeIndex[i]) : '-'
-            var computedNum = computedPayByr(res.uvIndex[i], res.payRate[i], trandeOver)
+        for (var j = 0; j < length; j++) {
+            var trandeOver = res.tradeIndex[j] != '超出范围,请使用插件最高支持7.8亿' ? Math.round(res.tradeIndex[j]) : '-'
+            var computedNum = computedPayByr(res.uvIndex[j], res.payRate[j], trandeOver)
             var obj = {
                 shop: {}
             }
-            var cateRnkId = finaData[i].cateRankId
+            var cateRnkId = finaData[j].cateRankId
             if (chooseTop) {
                 obj.shop = {
-                    title: finaData[i].item.title,
-                    url: finaData[i].item.pictUrl
+                    title: finaData[j].item.title,
+                    url: finaData[j].item.pictUrl
                 }
             } else {
                 obj.shop = {
-                    title: finaData[i].shop.title,
-                    url: finaData[i].shop.pictureUrl
+                    title: finaData[j].shop.title,
+                    url: finaData[j].shop.pictureUrl
                 }
             }
             obj.cate_cateRankId = cateRnkId ? cateRnkId.value ? cateRnkId.value : '-' : '-'
             obj.tradeIndex = trandeOver
-            obj.uvIndex = Math.round(res.uvIndex[i])
-            obj.seIpv = Math.round(res.seIpv[i])
-            obj.cltHit = Math.round(res.cltHit[i])
-            obj.cartHit = Math.round(res.cartHit[i])
-            obj.payRate = res.payRate[i].toFixed(2) + '%'
+            obj.uvIndex = Math.round(res.uvIndex[j])
+            obj.seIpv = Math.round(res.seIpv[j])
+            obj.cltHit = Math.round(res.cltHit[j])
+            obj.cartHit = Math.round(res.cartHit[j])
+            obj.payRate = res.payRate[j].toFixed(2) + '%'
             obj.payByr = computedNum.res1
             obj.kdPrice = computedNum.res2
-            obj.uvPrice = formula(trandeOver, res.uvIndex[i], 1)
-            obj.searRate = formula(res.seIpv[i], res.uvIndex[i], 2)
-            obj.scRate = formula(res.cltHit[i], res.uvIndex[i], 2)
-            obj.jgRate = formula(res.cartHit[i], res.uvIndex[i], 2)
+            obj.uvPrice = formula(trandeOver, res.uvIndex[j], 1)
+            obj.searRate = formula(res.seIpv[j], res.uvIndex[j], 2)
+            obj.scRate = formula(res.cltHit[j], res.uvIndex[j], 2)
+            obj.jgRate = formula(res.cartHit[j], res.uvIndex[j], 2)
             resData.push(obj)
         }
         if (pageType) {
