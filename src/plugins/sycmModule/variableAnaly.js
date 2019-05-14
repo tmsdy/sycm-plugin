@@ -605,12 +605,13 @@ function weightParsing(rivald, category, itemInfo) {
     var nowTime = getCurrentTime('moreDay');
     var dateRange = setDateRange(nowTime, 'recent7');
     var finalUrl = "https://sycm.taobao.com/mc/mq/mkt/rank/item/hotsale.json?dateRange=" + dateRange + "&dateType=recent7&pageSize=100&page=2&order=desc&orderBy=tradeIndex&cateId=" + category + "&device=0&sellerType=-1&indexCode=cateRankId%2CtradeIndex%2CtradeGrowthRange%2CpayRateIndex";
-    chrome.storage.local.get('transitId', function (val) {
+    var sessionKey = sessionStorage.getItem('transitId');
+    // chrome.storage.local.get('transitId', function (val) {
         $.ajax({
             url: finalUrl,
             type: 'GET',
             headers: {
-                "transit-id": val.transitId
+                "transit-id": sessionKey
             },
             error: function () {
                 popTip('获取数据失败请重试！')
@@ -624,7 +625,7 @@ function weightParsing(rivald, category, itemInfo) {
                     var params = {
                         rivald: rivald,
                         rivald2: topItem.itemId.value,
-                        transId: val.transitId,
+                        transId: sessionKey,
                         itemInfo: itemInfo,
                         category: category
                     }
@@ -635,7 +636,7 @@ function weightParsing(rivald, category, itemInfo) {
                 }
             }
         })
-    })
+    // })
 }
 // 获取竞品数据
 function getCompareData(params) {
@@ -798,12 +799,13 @@ function parsingAnaly(dealRes, info) {
         LoadingPop()
         return false;
     }
-    chrome.storage.local.get('transitId', function (val) {
+    var sessionKey = sessionStorage.getItem('transitId');
+    // chrome.storage.local.get('transitId', function (val) {
         $.ajax({
             url: finalUrl,
             type: 'GET',
             headers: {
-                "transit-id": val.transitId
+                "transit-id": sessionKey
             },
             error: function () {
                 popTip('获取数据失败请重试！')
@@ -977,7 +979,7 @@ function parsingAnaly(dealRes, info) {
                 })
             }
         })
-    })
+    // })
 }
 // 竞品解析-流量解析
  function competeFlowAnaly(rivalId, device) {
@@ -1028,12 +1030,13 @@ function parsingAnaly(dealRes, info) {
         LoadingPop()
         return false;
     }
-    chrome.storage.local.get('transitId', function (val) {
+    var sessionKey = sessionStorage.getItem('transitId');
+    // chrome.storage.local.get('transitId', function (val) {
         $.ajax({
             url: finalUrl,
             type: 'GET',
             headers: {
-                "transit-id": val.transitId
+                "transit-id": sessionKey
             },
             error: function () {
                 popTip('获取数据失败请重试！')
@@ -1141,7 +1144,7 @@ function parsingAnaly(dealRes, info) {
                 })
             }
         })
-    })
+    // })
 }
 // 竞品解析-关键词解析
  function competeKeywordAnaly(rivalId, device) {
@@ -1183,12 +1186,13 @@ function parsingAnaly(dealRes, info) {
         LoadingPop()
         return false;
     }
-    chrome.storage.local.get('transitId', function (val) {
+    var sessionKey = sessionStorage.getItem('transitId');
+    // chrome.storage.local.get('transitId', function (val) {
         $.ajax({
             url: finalUrl.url,
             type: 'GET',
             headers: {
-                "transit-id": val.transitId
+                "transit-id": sessionKey
             },
             error: function () {
                 popTip('获取数据失败请重试！')
@@ -1201,7 +1205,7 @@ function parsingAnaly(dealRes, info) {
                     url: finalUrlTwo.url,
                     type: 'GET',
                     headers: {
-                        "transit-id": val.transitId
+                        "transit-id": sessionKey
                     },
                     error: function () {
                         popTip('获取数据失败请重试！')
@@ -1323,5 +1327,5 @@ function parsingAnaly(dealRes, info) {
                 })
             }
         })
-    })
+    // })
 }

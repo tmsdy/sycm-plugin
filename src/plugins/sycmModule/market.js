@@ -80,6 +80,8 @@ function dealTradeGrowth(data) {
      };
      tableInstance.on('page.dt', function (e, x, y) {
          var info = tableInstance.page.info();
+         var timer = null;
+         var hasCount = 0;
          if (type == 1) {
             $('.chaqz-wrapper .chaqz-mask').show(100);
             $('.mc-marketMonitor .ant-pagination .ant-pagination-item-' + (info.page + 1)).click();
@@ -88,20 +90,28 @@ function dealTradeGrowth(data) {
             var localCacheKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize, 'local');
             var hasSave = localStorage.getItem(localKey);
             var localSave = localStorage.getItem(localCacheKey);
-            if (hasSave || localSave) {
-                marketMonitorShop()
-             } else {
-                 // 监听消息 
-                 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-                     if (request.type = 'holdup') {
-                         var reg1 = new RegExp(window.dataWrapper2['marketShop'])
-                         var reg2 = new RegExp(window.dataWrapper2['monitFood'])
-                         if (reg1.test(request.url) || reg2.test(request.url)) {
-                             marketMonitorShop()
-                         }
-                     }
-                 });
-             }
+           if (!(hasSave || localSave)) {
+               timer = setInterval(function () {
+                   hasSave = localStorage.getItem(localKey);
+                   localSave = localStorage.getItem(localCacheKey);
+                   if (hasSave || localSave) {
+                       marketMonitorShop();
+                       clearInterval(timer);
+                       timer = null;
+                       hasCount = 0;
+                   } else if (hasCount > 10) {
+                       clearInterval(timer);
+                       timer = null;
+                       hasCount = 0;
+                       popTip('获取数据失败！');
+                       LoadingPop();
+                   } else {
+                       hasCount++
+                   }
+               }, 200);
+           } else {
+               marketMonitorShop()
+           }
          } else if (type == 2) {
             $('.chaqz-wrapper .chaqz-mask').show(100);
             $('.op-mc-market-monitor-industryCard .ant-pagination .ant-pagination-item-' + (info.page + 1)).click();
@@ -110,20 +120,29 @@ function dealTradeGrowth(data) {
             var localCacheKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize, 'local');
             var hasSave = localStorage.getItem(localKey);
             var localSave = localStorage.getItem(localCacheKey);
-            if (hasSave || localSave) {
-                 marketMonitorItem()
-             } else {
-                 // 监听消息
-                 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-                     if (request.type = 'holdup') {
-                         var reg1 = new RegExp(window.dataWrapper2['marketHotShop'])
-                         var reg2 = new RegExp(window.dataWrapper2['marketHotFood'])
-                         if (reg1.test(request.url) || reg2.test(request.url)) {
-                             marketMonitorItem()
-                         }
-                     }
-                 });
-             }
+           if (!(hasSave || localSave)) {
+               timer = setInterval(function () {
+                   hasSave = localStorage.getItem(localKey);
+                   localSave = localStorage.getItem(localCacheKey);
+                   if (hasSave || localSave) {
+                       marketMonitorItem();
+                       clearInterval(timer);
+                       timer = null;
+                       hasCount = 0;
+                   } else if (hasCount > 10) {
+                       clearInterval(timer);
+                       timer = null;
+                       hasCount = 0;
+                       popTip('获取数据失败！');
+                       LoadingPop();
+                   } else {
+                       hasCount++
+                   }
+
+               }, 200);
+           } else {
+               marketMonitorItem()
+           }
 
          }  else if (type == 4) {
              $('.chaqz-wrapper .chaqz-mask').show(100)

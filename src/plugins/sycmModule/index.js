@@ -15,71 +15,71 @@ var SAVE_BIND = {};
 // 对应模块数据存储
 var dataWrapper = {
     'monitShop': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc(\/live\/|\/)ci\/shop\/monitor\/listShop\.json',
+        urlReg: '\/mc(\/live\/|\/)ci\/shop\/monitor\/listShop\.json',
         data: []
     },
     'monitFood': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc(\/live\/|\/)ci\/item\/monitor\/list\.json',
+        urlReg: '\/mc(\/live\/|\/)ci\/item\/monitor\/list\.json',
         data: {}
     },
     'monitCompareFood': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/rivalItem\/analysis\/get(LiveCore|Core)Indexes.json',
+        urlReg: '\/mc\/rivalItem\/analysis\/get(LiveCore|Core)Indexes.json',
         data: []
     },
     'monitResource': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/rivalItem\/analysis\/get(LiveFlow|Flow)Source.json',
+        urlReg: '\/mc\/rivalItem\/analysis\/get(LiveFlow|Flow)Source.json',
         data: []
     },
     'marketShop': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc(\/live\/|\/)ci\/shop\/monitor\/list\.json',
+        urlReg: '\/mc(\/live\/|\/)ci\/shop\/monitor\/list\.json',
         data: []
     },
     'marketHotShop': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/mq\/monitor\/cate(.*?)\/showTopShops\.json',
+        urlReg: '\/mc\/mq\/monitor\/cate(.*?)\/showTopShops\.json',
         data: []
     },
     'marketHotFood': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/mq\/monitor\/cate(.*?)\/showTopItems\.json',
+        urlReg: '\/mc\/mq\/monitor\/cate(.*?)\/showTopItems\.json',
         data: []
     },
     'shopInfo': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/custom\/menu\/getPersonalView\.json',
+        urlReg: '\/custom\/menu\/getPersonalView\.json',
         data: []
     },
     'compareSelfList': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/rivalShop\/recommend\/item\.json',
+        urlReg: '\/mc\/rivalShop\/recommend\/item\.json',
         data: []
     },
     'getMonitoredList': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/ci\/config\/rival\/item\/getMonitoredList\.json',
+        urlReg: '\/mc\/ci\/config\/rival\/item\/getMonitoredList\.json',
         data: []
     },
     'getKeywords': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/rivalItem\/analysis\/getKeywords\.json',
+        urlReg: '\/mc\/rivalItem\/analysis\/getKeywords\.json',
         data: []
     },
     'hotsale': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/mq\/mkt\/rank\/(shop|item|brand)\/hotsale\.json',
+        urlReg: '\/mc\/mq\/mkt\/rank\/(shop|item|brand)\/hotsale\.json',
         data: []
     },
     'hotsearch': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/mq\/mkt\/rank(.*?)hotsearch\.json',
+        urlReg: '\/mc\/mq\/mkt\/rank(.*?)hotsearch\.json',
         data: []
     },
     'hotpurpose': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/mq\/mkt\/rank\/item\/hotpurpose\.json',
+        urlReg: '\/mc\/mq\/mkt\/rank\/item\/hotpurpose\.json',
         data: []
     },
     'trendShop': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/ci\/config\/rival\/(shop|item|brand)\/getSingleMonitoredInfo\.json',
+        urlReg: '\/mc\/ci\/config\/rival\/(shop|item|brand)\/getSingleMonitoredInfo\.json',
         data: []
     },
     'allTrend': {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/mc\/ci\/(shop|item|brand)\/trend\.json',
+        urlReg: '\/mc\/ci\/(shop|item|brand)\/trend\.json',
         data: []
     },
     "currentDate": {
-        urlReg: 'https:\/\/sycm\.taobao\.com\/ipoll\/activity\/getCurrentTime\.json'
+        urlReg: '\/ipoll\/activity\/getCurrentTime\.json'
     }
 }
 window.dataWrapper2 = dataWrapper;
@@ -90,11 +90,12 @@ window.SAVE_BIND2 = SAVE_BIND;
 //  判断是否首次安装
 clearLocalstorage();
 // 触发数据监听
-chrome.runtime.sendMessage({
-    type: 'hello',
-    fitlerArr: dataWrapper
-}, function (response) {
-});
+interceptRequest();
+// chrome.runtime.sendMessage({
+//     type: 'hello',
+//     fitlerArr: dataWrapper
+// }, function (response) {
+// });
 // 判断是否登录
 chrome.storage.local.get('chaqz_token', function (valueArray) {
     var tok = valueArray.chaqz_token;
@@ -477,6 +478,68 @@ function competePop() {
 /**===========================市场竞争数字格式化方法以及页面信息======================================= */
 
 // /////////////////////////////////////--------背景数据处理-------//////////////////////////////////////////////
+ function receiveResponse(reqParams, resData, xhrType) {
+     if (!xhrType) {
+         var repHeader = reqParams ? reqParams[1].headers : "";
+         var transId = repHeader ? repHeader['Transit-Id'] : ''
+         if (transId) {
+             sessionStorage.setItem('transitId', transId)
+         }
+     }
+     var baseUrl = reqParams ? reqParams[0] : "";
+     if (baseUrl) {
+         for (var k in dataWrapper) {
+             if ((new RegExp(dataWrapper[k].urlReg)).test(baseUrl)) {
+                 // 根据期限存储数据
+                 if (xhrType) {
+                     resData = resData ? JSON.parse(resData) : '';
+                 }
+                 var hasEncryp = resData.data ? resData.data : resData;
+                 var finaData = (typeof hasEncryp == 'object') ? resData : Decrypt(hasEncryp);
+                 if (k == 'monitShop' || k == 'getMonitoredList') {
+                     dataWrapper[k].data = finaData;
+                     getParamsItem(baseUrl);
+                 } else if (k == 'shopInfo') {
+                     dataWrapper[k].data = finaData;
+                     localStorage.setItem('chaqz_' + k, JSON.stringify(finaData))
+                 } else if (k == 'compareSelfList') {
+                     localStorage.setItem('chaqz_' + k, finaData)
+                 } else if (k == 'monitCompareFood') {
+                     var dataTypes = getParamsItem(baseUrl, 'com')
+                     localStorage.setItem(k + dataTypes, finaData)
+                 } else if (k == 'getKeywords') {
+                     if (baseUrl.indexOf("topType=trade") != -1) {
+                         var dataTypes = getParamsItem(baseUrl, 'only')
+                         localStorage.setItem(k + dataTypes, finaData)
+                     }
+                 } else if (k == 'monitResource') {
+                     var dataTypes = getParamsItem(baseUrl, 'com')
+                     localStorage.setItem(k + dataTypes, finaData)
+                     // 获取ids
+                     dataWrapper[k].ids = getItemId(baseUrl, 'url')
+                 } else if (k == 'hotsale' || k == 'hotsearch' || k == 'hotpurpose') {
+                     var dataTypes = getParamsItem(baseUrl)
+                     var rankKey = marketRankType(baseUrl)
+                     var saveData = bubbleSort(finaData)
+                     localStorage.setItem(rankKey + '/' + k + dataTypes, saveData)
+                 } else if (k == 'allTrend') {
+                     var rankKey = marketRankType(baseUrl)
+                     var dataTypes = getParamsItem(baseUrl, 'trend', rankKey)
+                     localStorage.setItem(rankKey + '/' + k + dataTypes, finaData)
+                 } else if (k == 'trendShop') {
+                     var rankKey = marketRankType(baseUrl)
+                     var dataTypes = getParamsItem(baseUrl, 'trendShopInfo', rankKey)
+                     localStorage.setItem(rankKey + '/' + k + dataTypes, finaData)
+                 } else if (k == 'currentDate') {
+                     localStorage.setItem(k, JSON.stringify(finaData.data))
+                 } else {
+                     var dataTypes = getParamsItem(baseUrl)
+                     localStorage.setItem(k + dataTypes, finaData)
+                 }
+             }
+         }
+     }
+ }
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.type == 'holdup') {
@@ -639,7 +702,8 @@ chrome.runtime.sendMessage({
 }, function () {})
 function getCookie(keyword, sendResponse) { //获取搜索词
     $(".oui-date-picker .oui-canary-btn:contains('7天')").click()
-    chrome.storage.local.get('transitId', function (val) {
+    // chrome.storage.local.get('transitId', function (val) {
+        var sessionKey = sessionStorage.getItem('transitId');
         var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text()
         var spliteTime = timeRnage.split(' ')
         var splitLen = spliteTime.length;
@@ -659,7 +723,7 @@ function getCookie(keyword, sendResponse) { //获取搜索词
             url: searchUrl,
             type: 'GET',
             headers: {
-                "transit-id": val.transitId
+                "transit-id": sessionKey
             },
             success: function (res) {
                 var resultData = res.data ? Decrypt(res.data) : '';
@@ -668,7 +732,7 @@ function getCookie(keyword, sendResponse) { //获取搜索词
 
             }
         })
-    })
+    // })
 }
 //  市场搜索分析关键词
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -677,3 +741,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
     return true
 });
+function interceptRequest() {
+    // 在页面上插入代码
+    const script = document.createElement('script');
+    script.setAttribute('type', 'text/javascript');
+    script.setAttribute('src', chrome.extension.getURL('js/interceptRquest.js'));
+    document.documentElement.appendChild(script);
+    window.addEventListener("pageScript", function (event) {
+        receiveResponse(event.detail.url, event.detail.data, event.detail.type)
+    })
+}

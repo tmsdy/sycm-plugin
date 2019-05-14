@@ -102,6 +102,8 @@ var PLAN_LIST = [];
               tableInstance.page(Number(data.paging.page) - 1).draw(false)
           };
           tableInstance.on('page.dt', function (e, x, y) {
+              var timer = null;
+              var hasCount = 0;
               var info = tableInstance.page.info();
               if (type == 1) {
                   $('.chaqz-wrapper .chaqz-mask').show(100)
@@ -109,59 +111,84 @@ var PLAN_LIST = [];
                   var titleType = title == '监控店铺' ? 'marketShop' : 'monitFood'
                   var localKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize)
                   var hasSave = localStorage.getItem(localKey)
-                  if (hasSave) {
-                      listenShop()
-                  } else {
-                      // 监听消息 
-                      chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-                          if (request.type = 'holdup') {
-                              var reg1 = new RegExp(dataWrapper2['marketShop'])
-                              var reg2 = new RegExp(dataWrapper2['monitFood'])
-                              if (reg1.test(request.url) || reg2.test(request.url)) {
-                                  listenShop()
-                              }
-                          }
-                      });
-                  }
+                 if (!(hasSave || localSave)) {
+                     timer = setInterval(function () {
+                         hasSave = localStorage.getItem(localKey);
+                         localSave = localStorage.getItem(localCacheKey);
+                         if (hasSave || localSave) {
+                             marketMonitorShop();
+                             clearInterval(timer);
+                             timer = null;
+                             hasCount = 0;
+                         } else if (hasCount > 10) {
+                             clearInterval(timer);
+                             timer = null;
+                             hasCount = 0;
+                             popTip('获取数据失败！');
+                             LoadingPop();
+                         } else {
+                             hasCount++
+                         }
+                     }, 200);
+                 } else {
+                     marketMonitorShop()
+                 }
               } else if (type == 2) {
                   $('.chaqz-wrapper .chaqz-mask').show(100)
                   $('.op-mc-market-monitor-industryCard .ant-pagination .ant-pagination-item-' + (info.page + 1)).click()
                   var titleType = title == '热门店铺' ? 'marketHotShop' : 'marketHotFood'
                   var localKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize)
                   var hasSave = localStorage.getItem(localKey)
-                  if (hasSave) {
-                      marketMonitorItem()
-                  } else {
-                      // 监听消息
-                      chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-                          if (request.type = 'holdup') {
-                              var reg1 = new RegExp(dataWrapper2['marketHotShop'])
-                              var reg2 = new RegExp(dataWrapper2['marketHotFood'])
-                              if (reg1.test(request.url) || reg2.test(request.url)) {
-                                  marketMonitorItem()
-                              }
-                          }
-                      });
-                  }
+                 if (!(hasSave || localSave)) {
+                     timer = setInterval(function () {
+                         hasSave = localStorage.getItem(localKey);
+                         localSave = localStorage.getItem(localCacheKey);
+                         if (hasSave || localSave) {
+                             marketMonitorItem();
+                             clearInterval(timer);
+                             timer = null;
+                             hasCount = 0;
+                         } else if (hasCount > 10) {
+                             clearInterval(timer);
+                             timer = null;
+                             hasCount = 0;
+                             popTip('获取数据失败！');
+                             LoadingPop();
+                         } else {
+                             hasCount++
+                         }
 
+                     }, 200);
+                 } else {
+                     marketMonitorItem()
+                 }
               } else if (type == 3) {
                   $('.chaqz-wrapper .chaqz-mask').show(100)
                   $('#mqItemMonitor .ant-pagination .ant-pagination-item-' + (info.page + 1)).click()
                   var localKey = getSearchParams('monitFood', (info.page + 1), data.paging.pageSize)
                   var hasSave = localStorage.getItem(localKey)
-                  if (hasSave) {
-                      MonitorItem()
-                  } else {
-                      // 监听消息
-                      chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-                          if (request.type = 'holdup') {
-                              var reg = new RegExp(dataWrapper2['monitFood'])
-                              if (reg.test(request.url)) {
-                                  MonitorItem()
-                              }
-                          }
-                      });
-                  }
+                 if (!(hasSave || localSave)) {
+                     timer = setInterval(() => {
+                         hasSave = localStorage.getItem(localKey);
+                         localSave = localStorage.getItem(localCacheKey);
+                         if (hasSave || localSave) {
+                             MonitorItem();
+                             clearInterval(timer);
+                             timer = null;
+                             hasCount = 0;
+                         } else if (hasCount > 10) {
+                             clearInterval(timer);
+                             timer = null;
+                             hasCount = 0;
+                             popTip('获取数据失败！');
+                             LoadingPop();
+                         } else {
+                             hasCount++
+                         }
+                     }, 200);
+                 } else {
+                     MonitorItem();
+                 }
               } else if (type == 4) {
                   $('.chaqz-wrapper .chaqz-mask').show(100)
                   $('.op-mc-market-rank-container .ant-pagination .ant-pagination-item-' + (info.page + 1)).click()
@@ -713,7 +740,7 @@ var PLAN_LIST = [];
  function compareResource() {
       var prodctRes = getProductInfo();
       if (prodctRes.totalNum < 2) {
-          alert('请选择比较商品');
+          popTip('请选择比较商品');
           return false;
       };
       var idParams = getproduceIds(prodctRes, dataWrapper2);
@@ -829,8 +856,7 @@ var PLAN_LIST = [];
  function compareItem(){
       var prodctItem = getProductInfo();
       if (prodctItem.totalNum < 2) {
-          alert('请选择比较商品');
-          popTip('请选择比较商品')
+          popTip('请选择比较商品');
           return false
       };
       var idParams = getproduceIds(prodctItem, dataWrapper2);

@@ -14,6 +14,7 @@ module.exports = {
     'contentScript.js': './src/plugins/contentScript.js',
     'chaqz_web.js': './src/plugins/chaqz_web.js',
     'chaqz.js': './src/plugins/chaqzModule/chaqz.js',
+    'interceptRquest.js': './src/utils/interceptRquest.js',
 
     // background-scripts
     'background.js': './src/plugins/background.js',
