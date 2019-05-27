@@ -4,7 +4,8 @@
      integer, filterLocalData
  } from './commonFuns';
  import {
-     LogOut
+     LogOut,
+     popTip
  } from './promptClass'
  var requestNum = 0;
  var responseData = {

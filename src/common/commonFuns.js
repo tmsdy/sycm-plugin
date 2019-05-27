@@ -175,23 +175,18 @@ export function getCurrentTime(dayType) {
 }
 // 获取店铺信息的firstCateId
 export function getFirstCateId() {
-    var deaultId = localStorage.getItem('shopCateId');
-    var cateIdF = JSON.parse(localStorage.getItem('tree_history_op-mc._cate_picker'));
+     var deaultId = localStorage.getItem('shopCateId');
+     var cateIdF = JSON.parse(localStorage.getItem('tree_history_op-mc._cate_picker'));
      if (!cateIdF) {
-         return ''
+         return deaultId;
      }
-    var cateIdS = cateIdF.split("|")[1];
-    var cateIdT = cateIdS ? JSON.parse(cateIdS).value : '';
-    if (!cateIdT) {
-        return deaultId;
-    }
-    var resData = cateIdT[0].realObj.cateLevel1Id;
-    // .forEach(function (item) {
-    //     if (item.realObj.cateId == deaultId) {
-    //         resData = item.realObj.cateLevel1Id;
-    //     }
-    // })
-    return resData
+     var cateIdS = cateIdF.split("|")[1];
+     var cateIdT = cateIdS ? JSON.parse(cateIdS).value : '';
+     if (!cateIdT) {
+         return deaultId;
+     }
+     var resData = cateIdT[0].treeId;
+     return resData;
 }
 // 竞品解析
 export function getDateRange(data, fm) {
@@ -222,16 +217,12 @@ export function getSearchParams(key, page, pagesize, dealType) {
     }
     page = page ? page : 1;
     pagesize = pagesize ? pagesize : 10;
-    var localCateId = getFirstCateId();
-    if (key == 'marketFood' || key == 'marketShop' || key == 'marketHotFood' || key == 'marketHotShop') {
-        var aHtml = $('.op-mc-market-monitor-marketMonitor .industry-index-wrapper .trend').attr('href').split('cateId=')[1];
-        localCateId = aHtml || localStorage.getItem('shopCateId');
-    }
+    var localCateId = localStorage.getItem('shopCateId');
     if (key == 'hotsearch' || key == 'hotpurpose' || key == 'hotsale') {
-        localCateId = localStorage.getItem('shopCateId');
+        localCateId = getFirstCateId();
     }
     if (key == 'allTrend' && !dealType) {
-        localCateId = localStorage.getItem('shopCateId');
+        localCateId = getFirstCateId();
         finalTime = setDateRange(getCurrentTime(), 'day');
         return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=day' + '&device=' + device + '&sellerType=' + sellType;
     }
@@ -263,6 +254,7 @@ export function getSearchParams(key, page, pagesize, dealType) {
         return '/mc/mq/monitor/cate/' + isMonitLive + '/' + itemShop + '.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=tradeIndex' + endIndex + '&order=desc&orderBy=tradeIndex&page=' + page + '&pageSize=' + pagesize + '&sellerType=-1';
     }
     if (key == "allTrend") {
+        localCateId = getFirstCateId();
         return 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=day&device=' + device + '&indexCode=uvIndex,payRateIndex,tradeIndex,payByrCntIndex'
     }
     if (key == "getKeywords") {

@@ -1,8 +1,6 @@
-import {
-    BASE_URL
-}
-from '../common/constState';
-var CHAQZ_VERSION = "";
+var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'http://www.chaquanzhong.com' :
+    'http://116.62.18.166:8090';
+window.CHAQZ_VERSION = "";
 $(function () {
     // 获取线上资源
     function loadCDNCss(cssUrl) {

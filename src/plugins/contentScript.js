@@ -1,7 +1,6 @@
-import {
-    BASE_URL
-} from '../common/constState';
-window.CHAQZ_VERSION = "1.0.7";
+var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'http://www.chaquanzhong.com' :
+    'http://116.62.18.166:8090';
+window.CHAQZ_VERSION = "1.0.6";
 // $(function () {
     // 获取线上资源
     function loadCDNCss(cssUrl) {
@@ -50,12 +49,15 @@ window.CHAQZ_VERSION = "1.0.7";
                 var cssurl = res.data.css.main
                 var jsurl = res.data.js
                 loadCDNCss(cssurl);
-                for(var k in jsurl){
-                    if(k != 'web_script'){
-                        loadCDNJs(jsurl[k])
-                    }
-                }
+                  loadCDNJs('https://file.cdn.chaquanzhong.com/commons-dev-v1.0.36.js')
+                  loadCDNJs('https://file.cdn.chaquanzhong.com/content_script1-dev-v1.0.36.js')
+                  loadCDNJs('https://file.cdn.chaquanzhong.com/content_script-dev-v1.0.36.js')
+                // for(var k in jsurl){
+                //     if(k != 'web_script'){
+                //         loadCDNJs(jsurl[k])
+                //     }
+                // }
             }
         });
     // }, 500);
-// })
+// // })

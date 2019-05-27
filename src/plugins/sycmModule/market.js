@@ -740,7 +740,7 @@ function dealTradeGrowth(data) {
          LoadingPop('show')
          var trendFont = getSearchParams("allTrend")
          var trendKey = switchType + '/' + trendFont + '&userId=' + useId
-         var firstCateId = getFirstCateId();
+         var firstCateId = localStorage.getItem('shopCateId');
         var shopInfoKey = switchType + "/trendShopcateId=" + firstCateId + '&userId=' + useId;
         var localKey = trendKeyJoin(switchType, useId);
         var localInfo = trendInfoJoin(switchType, useId, firstCateId);
@@ -763,14 +763,14 @@ function dealTradeGrowth(data) {
                  obj.payRate = res.payRateIndex[i]
                  obj.kdPrice = formula(obj.tradeIndex, res.payByrCntIndex[i], 1)
                  obj.uvPrice = formula(obj.tradeIndex, res.uvIndex[i], 1)
-                 if (chooseList==1) {
-                     obj.seIpv = res.seIpvUvHits[i]
-                     obj.cltHit = res.cltHits[i]
-                     obj.cartHit = res.cartHits[i]
-                     obj.searRate = formula(res.seIpvUvHits[i], res.uvIndex[i], 2)
-                     obj.scRate = formula(res.cltHits[i], res.uvIndex[i], 2)
-                     obj.jgRate = formula(res.cartHits[i], res.uvIndex[i], 2)
-                 }
+                //  if (chooseList==1) {
+                //      obj.seIpv = res.seIpvUvHits[i]
+                //      obj.cltHit = res.cltHits[i]
+                //      obj.cartHit = res.cartHits[i]
+                //      obj.searRate = formula(res.seIpvUvHits[i], res.uvIndex[i], 2)
+                //      obj.scRate = formula(res.cltHits[i], res.uvIndex[i], 2)
+                //      obj.jgRate = formula(res.cartHits[i], res.uvIndex[i], 2)
+                //  }
                  resData.push(obj)
              }
              var cols = [{
@@ -799,53 +799,53 @@ function dealTradeGrowth(data) {
                      title: 'UV价值',
                  }
              ]
-             if (chooseList==1) {
-                 cols = [{
-                         data: 'date',
-                         title: '日期',
-                     },
-                     {
-                         data: 'tradeIndex',
-                         title: '交易金额',
-                     },
-                     {
-                         data: 'uvIndex',
-                         title: '访客人数',
-                     },
-                     {
-                         data: 'seIpv',
-                         title: '搜索人数',
-                     },
-                     {
-                         data: 'cltHit',
-                         title: '收藏人数',
-                     }, {
-                         data: 'cartHit',
-                         title: '加购人数',
-                     }, {
-                         data: 'payRate',
-                         title: '支付转化率',
-                     }, {
-                         data: 'payByr',
-                         title: '支付人数',
-                     }, {
-                         data: 'kdPrice',
-                         title: '客单价',
-                     }, {
-                         data: 'uvPrice',
-                         title: 'UV价值',
-                     }, {
-                         data: 'searRate',
-                         title: '搜索占比',
-                     }, {
-                         data: 'scRate',
-                         title: '收藏率',
-                     }, {
-                         data: 'jgRate',
-                         title: '加购率',
-                     }
-                 ]
-             }
+            //  if (chooseList==1) {
+            //      cols = [{
+            //              data: 'date',
+            //              title: '日期',
+            //          },
+            //          {
+            //              data: 'tradeIndex',
+            //              title: '交易金额',
+            //          },
+            //          {
+            //              data: 'uvIndex',
+            //              title: '访客人数',
+            //          },
+            //          {
+            //              data: 'seIpv',
+            //              title: '搜索人数',
+            //          },
+            //          {
+            //              data: 'cltHit',
+            //              title: '收藏人数',
+            //          }, {
+            //              data: 'cartHit',
+            //              title: '加购人数',
+            //          }, {
+            //              data: 'payRate',
+            //              title: '支付转化率',
+            //          }, {
+            //              data: 'payByr',
+            //              title: '支付人数',
+            //          }, {
+            //              data: 'kdPrice',
+            //              title: '客单价',
+            //          }, {
+            //              data: 'uvPrice',
+            //              title: 'UV价值',
+            //          }, {
+            //              data: 'searRate',
+            //              title: '搜索占比',
+            //          }, {
+            //              data: 'scRate',
+            //              title: '收藏率',
+            //          }, {
+            //              data: 'jgRate',
+            //              title: '加购率',
+            //          }
+            //      ]
+            //  }
 
              domStructTrend({
                  data: resData,

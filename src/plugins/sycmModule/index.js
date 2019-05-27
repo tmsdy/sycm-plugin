@@ -80,6 +80,9 @@ var dataWrapper = {
     },
     "currentDate": {
         urlReg: '\/ipoll\/activity\/getCurrentTime\.json'
+    },
+    "publicInfo": {
+        urlReg: '\/mc\/mq\/monitor\/offline\/public\.json'
     }
 }
 window.dataWrapper2 = dataWrapper;
@@ -107,7 +110,6 @@ chrome.storage.local.get('chaqz_token', function (valueArray) {
     }
 });
 $(function () {
-    console.log(process.argv)
     // 登录
     $(document).on('click', '#loginbtn', function () {
         anyDom.init();
@@ -133,7 +135,7 @@ $(function () {
             $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header').append(showBtn())
         }
         if (e.target.id == 'sycm-mc-flow-analysis') { //竞争-分析竞品-入口来源
-            $('.sycm-mc-flow-analysis .oui-card-header').append(showBtn())
+            $('.op-mc-item-analysis .sycm-mc-flow-analysis .oui-card-header').append(showBtn());
         }
         if (e.target.className == 'mc-marketMonitor') {
             $('.mc-marketMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
@@ -478,12 +480,12 @@ function competePop() {
 /**===========================市场竞争数字格式化方法以及页面信息======================================= */
 
 // /////////////////////////////////////--------背景数据处理-------//////////////////////////////////////////////
- function receiveResponse(reqParams, resData, xhrType) {
+   function receiveResponse(reqParams, resData, xhrType) {
      if (!xhrType) {
          var repHeader = reqParams ? reqParams[1].headers : "";
          var transId = repHeader ? repHeader['Transit-Id'] : ''
          if (transId) {
-             sessionStorage.setItem('transitId', transId)
+             sessionStorage.setItem('transitId', transId);
          }
      }
      var baseUrl = reqParams ? reqParams[0] : "";
@@ -518,7 +520,7 @@ function competePop() {
                      // 获取ids
                      dataWrapper[k].ids = getItemId(baseUrl, 'url')
                  } else if (k == 'hotsale' || k == 'hotsearch' || k == 'hotpurpose') {
-                     var dataTypes = getParamsItem(baseUrl)
+                     var dataTypes = getParamsItem(baseUrl,'passCateid')
                      var rankKey = marketRankType(baseUrl)
                      var saveData = bubbleSort(finaData)
                      localStorage.setItem(rankKey + '/' + k + dataTypes, saveData)
@@ -532,6 +534,11 @@ function competePop() {
                      localStorage.setItem(rankKey + '/' + k + dataTypes, finaData)
                  } else if (k == 'currentDate') {
                      localStorage.setItem(k, JSON.stringify(finaData.data))
+                 } else if (k == 'publicInfo') {
+                     var publicFont = JSON.parse(finaData);
+                     var localId = publicFont ? publicFont[0] : '';
+                     var saveId = localId.cateId.value;
+                     localStorage.setItem('shopCateId', saveId)
                  } else {
                      var dataTypes = getParamsItem(baseUrl)
                      localStorage.setItem(k + dataTypes, finaData)
@@ -540,66 +547,66 @@ function competePop() {
          }
      }
  }
-chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
-        if (request.type == 'holdup') {
-            var baseUrl = request.url;
-            var resData = request.back;
-            if (baseUrl) {
-                for (var k in dataWrapper) {
-                    if ((new RegExp(dataWrapper[k].urlReg)).test(baseUrl)) {
-                        // 根据期限存储数据
-                        var hasEncryp = JSON.parse(resData).data ? JSON.parse(resData).data : '';
-                        var finaData = (typeof hasEncryp == 'object') ? resData : Decrypt(hasEncryp);
-                        if (k == 'monitShop' || k == 'getMonitoredList') {
-                            dataWrapper[k].data = finaData;
-                            window.dataWrapper2[k].data = finaData;
-                        } else if (k == 'shopInfo') {
-                            dataWrapper[k].data = finaData;
-                            window.dataWrapper2[k].data = finaData;
-                            getParamsItem(baseUrl);
-                            localStorage.setItem('chaqz_' + k, finaData)
-                        } else if (k == 'compareSelfList') {
-                            localStorage.setItem('chaqz_' + k, finaData)
-                        } else if (k == 'monitCompareFood') {
-                            var dataTypes = getParamsItem(baseUrl, 'com')
-                            localStorage.setItem(k + dataTypes, finaData)
-                        } else if (k == 'getKeywords') {
-                            if (baseUrl.indexOf("topType=trade") != -1) {
-                                var dataTypes = getParamsItem(baseUrl, 'only')
-                                localStorage.setItem(k + dataTypes, finaData)
-                            }
-                        } else if (k == 'monitResource') {
-                            var dataTypes = getParamsItem(baseUrl, 'com')
-                            localStorage.setItem(k + dataTypes, finaData)
-                            // 获取ids
-                            dataWrapper[k].ids = getItemId(baseUrl, 'url')
-                            window.dataWrapper2[k].ids = getItemId(baseUrl, 'url')
-                        } else if (k == 'hotsale' || k == 'hotsearch' || k == 'hotpurpose') {
-                            var dataTypes = getParamsItem(baseUrl)
-                            var rankKey = marketRankType(baseUrl)
-                            var saveData = bubbleSort(finaData)
-                            localStorage.setItem(rankKey + '/' + k + dataTypes, saveData)
-                        } else if (k == 'allTrend') {
-                            var rankKey = marketRankType(baseUrl)
-                            var dataTypes = getParamsItem(baseUrl, 'trend', rankKey)
-                            localStorage.setItem(rankKey + '/' + k + dataTypes, finaData)
-                        } else if (k == 'trendShop') {
-                            var rankKey = marketRankType(baseUrl)
-                            var dataTypes = getParamsItem(baseUrl, 'trendShopInfo', rankKey)
-                            localStorage.setItem(rankKey + '/' + k + dataTypes, finaData)
-                        } else if (k == 'currentDate') {
-                            localStorage.setItem(k, finaData)
-                        } else {
-                            var dataTypes = getParamsItem(baseUrl)
-                            localStorage.setItem(k + dataTypes, finaData)
-                        }
-                    }
-                }
-            }
-            sendResponse('shoudao')
-        }
-    })
+// chrome.runtime.onMessage.addListener(
+//     function (request, sender, sendResponse) {
+//         if (request.type == 'holdup') {
+//             var baseUrl = request.url;
+//             var resData = request.back;
+//             if (baseUrl) {
+//                 for (var k in dataWrapper) {
+//                     if ((new RegExp(dataWrapper[k].urlReg)).test(baseUrl)) {
+//                         // 根据期限存储数据
+//                         var hasEncryp = JSON.parse(resData).data ? JSON.parse(resData).data : '';
+//                         var finaData = (typeof hasEncryp == 'object') ? resData : Decrypt(hasEncryp);
+//                         if (k == 'monitShop' || k == 'getMonitoredList') {
+//                             dataWrapper[k].data = finaData;
+//                             window.dataWrapper2[k].data = finaData;
+//                         } else if (k == 'shopInfo') {
+//                             dataWrapper[k].data = finaData;
+//                             window.dataWrapper2[k].data = finaData;
+//                             getParamsItem(baseUrl);
+//                             localStorage.setItem('chaqz_' + k, finaData)
+//                         } else if (k == 'compareSelfList') {
+//                             localStorage.setItem('chaqz_' + k, finaData)
+//                         } else if (k == 'monitCompareFood') {
+//                             var dataTypes = getParamsItem(baseUrl, 'com')
+//                             localStorage.setItem(k + dataTypes, finaData)
+//                         } else if (k == 'getKeywords') {
+//                             if (baseUrl.indexOf("topType=trade") != -1) {
+//                                 var dataTypes = getParamsItem(baseUrl, 'only')
+//                                 localStorage.setItem(k + dataTypes, finaData)
+//                             }
+//                         } else if (k == 'monitResource') {
+//                             var dataTypes = getParamsItem(baseUrl, 'com')
+//                             localStorage.setItem(k + dataTypes, finaData)
+//                             // 获取ids
+//                             dataWrapper[k].ids = getItemId(baseUrl, 'url')
+//                             window.dataWrapper2[k].ids = getItemId(baseUrl, 'url')
+//                         } else if (k == 'hotsale' || k == 'hotsearch' || k == 'hotpurpose') {
+//                             var dataTypes = getParamsItem(baseUrl)
+//                             var rankKey = marketRankType(baseUrl)
+//                             var saveData = bubbleSort(finaData)
+//                             localStorage.setItem(rankKey + '/' + k + dataTypes, saveData)
+//                         } else if (k == 'allTrend') {
+//                             var rankKey = marketRankType(baseUrl)
+//                             var dataTypes = getParamsItem(baseUrl, 'trend', rankKey)
+//                             localStorage.setItem(rankKey + '/' + k + dataTypes, finaData)
+//                         } else if (k == 'trendShop') {
+//                             var rankKey = marketRankType(baseUrl)
+//                             var dataTypes = getParamsItem(baseUrl, 'trendShopInfo', rankKey)
+//                             localStorage.setItem(rankKey + '/' + k + dataTypes, finaData)
+//                         } else if (k == 'currentDate') {
+//                             localStorage.setItem(k, finaData)
+//                         } else {
+//                             var dataTypes = getParamsItem(baseUrl)
+//                             localStorage.setItem(k + dataTypes, finaData)
+//                         }
+//                     }
+//                 }
+//             }
+//             sendResponse('shoudao')
+//         }
+//     })
 // ------------------------data operator--------------------------------//
 // 数据排序
 function bubbleSort(data) {
@@ -676,7 +683,9 @@ function getParamsItem(para, com, trend) {
         var itemArr = item.split('=')
         keyObj[itemArr[0]] = itemArr[1]
     })
-    localStorage.setItem('shopCateId', keyObj['cateId'])
+    if (com != 'passCateid' || com != 'trend') {
+        keyObj['cateId'] ? localStorage.setItem('shopCateId', keyObj['cateId']) : '';
+    }
     keyObj['dateRange'] = keyObj['dateRange'] ? decodeURIComponent(keyObj['dateRange']) : '';
     if (com == 'com') {
         var item1 = keyObj['rivalItem1Id'] ? ('&rivalItem1Id=' + keyObj['rivalItem1Id']) : '';
@@ -697,9 +706,9 @@ function getParamsItem(para, com, trend) {
     return key
 }
 // 不可删除
-chrome.runtime.sendMessage({
-    type: 'listenContat'
-}, function () {})
+// chrome.runtime.sendMessage({
+//     type: 'listenContat'
+// }, function () {})
 function getCookie(keyword, sendResponse) { //获取搜索词
     $(".oui-date-picker .oui-canary-btn:contains('7天')").click()
     // chrome.storage.local.get('transitId', function (val) {
@@ -742,12 +751,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     return true
 });
 function interceptRequest() {
-    // 在页面上插入代码
-    const script = document.createElement('script');
-    script.setAttribute('type', 'text/javascript');
-    script.setAttribute('src', chrome.extension.getURL('js/interceptRquest.js'));
-    document.documentElement.appendChild(script);
-    window.addEventListener("pageScript", function (event) {
-        receiveResponse(event.detail.url, event.detail.data, event.detail.type)
-    })
+  // 在页面上插入代码
+ window.removeEventListener("pageScript", orginStartFuns);
+ window.addEventListener("pageScript", function (event) {
+     var oriLen = orginInterceptData.length;
+     if(oriLen){
+         for (var i = 0; i < oriLen; i++) {
+             var element = orginInterceptData[i];
+             element ? receiveResponse(element.url, element.data, element.type) : '';
+         }
+         orginInterceptData = [];
+     }
+     receiveResponse(event.detail.url, event.detail.data, event.detail.type);
+ })
 }

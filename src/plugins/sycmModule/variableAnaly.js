@@ -30,7 +30,7 @@ var competeSelectId =0;
 function keywordUrl(rivalId, device, type) {
     var nowTime = getCurrentTime();
     var dateRange = setDateRange(nowTime, 'day');
-    var localCateId = getFirstCateId();
+    var localCateId = localStorage.getItem('shopCateId');
     var defaultEnd = '&topType=trade&indexCode=tradeIndex';
     if (type) {
         defaultEnd = '&topType=flow&indexCode=uv'
@@ -530,7 +530,7 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
          }
      }, function (val) {
          if (val.code == 200) {
-             var localCateId = getFirstCateId();
+             var localCateId = localStorage.getItem('shopCateId');
              var resCateId = val.data.rootCategoryId;
              if (localCateId != resCateId) {
                  tips.html('校验失败,仅支持同类目商品！<a class="contactService">请联系客服</a>')
@@ -543,7 +543,6 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
                  title: val.data.title,
                  priceRange: '￥' + val.data.min_price + "~￥" + val.data.max_price
              }
-             console.log(val.data.categoryId)
              weightParsing(isPassReg, val.data.categoryId, itemInfo);
          } else if (val.code == 2030) {
              LogOut();
@@ -621,7 +620,6 @@ function weightParsing(rivald, category, itemInfo) {
                 if (res.code === 0) {
                     var resData = JSON.parse(Decrypt(res.data));
                     var topItem = findFirstItme(resData);
-                    console.log(topItem)
                     var params = {
                         rivald: rivald,
                         rivald2: topItem.itemId.value,
@@ -683,8 +681,6 @@ function getCompareData(params) {
                     }
                     var decryData2 = JSON.parse(Decrypt(res2.data)).rivalItem1;
                     var dealSendData = mergeArr(decryData, decryData2)
-                    console.log(finalUrl, decryData)
-                    console.log(finalUrl2, decryData2)
                     dealIndex({
                         type: 'dealTrend',
                         dataType: dealSendData
@@ -751,9 +747,8 @@ function parsingAnaly(dealRes, info) {
     //  var dateRange = setDateRange(nowTime, 'day');
     var dateRange = setDateRange(nowTime);
     var titleDate = dateRange.replace('|', '~');
-    var localCateId = getFirstCateId();
+    var localCateId = localStorage.getItem('shopCateId');
     var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent30&dateRange=" + dateRange + "&device=" + device + "&cateId=" + localCateId + "&rivalItem1Id=" + rivalId;
-    console.log(finalUrl)
     var localData = localStorage.getItem(finalUrl);
     var hasWrap = $('.chaqz-wrapper').length
     if (localData) {
@@ -987,7 +982,7 @@ function parsingAnaly(dealRes, info) {
     var nowTime = getCurrentTime();
     var dateRange = setDateRange(nowTime, 'day');
     var titleDate = dateRange.replace('|', '~');
-    var localCateId = getFirstCateId();
+    var localCateId = localStorage.getItem('shopCateId');
     var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getFlowSource.json?device=" + device + "&cateId=" + localCateId + "&rivalItem1Id=" + rivalId + "&dateType=day&dateRange=" + dateRange + "&indexCode=uv&orderBy=uv&order=desc";
     var localData = localStorage.getItem(finalUrl);
     var hasWrap = $('.chaqz-wrapper').length

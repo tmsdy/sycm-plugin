@@ -15,6 +15,7 @@ module.exports = {
     'chaqz_web.js': './src/plugins/chaqz_web.js',
     'chaqz.js': './src/plugins/chaqzModule/chaqz.js',
     'interceptRquest.js': './src/utils/interceptRquest.js',
+    'insertSha.js': './src/plugins/insertSha.js',
 
     // background-scripts
     'background.js': './src/plugins/background.js',
@@ -43,8 +44,11 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        use: ['babel-loader'],
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        query: {
+          presets: ['latest'] //按照最新的ES6语法规则去转换
+        }
       },
       // {
       //   test: require.resolve('jquery'), //require.resolve 用来获取模块的绝对路径

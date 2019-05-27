@@ -2,7 +2,7 @@ var ajax_interceptor_qoweifjqon = {
     originalXHR: window.XMLHttpRequest,
     myXHR: function () {
         var xhr = new ajax_interceptor_qoweifjqon.originalXHR;
-        for (var attr in xhr) {
+        for (let attr in xhr) {
             if (attr === 'onreadystatechange') {
                 xhr.onreadystatechange = (...args) => {
                     if (this.readyState == 4) {
@@ -31,19 +31,19 @@ var ajax_interceptor_qoweifjqon = {
                 this[attr] = xhr[attr].bind(xhr);
             } else {
                 // responseText和response不是writeable的，但拦截时需要修改它，所以修改就存储在this[`_${attr}`]上
-                // if (attr === 'responseText' || attr === 'response') {
-                //     Object.defineProperty(this, attr, {
-                //         get: () => this[`_${attr}`] == undefined ? xhr[attr] : this[`_${attr}`],
-                //         set: (val) => this[`_${attr}`] = val,
-                //         enumerable: true
-                //     });
-                // } else {
-                //     Object.defineProperty(this, attr, {
-                //         get: () => xhr[attr],
-                //         set: (val) => xhr[attr] = val,
-                //         enumerable: true
-                //     });
-                // }
+                if (attr === 'responseText' || attr === 'response') {
+                    Object.defineProperty(this, attr, {
+                        get: () => this[`_${attr}`] == undefined ? xhr[attr] : this[`_${attr}`],
+                        set: (val) => this[`_${attr}`] = val,
+                        enumerable: true
+                    });
+                } else {
+                    Object.defineProperty(this, attr, {
+                        get: () => xhr[attr],
+                        set: (val) => xhr[attr] = val,
+                        enumerable: true
+                    });
+                }
             }
         }
     },
@@ -52,27 +52,18 @@ var ajax_interceptor_qoweifjqon = {
     myFetch: function (...args) {
         var myajax = ajax_interceptor_qoweifjqon.originalFetch(...args)
             .then(function (response) {
+                new Promise((resolve,reject)=>{
+                    resolve(response.clone().json())
+                }).then((data)=>{
+                    window.dispatchEvent(new CustomEvent("pageScript", {
+                        detail: {
+                            url: args,
+                            data: data
+                        }
+                    }));
+                })
                 return response;
-            }).then(function (data) {
-                return data
-            }).catch(function (err) {
-                console.log(err)
             })
-        var myfetch = ajax_interceptor_qoweifjqon.originalFetch(...args)
-            .then(function (response) {
-                return response.json();
-            }).then((data) => {
-                window.dispatchEvent(new CustomEvent("pageScript", {
-                    detail: {
-                        url: args,
-                        data: data
-                    }
-                }));
-                return data
-            }).catch(function (err) {
-                console.log('err', err)
-                return err;
-            });
         return myajax
     },
 }
