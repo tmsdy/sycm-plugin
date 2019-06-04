@@ -24,6 +24,7 @@ var ajax_interceptor_qoweifjqon = {
                             type: 'xhr'
                         }
                     }));
+                    this.onload && this.onload.apply(this, args);
                 }
                 continue;
             }

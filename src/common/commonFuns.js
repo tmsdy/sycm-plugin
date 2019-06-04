@@ -1,7 +1,7 @@
 
 var updataTime = getTimeNode();
 // 获取更新数据时间节点
-function getTimeNode() {
+export function getTimeNode() {
     var allLocal = localStorage.valueOf();
     var dateBox = '';
     for (var k in allLocal) {
@@ -14,6 +14,7 @@ function getTimeNode() {
         return ''
     }
     var res = JSON.parse(dateBox).split("|")[1];
+    console.log(res)
     return JSON.parse(res).value._d;
 }
 
@@ -192,13 +193,13 @@ export function getFirstCateId() {
 export function getDateRange(data, fm) {
     var resArr = []
     var fmt = fm ? fm : 'yyyy-MM-dd';
-    for (var i = 1; i < 31; i++) {
+    for (var i = 0; i < 30; i++) {
         resArr.unshift(formate(fmt, new Date(data - 86400000 * i)));
     }
     return resArr
 }
 // 获取查询项信息
-export function getSearchParams(key, page, pagesize, dealType) {
+export function getSearchParams(key, page, pagesize, dealType, extra) {
     // 获取时间范围
     var dayIndex = $('.oui-date-picker .ant-btn-primary').text()
     var dateType = dayIndex == '实 时' ? 'today' : dayIndex == '7天' ? 'recent7' : dayIndex == '30天' ? 'recent30' : dayIndex == '日' ? 'day' : dayIndex == '周' ? 'week' : dayIndex == '月' ? 'month' : 'today';
@@ -225,6 +226,12 @@ export function getSearchParams(key, page, pagesize, dealType) {
         localCateId = getFirstCateId();
         finalTime = setDateRange(getCurrentTime(), 'day');
         return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=day' + '&device=' + device + '&sellerType=' + sellType;
+    }
+    if ((key == 'relatedHotWord' || key == 'relatedWord') && !dealType) { //相关热词
+        return key += 'dateRange=' + finalTime + '&dateType=day' + '&device=' + device + '&keyword=' + extra.keyword;
+    }
+    if (key == 'popularity' && !dealType) { //搜索人群
+        return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&seKeyword=' + extra.keyword + '&attrType=' + extra.attrType;
     }
     if (!dealType) {
         return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&page=' + page + '&pageSize=' + pagesize + '&sellerType=' + sellType
@@ -259,6 +266,15 @@ export function getSearchParams(key, page, pagesize, dealType) {
     }
     if (key == "getKeywords") {
         return '/mc/rivalItem/analysis/getKeywords.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=tradeIndex&itemId=itemNum&page=' + page + '&pageSize=' + pagesize + '&sellerType=0&topType=trade'
+    }
+    if (key == 'relatedHotWord') { //相关热词
+        return '/mc/searchword/relatedHotWord.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=seIpvUvHits,relSeWordCnt,avgWordClickRate,clickHits,avgWordPayRate&keyword=' + extra.keyword + '&order=desc&orderBy=seIpvUvHits&page=' + page + '&pageSize=' + pagesize;
+    }
+    if (key == 'relatedWord') { //相关搜索词
+        return '/mc/searchword/relatedWord.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=seIpvUvHits,sePvIndex,clickRate,clickHits,clickHot&keyword=' + extra.keyword + '&order=desc&orderBy=seIpvUvHits&page=' + page + '&pageSize=' + pagesize;
+    }
+    if (key == 'popularity') { //搜索人群
+        return '/mc/mkt/searchPortrait/popularity.json?attrType=' + extra.attrType + '&cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=clickPopularity&seKeyword=' + extra.keyword;
     }
 }
  // 获取商品信息
@@ -351,14 +367,15 @@ export function getProductInfo() {
  }
  /**获取本地数据方法处理 */
 export function filterLocalData(val) {
+    if(!val){return ''}
     var localData = JSON.parse(val).split("|")[1];
     var middleData = JSON.parse(localData).value._d;
     var cryptoData = Decrypt(middleData);
     return cryptoData;
 }
  export function Decrypt(word) {
-     var key = CryptoJS.enc.Utf8.parse("sycmsycmsycmsycm");
-     var iv = CryptoJS.enc.Utf8.parse('mcysmcysmcysmcys');
+    var key = CryptoJS.enc.Utf8.parse("w28Cz694s63kBYk4");
+    var iv = CryptoJS.enc.Utf8.parse('4kYBk36s496zC82w');
      let encryptedHexStr = CryptoJS.enc.Hex.parse(word);
      let srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
      let decrypt = CryptoJS.AES.decrypt(srcs, key, {

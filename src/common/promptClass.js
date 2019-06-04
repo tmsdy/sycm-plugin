@@ -20,7 +20,7 @@ import {
      goChoose: '<p class="tips">请在竞品分析界面，选择目标竞品。</p><div class="cha-btns"><button class="btn mr_30 hides cancel">取消</button><a href="https://sycm.taobao.com/mc/ci/item/analysis"><button class="btn">去选择</button></div>',
     onlyOne: '<p class="tips">竞品选择有误，现仅支持单项竞品加权。</p><div class="cha-btns"><button class="btn hides">确定</button></div>',
     emptyChoose: '<p class="tips">未选择竞品，请先选择竞品<br><span style="font-size:14px;">现仅支持单项竞品加权</span></p><div class="cha-btns"><button class="btn hides">确定</button></div>',
-     competingGoodsAnalysis: '<p class="head-title">竞品分析</p><div class="analy-goods"><input type="text" class="anayEditor selcet" placeholder="请输入url或者商品id"><p class="good-tips"></p></div><div class="cha-btns"><button class="btn analyBtn">数据解析</button><button class="btn analyBtn">流量解析</button><button class="btn analyBtn">关键词解析</button></div>',
+     competingGoodsAnalysis: '<p class="head-title">竞品分析</p><div class="analy-goods"><input type="text" class="anayEditor selcet" placeholder="请输入url或者商品id"><p class="good-tips"></p></div><div class="cha-btns"><button class="btn analyBtn">数据解析</button><button class="btn analyBtn">流量解析</button><button class="btn analyBtn">关键词解析</button></div><p class="bot-tips">暂只支持同类目权重解析</p>',
      competingTopAnalysis: '<p class="head-title">权重解析</p><div class="analy-goods"><input type="text" class="anayEditor selcet" placeholder="请输入url或者商品id"><p class="good-tips"></p></div><div class="cha-btns"><button class="btn hides mr_30 cancel">取消</button><button class="btn analyBtn2">确定</button></div><p class="bot-tips">暂只支持同类目权重解析</p>',
      selectPlan: function (data) {
          var html = '';
@@ -121,13 +121,17 @@ import {
      $('body').append('<div class="load-pop"><div class="spinner"><div class="spinner-container container1"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="circle4"></div></div><div class="spinner-container container2"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="circle4"></div></div><div class="spinner-container container3"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="circle4"></div></div></div>')
  }
  // tushi
- export function popTip(text, style, time) {
-     var st = style ? style : ''
-     // var tm = time?time: 500
-     $('#app').append('<div class="small-alert" style="' + style + '">' + text + '</div>');
+ export function popTip(text, options) {
+     var st = '';
+     var tm = '';
+     if(options){
+         st = options ? options.style:'';
+         tm = options ? options.time:500;
+     }
+     $('#app').append('<div class="small-alert" style="' + st + '">' + text + '</div>');
      setTimeout(function () {
          $('#app .small-alert').fadeOut(300)
-     }, 500)
+     }, tm)
  }
   // 获取店铺信息
   export function dealShopInfo() {
@@ -138,7 +142,7 @@ import {
       //      return ret
       //  }
       if (localShop) {
-          var resd = JSON.parse(localShop).data
+          var resd = JSON.parse(localShop)
           return resd
       }
       return '';
@@ -219,13 +223,13 @@ export function changeLoginStatus(type) {
         $('.chaqz-compete-wrap').remove();
     } else {
         $('.chaqz-btns').html('<button id="userBtn" class="serachBtn user">用户信息</button><button id="search" class="serachBtn">一键转化</button><button id="vesting" class="serachBtn vesting">一键加权</button>');
-        $('body').append('<div class="chaqz-compete-wrap"><div class="head"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content" id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div></div>')
+        $('body').append('<div class="chaqz-compete-wrap"><div class="head"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content" id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div><div class="content"><a href="https://sycm.taobao.com/mc/mq/search_analyze"><img src="https://file.cdn.chaquanzhong.com/root-word.png" alt=""></a></div></div>')
     }
 }
 // 退出登录
 export function LogOut() {
     changeLoginStatus('out');
-    chrome.storage.local.clear(function () {});
+    chrome.storage.local.remove(['chaqz_token', 'compareProduceData'], function () {});
     localStorage.removeItem('chaqz_token');
     $('.chaqz-compete-wrap').remove();
     LoadingPop()

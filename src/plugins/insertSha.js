@@ -7,3 +7,4 @@
   script.setAttribute('type', 'text/javascript');
   script.setAttribute('src', chrome.extension.getURL('js/interceptRquest.js'));
   document.documentElement.appendChild(script);
+  window.addEventListener("pageScript", orginStartFuns)

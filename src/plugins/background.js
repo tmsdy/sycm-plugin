@@ -12,6 +12,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
     return true
 })
+var rootWordRemId = '';
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == 'fromWeb') {
         chrome.tabs.query({
@@ -40,12 +41,20 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                     }
                 })
             }
-            // sendResponse()
         })
     } else if (request.type == 'fromPlgin') {
         chrome.tabs.sendMessage(tabs[choseItem].id, {
             type: "secahKeywords",
             tabId: request.tabId
+        }, function (res) {
+
+        })
+    } else if (request.type == 'chaqzRootWordStart') {
+        rootWordRemId = sender.tab.id
+    } else if (request.type == 'chaqzRootWordEnd') {
+        chrome.tabs.sendMessage(rootWordRemId, {
+            type: "chaqzWordHasDone",
+            cont: request.cont
         }, function (res) {
 
         })
@@ -148,3 +157,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 //     }
 //     chrome.tabs.sendMessage(tabId, message, function (res) {});
 // }
+// 获取cookie2
+chrome.cookies.get({
+    url: 'https://sycm.taobao.com/',
+    name: 'cookie2'
+}, function (cookie) {
+    console.log(cookie)
+    chrome.storage.local.set({
+        'getCookie': cookie
+    }, function () {})
+})

@@ -12,6 +12,7 @@ import {
 var isLogin = false; //是否登录
 var SAVE_MEMBER = {};
 var SAVE_BIND = {};
+var SET_WAIT_TIME = 600000
 // 对应模块数据存储
 var dataWrapper = {
     'monitShop': {
@@ -83,6 +84,9 @@ var dataWrapper = {
     },
     "publicInfo": {
         urlReg: '\/mc\/mq\/monitor\/offline\/public\.json'
+    },
+    "getShopCate": {
+        urlReg: '\/mc\/common\/getShopCate\.json'
     }
 }
 window.dataWrapper2 = dataWrapper;
@@ -122,6 +126,13 @@ $(function () {
      });
     //更新用户信息
     userInfoRes();
+
+    // 信息上查
+    sendUserInfo();
+    var setTimer = null;
+    setTimer = setInterval(function () {
+        sendUserInfo()
+    }, SET_WAIT_TIME)
     /**竞争模块添加事件 */
     $('#app').on('DOMNodeInserted', function (e) {
         // console.log(e.target.id, ',', e.target.className)
@@ -154,6 +165,16 @@ $(function () {
             }
             $('.op-mc-market-rank-container .oui-card-header').append(showBtn())
         }
+         // 市场-搜索分析
+         if (e.target.className == 'ebase-metaDecorator__root') {
+             if (judgeCor()) {
+                  $('.op-mc-search-analyze-container .oui-card-content').append('<div class="root-word-entry">输入关键词,按回车键</div>')
+             } 
+         }
+         if (e.target.className == 'ebase-metaDecorator__root') {
+             if (!judgeCor()){return false;}
+             $('.op-mc-search-analyze-container .ebase-Switch__root').parent().append(showBtn())
+         }
     });
 })
 /**-----用户信息登录模块方法-------------------*/
@@ -305,9 +326,7 @@ var anyDom = {
             })
             $(document).on('click', '#logout', function () {
                 $('.chaqz-info-wrapper.user').hide();
-                changeLoginStatus('out')
-                chrome.storage.local.clear(function () {});
-                localStorage.removeItem('chaqz_token')
+                LogOut()
 
             })
             $(document).on('click', '.chaqz-info-wrapper.user .wxpop', function () {
@@ -320,8 +339,11 @@ var anyDom = {
 // 显示按钮切换
 function showBtn() {
     var reDom = '';
+    var curUrl = window.location.href;
+    var isRootWord = curUrl.indexOf('https://sycm.taobao.com/mc/mq/search_analyze')==-1;
+    var seachBtnText = isRootWord ? '一键转化' : '一键分析';
     if (isLogin) {
-        reDom = '<div class="chaqz-btns btnsItem1"><button id="userBtn" class="serachBtn user">用户信息</button><button id="search" class="serachBtn">一键转化</button><button id="vesting" class="serachBtn vesting">一键加权</button><div>';
+        reDom = '<div class="chaqz-btns btnsItem1"><button id="userBtn" class="serachBtn user">用户信息</button><button id="search" class="serachBtn">' + seachBtnText + '</button><button id="vesting" class="serachBtn vesting">一键加权</button><div>';
     } else {
         reDom = '<div class="chaqz-btns btnsItem1"><button id="loginbtn" class="serachBtn user">登录</button><div>'
     }
@@ -358,7 +380,31 @@ function userInfoRes() {
     })
    
 }
-
+// 判断版本
+function judgeCor() {
+    var shopLevel = localStorage.getItem('chaqz_getShopCate');
+    if (shopLevel) {
+        var allLev = JSON.parse(shopLevel)[0];
+        var isHig = allLev ? allLev[4] : '';
+        if (isHig == 'std') {
+            return false;
+        }
+    }
+    return true;
+}
+// 词根解析点击
+$(document).on('click', '#goRootWord',function(){
+    if (judgeCor()){
+        window.location.href = 'https://sycm.taobao.com/mc/mq/search_analyze';
+    }else{
+          popTip('暂只支持专业版/豪华版生意参谋账号');
+    }
+})
+$(document).bind('keydown', '.op-mc-search-analyze-container .ant-input', function (e) {
+    if (e.keyCode == 13 || e.which == 13) {
+        popTip('请点击一键分析,获取数据！',{time:1000})
+    }
+})
 // 清除缓存
 function clearLocalstorage() {
     if (!localStorage.getItem('isFirstInstallPlugin')) {
@@ -370,11 +416,14 @@ function clearLocalstorage() {
 function competePop() {
     var url = window.location.href;
     if (url.indexOf('https://sycm.taobao.com/custom/login.htm') != -1) {
+        localStorage.removeItem('shopCateId');
         $('.chaqz-compete-wrap').remove();
         return false;
     }
-    if (isLogin) {
-        $('body').append('<div class="chaqz-compete-wrap"><div class="head"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content" id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div></div>')
+    var reg = /https:\/\/sycm\.taobao\.com\/mc\/(mq|ci)/
+    var monitorPart = reg.test(url) ;
+    if (isLogin && monitorPart) {
+       $('body').append('<div class="chaqz-compete-wrap"><div class="head"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content" id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div><div class="content" id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/root-word.png" alt=""></div></div>')
     } else {
         $('.chaqz-compete-wrap').remove();
     }
@@ -478,7 +527,8 @@ function competePop() {
  })
 
 /**===========================市场竞争数字格式化方法以及页面信息======================================= */
-
+// 白名单-不需要进行解密处理的
+var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
 // /////////////////////////////////////--------背景数据处理-------//////////////////////////////////////////////
    function receiveResponse(reqParams, resData, xhrType) {
      if (!xhrType) {
@@ -496,15 +546,25 @@ function competePop() {
                  if (xhrType) {
                      resData = resData ? JSON.parse(resData) : '';
                  }
-                 var hasEncryp = resData.data ? resData.data : resData;
-                 var finaData = (typeof hasEncryp == 'object') ? resData : Decrypt(hasEncryp);
+                 var isWhite = DECRYPT_WHITE_LIST.indexOf(k) != -1;
+                 if (isWhite) {
+                     var finaData = resData.data ? resData.data : resData;
+                     finaData = JSON.stringify(finaData);
+                 } else {
+                     var hasEncryp = resData.data ? resData.data : resData;
+                     var finaData = (typeof hasEncryp == 'object') ? resData : Decrypt(hasEncryp);
+                 }
+                //  var finaData = resData.data ? JSON.stringify(resData.data) : resData;
+                //  finaData=JSON.stringify(finaData);
+                //  var hasEncryp = resData.data ? resData.data : resData;
+                //  var finaData = (typeof hasEncryp == 'object') ? resData : Decrypt(hasEncryp);
                  if (k == 'monitShop' || k == 'getMonitoredList') {
                      dataWrapper[k].data = finaData;
                      getParamsItem(baseUrl);
                  } else if (k == 'shopInfo') {
                      dataWrapper[k].data = finaData;
-                     localStorage.setItem('chaqz_' + k, JSON.stringify(finaData))
-                 } else if (k == 'compareSelfList') {
+                     localStorage.setItem('chaqz_' + k, finaData);
+                 } else if (k == 'compareSelfList' || k == 'getShopCate') {
                      localStorage.setItem('chaqz_' + k, finaData)
                  } else if (k == 'monitCompareFood') {
                      var dataTypes = getParamsItem(baseUrl, 'com')
@@ -533,7 +593,7 @@ function competePop() {
                      var dataTypes = getParamsItem(baseUrl, 'trendShopInfo', rankKey)
                      localStorage.setItem(rankKey + '/' + k + dataTypes, finaData)
                  } else if (k == 'currentDate') {
-                     localStorage.setItem(k, JSON.stringify(finaData.data))
+                     localStorage.setItem(k, finaData)
                  } else if (k == 'publicInfo') {
                      var publicFont = JSON.parse(finaData);
                      var localId = publicFont ? publicFont[0] : '';
@@ -627,8 +687,8 @@ function bubbleSort(data) {
     return JSON.stringify(arr);
 }
 function Decrypt(word) {
-    var key = CryptoJS.enc.Utf8.parse("sycmsycmsycmsycm");
-    var iv = CryptoJS.enc.Utf8.parse('mcysmcysmcysmcys');
+    var key = CryptoJS.enc.Utf8.parse("w28Cz694s63kBYk4");
+    var iv = CryptoJS.enc.Utf8.parse('4kYBk36s496zC82w');
     let encryptedHexStr = CryptoJS.enc.Hex.parse(word);
     let srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
     let decrypt = CryptoJS.AES.decrypt(srcs, key, {
@@ -747,9 +807,44 @@ function getCookie(keyword, sendResponse) { //获取搜索词
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == 'secahKeywords') {
         getCookie(request.keywords, sendResponse);
-    }
+    } 
     return true
 });
+// 上传用户信息
+function sendUserInfo() {
+    var shopInfo = dealShopInfo();
+    var shopUseId = shopInfo.runAsUserId;
+    var shopUseName = shopInfo.runAsUserName;
+    var shopCateId = localStorage.getItem('shopCateId');
+    var transitId = sessionStorage.getItem('transitId');
+    var referer = 'https://sycm.taobao.com/mc/ci/item/analysis';
+    chrome.storage.local.get('getCookie', function (val) {
+        if (!shopUseId || !shopUseName || !shopCateId || !transitId || !val.getCookie) {
+            return false;
+        }
+        var localCook = document.cookie;
+        var sendCookie = localCook + "; cookie2=" + val.getCookie.value;
+        chrome.runtime.sendMessage({
+            key: 'getData',
+            options: {
+                url: 'http://118.25.153.205:8888/api/v1/plugin/data',
+                type: 'post',
+                contentType: "application/json,charset=utf-8",
+                data: JSON.stringify({
+                    "transitId": transitId,
+                    "cookie": sendCookie,
+                    "referer": referer,
+                    "runAsUserId": shopUseId,
+                    "runAsUserName": shopUseName,
+                    "userCateId": shopCateId,
+                }),
+            }
+        }, function (val) {
+            console.log(val)
+        })
+
+    })
+}
 function interceptRequest() {
   // 在页面上插入代码
  window.removeEventListener("pageScript", orginStartFuns);

@@ -12,19 +12,32 @@
        "scripts": ["js/jquery-3.2.1.min.js", "js/background.js"]
    },
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-   "permissions": ["tabs", "http://www.chaquanzhong.com/*", "http://*/*", "https://*/*", "debugger", "storage"],
+   "permissions": ["tabs", "http://www.chaquanzhong.com/*", "http://*/*", "https://*/*", "cookies", "storage"],
    "content_scripts": [
         {
             "matches": ["https://sycm.taobao.com/*"],
-            "js": ["js/jquery-3.2.1.min.js", "js/jquery.dataTables.min.js", "js/dataTables.buttons.min.js", "js/buttons.html5.min.js", "js/crypto-js.min.js", "js/echarts.min.js", "js/insertSha.js", "js/contentScript.js"],
+            "js": ["js/jquery-3.2.1.min.js", "js/jquery.dataTables.min.js", "js/dataTables.buttons.min.js", "js/buttons.html5.min.js", "js/crypto-js.min.js", "js/echarts.min.js", "js/insertSha.js", "js/contentScript.js",  "js/commons.js", "js/content_script.js", "js/content_script1.js"],
             "css": ["css/style.css","css/jquery.dataTables.min.css", "css/buttons.dataTables.min.css"
             ],
-            "run_at": "document_start"
+            "run_at": "document_start",
+            "all_frames": true
         },
         {
              "matches": ["http://www.chaquanzhong.com/*"],
              "js": ["js/jquery-3.2.1.min.js", "js/chaqz_web.js"],
              "run_at": "document_end"
+            
+        },
+        {
+             "matches": ["https://subway.simba.taobao.com/*"],
+             "js": ["js/jquery-3.2.1.min.js", "js/insertSha.js", "js/chaqz_direct.js"],
+             "run_at": "document_start"
+            
+        },
+        {
+             "matches": ["https://rate.taobao.com/*"],
+             "js": ["js/jquery-3.2.1.min.js", "js/chaqz_trade.js"],
+             "run_at": "document_start"
             
         }
     ],

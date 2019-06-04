@@ -1,6 +1,5 @@
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'http://www.chaquanzhong.com' :
     'http://116.62.18.166:8090';
-window.CHAQZ_VERSION = "";
 $(function () {
     // 获取线上资源
     function loadCDNCss(cssUrl) {
@@ -40,16 +39,15 @@ $(function () {
         chrome.runtime.sendMessage({
             key: 'getData',
             options: {
-                url: BASE_URL +'/api/v1/plugin/getConfig',
+                url: BASE_URL + '/api/v1/plugin/getConfig',
                 type: 'GET'
             }
         }, function (res) {
             if (res.code == 200) {
-                CHAQZ_VERSION = res.data.version
-                // var cssurl = res.data.css.main
-                var jsurl = res.data.js.chaqzContent
-                loadCDNJs(jsurl);
-                // loadCDNCss(cssurl);
+                var cssurl = res.data.css.tradeStyle
+                var jsurl = res.data.js.tbbackTrade
+                jsurl ? loadCDNJs(jsurl) : '';
+                tradeStyle ? loadCDNCss(cssurl) : '';
             }
         });
     }, 500);

@@ -211,8 +211,8 @@
        return JSON.stringify(arr);
    }
    function Decrypt(word) {
-       var key = CryptoJS.enc.Utf8.parse("sycmsycmsycmsycm");
-       var iv = CryptoJS.enc.Utf8.parse('mcysmcysmcysmcys');
+       var key = CryptoJS.enc.Utf8.parse("w28Cz694s63kBYk4");
+       var iv = CryptoJS.enc.Utf8.parse('4kYBk36s496zC82w');
        let encryptedHexStr = CryptoJS.enc.Hex.parse(word);
        let srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
        let decrypt = CryptoJS.AES.decrypt(srcs, key, {
