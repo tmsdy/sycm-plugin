@@ -234,5 +234,6 @@ export function LogOut() {
     chrome.storage.local.remove(['chaqz_token', 'compareProduceData'], function () {});
     localStorage.removeItem('chaqz_token');
     $('.chaqz-compete-wrap').remove();
-    LoadingPop()
+    LoadingPop();
+    $('#caseBlanche').remove();//词根管理弹窗
 }

@@ -397,7 +397,9 @@ $(document).on('click', '#goRootWord',function(){
     if (judgeCor()){
         window.location.href = 'https://sycm.taobao.com/mc/mq/search_analyze';
     }else{
-          popTip('暂只支持专业版/豪华版生意参谋账号');
+          popTip('暂只支持专业版/豪华版生意参谋账号', {
+              time: 2000
+          });
     }
 })
 $(document).on('keydown', '.op-mc-search-analyze-container .ant-input', function (e) {
