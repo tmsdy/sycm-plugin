@@ -35,7 +35,7 @@
             
         },
         {
-             "matches": ["https://trate.taobao.com/*"],
+             "matches": ["https://trade.taobao.com/*"],
              "js": ["js/jquery-3.2.1.min.js", "js/chaqz_trade.js"],
              "run_at": "document_start"
             
