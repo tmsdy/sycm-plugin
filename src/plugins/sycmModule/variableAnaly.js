@@ -1945,10 +1945,10 @@ function personRootWord(sendData) {
                 obj.keyword = relateWord[i].keyword;
                 obj.clcikCount = tranUv[i];
                 obj.trande = tranTrade[i];
-                obj.payrate = (relateWord[i].payConvRate * 100).toFixed(2) + '%';
+                obj.payrate = relateWord[i].payConvRate?(relateWord[i].payConvRate * 100).toFixed(2) + '%':"-";
                 obj.onShop = relateWord[i].onlineGoodsCnt;
-                obj.orders = Math.ceil(tranUv[i] * relateWord[i].payConvRate);
-                obj.avguv = relateWord[i].p4pAmt;
+                obj.orders = relateWord[i].payConvRate?Math.ceil(tranUv[i] * relateWord[i].payConvRate):'-';
+                obj.avguv = relateWord[i].p4pAmt ? (relateWord[i].p4pAmt*1).toFixed(2):"-";
                 obj.sexOne = personSearchData[i].sexOne;
                 obj.ageOne = personSearchData[i].ageOne;
                 obj.cerOne = personSearchData[i].cerOne;
@@ -1957,7 +1957,8 @@ function personRootWord(sendData) {
                 obj.cerTwo = personSearchData[i].cerTwo;
                 dealData.push(obj)
             }
-            var cols = [{
+            var cols = [
+                {
                     data: 'keyword',
                     title: '关键词',
                 },
