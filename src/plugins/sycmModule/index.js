@@ -403,7 +403,7 @@ $(document).on('click', '#goRootWord',function(){
 $(document).on('keydown', '.op-mc-search-analyze-container .ant-input', function (e) {
     if (!judgeCor()){return false;}
     if (e.keyCode == 13 || e.which == 13) {
-        popTip('请点击一键分析,获取数据！',{time:1000})
+        popTip('请点击一键分析,获取数据！',{time:2000})
     }
 })
 // 清除缓存
