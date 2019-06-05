@@ -162,7 +162,6 @@ chrome.cookies.get({
     url: 'https://sycm.taobao.com/',
     name: 'cookie2'
 }, function (cookie) {
-    console.log(cookie)
     chrome.storage.local.set({
         'getCookie': cookie
     }, function () {})

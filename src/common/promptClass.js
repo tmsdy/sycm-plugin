@@ -130,7 +130,9 @@ import {
      }
      $('#app').append('<div class="small-alert" style="' + st + '">' + text + '</div>');
      setTimeout(function () {
-         $('#app .small-alert').fadeOut(300)
+         $('#app .small-alert').fadeOut(300,function(){
+             $('#app .small-alert').remove();
+         })
      }, tm)
  }
   // 获取店铺信息

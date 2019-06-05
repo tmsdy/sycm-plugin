@@ -9,12 +9,12 @@ module.exports = {
   // mode:'production',
   entry: {
     // content-scripts
-    'content_script.js': ['./src/plugins/sycmModule/index.js', './src/plugins/sycmModule/variableAnaly.js'],
-    'content_script1.js': ['./src/plugins/sycmModule/monitor.js', './src/plugins/sycmModule/market.js'],
-    'contentScript.js': './src/plugins/contentScript.js',
+    'sycmContent.js': ['./src/plugins/sycmModule/index.js', './src/plugins/sycmModule/variableAnaly.js'],
+    'sycmContent1.js': ['./src/plugins/sycmModule/monitor.js', './src/plugins/sycmModule/market.js'],
+    'contentScript.js': './src/plugins/sycmModule/contentScript.js',
     
-    'chaqz_web.js': './src/plugins/chaqz_web.js',
-    'chaqz.js': './src/plugins/chaqzModule/chaqz.js',
+    'chaqz_web.js': './src/plugins/chaqzModule/chaqz_web.js',
+    'chaqzContent.js': './src/plugins/chaqzModule/chaqz.js',
 
     'chaqz_direct.js': './src/plugins/directTaobao/chaqz_direct.js',
     'tbDirect.js': './src/plugins/directTaobao/tbDirect.js',
@@ -22,8 +22,8 @@ module.exports = {
     'chaqz_trade.js': './src/plugins/tbTrade/chaqz_trade.js',
     'tbTrade.js': './src/plugins/tbTrade/tbTrade.js',
 
-    'interceptRquest.js': './src/utils/interceptRquest.js',
-    'insertSha.js': './src/plugins/insertSha.js',
+    // 'interceptRquest.js': './src/utils/interceptRquest.js',
+    // 'insertSha.js': './src/plugins/insertSha.js',
 
     // background-scripts
     'background.js': './src/plugins/background.js',
@@ -81,7 +81,7 @@ module.exports = {
     splitChunks: {
       cacheGroups: {
         commons: {
-          name: "commons.js",
+          name: "sycmCommons.js",
             chunks: "initial",
             minChunks: 2,
             minSize: 0
@@ -101,7 +101,6 @@ module.exports = {
        new webpack.DefinePlugin({
          'process.env.ASSET_PATH': JSON.stringify(process.env.NODE_ENV)
        }),
-       new webpack.HotModuleReplacementPlugin()
       // new webpack.ProvidePlugin({
       //   $: 'jquery',
       //   jQuery: 'jquery',

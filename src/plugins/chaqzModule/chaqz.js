@@ -1,12 +1,12 @@
-import {
-    BASE_URL
-}
-from '../../common/constState';
+var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'http://www.chaquanzhong.com' :
+    'http://118.25.153.205:8090';
 chrome.storage.local.get(['chaqz_token', 'compareProduceData'], function (valueArray) {
     var local = localStorage.getItem('token');
     var newLoacal = valueArray.chaqz_token;
     var hasSetToken = localStorage.getItem('pluginHasSetToken')
     if (newLoacal) {
+        // if (local != newLoacal ) {
+            console.log(BASE_URL)
         if (local != newLoacal && hasSetToken != newLoacal) {
             localStorage.setItem('token', valueArray.chaqz_token);
             localStorage.setItem('pluginHasSetToken', valueArray.chaqz_token);

@@ -12,7 +12,7 @@ import {
 var isLogin = false; //是否登录
 var SAVE_MEMBER = {};
 var SAVE_BIND = {};
-var SET_WAIT_TIME = 600000
+// var SET_WAIT_TIME = 600000
 // 对应模块数据存储
 var dataWrapper = {
     'monitShop': {
@@ -400,7 +400,8 @@ $(document).on('click', '#goRootWord',function(){
           popTip('暂只支持专业版/豪华版生意参谋账号');
     }
 })
-$(document).bind('keydown', '.op-mc-search-analyze-container .ant-input', function (e) {
+$(document).on('keydown', '.op-mc-search-analyze-container .ant-input', function (e) {
+    if (!judgeCor()){return false;}
     if (e.keyCode == 13 || e.which == 13) {
         popTip('请点击一键分析,获取数据！',{time:1000})
     }
@@ -840,7 +841,6 @@ function sendUserInfo() {
                 }),
             }
         }, function (val) {
-            console.log(val)
         })
 
     })

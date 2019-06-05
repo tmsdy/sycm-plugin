@@ -14,7 +14,6 @@ export function getTimeNode() {
         return ''
     }
     var res = JSON.parse(dateBox).split("|")[1];
-    console.log(res)
     return JSON.parse(res).value._d;
 }
 

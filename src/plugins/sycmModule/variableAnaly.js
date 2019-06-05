@@ -521,7 +521,8 @@ function domStructRootWord(data, rootType) {
     } else {
         $('#chaqzx-echarts-wrap').remove();
     }
-    LoadingPop()
+    LoadingPop();
+    textLoading('', 'hide');
 }
 /*------触发方法点击类-----*/
  // 竞品解析-切换终端-数据解析
@@ -665,7 +666,8 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
 $(document).on('click', '.op-mc-search-analyze-container #search', function () {
     textLoading();
      if (!isNewVersion()) {
-         return false
+         textLoading('', 'hide')
+         return false;
      };
     $('.op-mc-search-analyze-container .ebase-Switch__root .ebase-Switch__item').eq(1).trigger('click');
     $('.op-mc-search-analyze-container .oui-card .oui-card-header-wrapper .oui-tab-switch-item:contains("相关搜索词")').trigger('click');
@@ -1585,7 +1587,6 @@ function weightParsing(rivald, category, itemInfo) {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == 'chaqzWordHasDone') {
         if (request.cont.hasDone) {
-            textLoading('', 'hide')
             // session 存储数据
            chrome.storage.local.get('chaqzRootWord', function (val) {
                var chaqzRoot = val.chaqzRootWord;
