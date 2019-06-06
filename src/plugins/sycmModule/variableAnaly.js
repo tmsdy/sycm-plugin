@@ -1271,7 +1271,7 @@ function concatArr(decryData, decryDataTwo) {
                         obj.order = i + 1;
                         obj.source = decryData[i].pageName ? decryData[i].pageName.value : '';
                         obj.tradeIndex = res.tradeIndex[i] == '超出范围,请使用插件最高支持7.8亿' ? '-' : res.tradeIndex[i];
-                        obj.uvIndex = decryData[i].rivalItem1Uv ? decryData[i].rivalItem1Uv.value : '';
+                        obj.uvIndex = decryData[i].selfItemUv ? decryData[i].selfItemUv.value : '';
                         res.uvIndex[i] = obj.uvIndex;
                         obj.uvPrice = formula(obj.tradeIndex, obj.uvIndex, 1);
                         res.uvPrice[i] = obj.uvPrice;

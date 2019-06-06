@@ -360,9 +360,9 @@ function jsonFoodParse(val, type) {
          // uvIndex: []
      }
      data.forEach(function (item) {
-         var itemb1 = item.rivalItem1PayRateIndex ? item.rivalItem1PayRateIndex.value : 0
-         var itemb2 = item.rivalItem1TradeIndex ? item.rivalItem1TradeIndex.value : 0
-         var itemb3 = item.rivalItem1PayByrCntIndex ? item.rivalItem1PayByrCntIndex.value : 0
+         var itemb1 = item.selfItemPayRateIndex ? item.selfItemPayRateIndex.value : 0
+         var itemb2 = item.selfItemTradeIndex ? item.selfItemTradeIndex.value : 0
+         var itemb3 = item.selfItemPayByrCntIndex ? item.selfItemPayByrCntIndex.value : 0
          // var itemb4 = item.rivalItem1Uv ? item.rivalItem1Uv.value : 0
          res.payRate.push(itemb1);
          res.tradeIndex.push(itemb2);
