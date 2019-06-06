@@ -28,8 +28,10 @@ import {
 var tableInstance = null; //table实例对象
 var echartsInstance = null; //echarts实例对象
 var competeSelectId =0;
-var rootWordSaveKey = '';
+var rootWordSaveKey = '';//存储key
 var COUNTER = 0;
+var personDone = false;//人群搜索结束
+var ztcDone = false;//直通车结束
 // 判断是否有没有处理的词根模块的数据
 searchPeople()
 /** ----展现面板 ----*/
@@ -725,7 +727,7 @@ function relateHotDeal(searchWord, serDate) {
         chrome.runtime.sendMessage({
             type: "chaqzRootWordStart"
         }, function (response) {})
-        //  数据存取
+        //  人群数据存取
         chrome.storage.local.set({
             chaqzRootWord: {
                 keyword: searchWord,
@@ -745,6 +747,23 @@ function relateHotDeal(searchWord, serDate) {
             $('#app').append(iframe);
             // var urlBase = 'https://sycm.taobao.com/mc/mq/search_customer?selfCustomerId=' + searchFrist;
             // window.open(urlBase, "_blank")
+        })
+        //  直通车数据存取
+        chrome.storage.local.set({
+            ztcAreaData: {
+                keyword: searchWord,
+                step: 0,
+                tenKeyWords: needSearAll,
+                tenKeySearch: {}}
+        }, function () {
+            //  var urlBase = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
+            //  window.open(urlBase, "_blank")
+            var iframe = document.createElement('iframe');
+            iframe.id = "chaqz_ztc_frame",
+            iframe.style = "display:none;",
+            iframe.name = "ztc_polling",
+            iframe.src = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
+            $('#app').append(iframe);
         })
     } else {
         setTimeout(function () {
@@ -1586,12 +1605,25 @@ function weightParsing(rivald, category, itemInfo) {
 //  词根分析展示
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == 'chaqzWordHasDone') {
-        if (request.cont.hasDone) {
+        if (request.cont.type == 'personSear' && request.cont.hasDone) {
+            personDone = request.cont.hasDone;
+            $('#chaqz_frame').remove();
+        }
+        if (request.cont.type == 'ztcSear') {
+            ztcDone = request.cont.hasZTCDone;
+            $('#chaqz_ztc_frame').remove();
+        }
+        if (personDone && ztcDone) {
+            // 重置结果
+            personDone = false;
+            ztcDone = false;
             // session 存储数据
-           chrome.storage.local.get('chaqzRootWord', function (val) {
+           chrome.storage.local.get(['chaqzRootWord', 'ztcAreaData'], function (val) {
                var chaqzRoot = val.chaqzRootWord;
+               var chaqzZtc = val.ztcAreaData;
                var searchWord = chaqzRoot.keyword;
                var searchDate = chaqzRoot.saveDate;
+               chaqzRoot.ztcData = chaqzZtc.tenKeySearch;
                rootWordSaveKey = searchWord + '/' + searchDate;
                sessionStorage.setItem(rootWordSaveKey, JSON.stringify(chaqzRoot));
                rootWordAnaly(chaqzRoot);
@@ -1645,7 +1677,8 @@ function searchPeople() {
             chrome.runtime.sendMessage({
                 type: 'chaqzRootWordEnd',
                 cont:{
-                    hasDone:true
+                    hasDone:true,
+                    type: 'personSear'
                 }
             }, function () {})
             // window.close();
@@ -1689,7 +1722,8 @@ function checkLoaded(opWord, nextSearchKey, searchData) {
         chrome.runtime.sendMessage({
             type: 'chaqzRootWordEnd',
             cont: {
-                text: curStepPro
+                text: curStepPro,
+                type: 'personSear'
             }
         }, function () {})
         // 重新刷新

@@ -30,8 +30,9 @@
         },
         {
              "matches": ["https://subway.simba.taobao.com/*"],
-             "js": ["js/jquery-3.2.1.min.js", "js/insertSha.js", "js/chaqz_direct.js"],
-             "run_at": "document_start"
+             "js": ["js/jquery-3.2.1.min.js", "js/insertSha.js", "js/tbDirect.js"],
+             "run_at": "document_start",
+             "all_frames": true
             
         },
         {
