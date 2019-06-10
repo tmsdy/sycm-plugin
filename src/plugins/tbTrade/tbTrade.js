@@ -16,7 +16,7 @@ $(function () {
         console.log(e.target.id, ',', e.target.className)
         if (e.target.className == 'ww-inline ww-online') {
             if (haset) {
-                $('.item-mod__trade-order___2LnGB .buyer-mod__buyer___3NRwJ').parent().append('<button id="chaqzSearch">点击查黑号</button>');
+                $('.item-mod__trade-order___2LnGB .buyer-mod__buyer___3NRwJ').parent().append('<button id="chaqzSearch" class="tbtrade-btn">点击查黑号</button>');
                 haset = false
             }
 
@@ -63,7 +63,6 @@ var anyDom = {
                 isLogin = true;
                 $('.chaqz-info-wrapper.login').remove();
                 _that.searchHei(tbName);
-                alert('登陆成功！')
             } else {
                 $('.chaqz-info-wrapper.login .pwd .tips').text('账号或密码错误').show()
                 onLoading = false
@@ -116,22 +115,20 @@ var anyDom = {
             options: {
                 url: BASE_URL + '/api/v1/tools/failAccountCenter?account=' + tbName,
                 type: "GET",
-                //  data: JSON.stringify({
-                //      account: tbName
-                //  }),
-                //  contentType: "application/json,charset=utf-8",
                 headers: {
                     Authorization: "Bearer " + saveToke
                 }
             }
         }, function (val) {
             if (val.code == 200) {
-                console.log(val.data)
                 domstrcut(val.data)
                 LoadingPop()
-            } else {
+            } else if (val.code == -5500 || val.code == -5501 || val.code == -5502) {
+                popUp.init('renewal')
+                 LoadingPop()
+            }else{
                 LoadingPop()
-                alert('search error')
+                popTip('未查询到结果')
             }
         })
     }
@@ -153,9 +150,77 @@ function domstrcut(data) {
     if (!data) {
         return ''
     }
-    var dom = '<div class="chaqz-info-wrapper tbtrade"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><table class="trade-table"><tr><td><span class="label">旺旺号：</span>' + data.aliname + '<img src=""alt=""></td><td><span class="label">会员等级：</span>' + data.vLevel + '<img src=""alt=""></td><td><span class="label">是否商家：</span>' + data.isshoper + '</td></tr><tr><td><span class="label">性别：</span>' + data.sex + '<img src=""alt=""></td><td><span class="label">好评率：</span><span class="hot">' + data.ReceiveGoodRate + '</span></td><td><span class="label">账号类型：</span>' + data.register + '</td></tr><tr><td><span class="label">注册时间：</span>' + data.register + '</td><td><span class="label">淘龄：</span><span class="hot">' + data.tbages + '</span></td><td><span class="label">周均单：</span>' + data.week + '</td></tr><tr><td><span class="label">是否实名：</span><span class="blue">' + data.realname + '</span></td><td><span class="label">是否超级会员：</span>' + data.supper + '<img src=""alt=""></td><td><span class="label">买家信誉：</span>' + data.prestige + '</td></tr><tr><td><span class="label">最近消费力度：</span><span class="blue">' + data.xfld + '</span></td><td><span class="label">最近登录时间：</span>' + data.LastLoginTime + '</td><td><span class="label">查询次数：</span>' + data.snums + '</td></tr></table><div class="customer-label"><span class="customr">用户标签</span>' + data.tag + '</div><table class="report-table"><tr class="thead"><td>举报类型</td><td>跑单</td><td>敲诈</td><td>骗子</td><td>打假</td><td>差评</td><td>淘客</td><td>降权</td><td>黑名单</td></tr><tr><td>举报次数</td><td>' + data.pd + '</td><td>' + data.qz + '</td><td>' + data.pz + '</td><td>' + data.dj + '</td><td>' + data.cp + '</td><td>' + data.tk + '</td><td>' + data.jq + '</td><td>' + data.hmd + '</td></tr></table></div></div>';
+    var wLevel = data.vLevel ? data.vLevel.slice(1):'';
+    var isShoper = data.supper == '是' ? 'hShoper.png' : data.supper == '否' ? 'hNoshpper.png' : '';
+    var sex = data.sex == '女' ? 'hSex-w.png' : data.sex == '男' ? 'hSex-w.png' : '';
+    var customerLabel = data.tag? ('<div class="customer-label"><span class="customr">用户标签</span>' + data.tag + '</div>'):'';
+    var isShop = data.isshoper ? data.isshoper:'~';
+    var dom = '<div class="chaqz-info-wrapper tbtrade"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><table class="trade-table"><tr><td><span class="label">旺旺号：</span>' + data.aliname + '<img src="https://file.cdn.chaquanzhong.com/hwangwnag.png"alt=""></td><td><span class="label">会员等级：</span>' + data.vLevel + '<img src="https://file.cdn.chaquanzhong.com/hLevel-' + wLevel + '.png"alt=""></td><td><span class="label">是否商家：</span>' + isShop + '</td></tr><tr><td><span class="label">性别：</span>' + data.sex + '<img src="https://file.cdn.chaquanzhong.com/' + sex + '"alt=""></td><td><span class="label">好评率：</span><span class="hot">' + data.ReceiveGoodRate + '</span></td><td><span class="label">账号类型：</span>~</td></tr><tr><td><span class="label">注册时间：</span>' + data.register + '</td><td><span class="label">淘龄：</span><span class="hot">' + data.tbages + '</span></td><td><span class="label">周均单：</span>' + data.week + '</td></tr><tr><td><span class="label">是否实名：</span><span class="blue">' + data.realname + '</span></td><td><span class="label">是否超级会员：</span>' + data.supper + '<img src="https://file.cdn.chaquanzhong.com/' + isShoper + '"alt=""></td><td><span class="label">买家信誉：</span>' + data.prestige + '</td></tr><tr><td><span class="label">最近消费力度：</span><span>' + data.xfld + '</span></td><td><span class="label">最近登录时间：</span>' + data.LastLoginTime + '</td><td><span class="label">查询次数：</span>' + data.snums + '</td></tr></table>' + customerLabel + '<table class="report-table"><tr class="thead"><td>举报类型</td><td>跑单</td><td>敲诈</td><td>骗子</td><td>打假</td><td>差评</td><td>淘客</td><td>降权</td><td>黑名单</td></tr><tr><td>举报次数</td><td>' + data.pd + '</td><td>' + data.qz + '</td><td>' + data.pz + '</td><td>' + data.dj + '</td><td>' + data.cp + '</td><td>~</td><td>' + data.jq + '</td><td>' + data.hmd + '</td></tr></table></div></div>';
     $('#page').append(dom);
 }
 $(document).on('click', '.chaqz-info-wrapper .hided', function () {
     $('.chaqz-info-wrapper').remove()
 })
+var popUp = {
+    renewal: '<p class="tips"> 已达使用上限,请前往官网升级续费。</p><div class="cha-btns"><button class="cancel  mr_30 btn hided">取消</button><button class="btn buyBtn">前往</button></div>',
+    orderSucc: '<p class="tips">若订购成功请刷新。</p><div class="cha-btns"><button id="pageRefresh" class="btn">确定</button></div>',
+    weixin: '<p class="head">查权重客服很高兴为您服务</p><img src="https://file.cdn.chaquanzhong.com/wx_contact.jpg" alt="wx"><p class="foot">微信扫一扫 添加客服</p>',
+    init: function (type, data) {
+        if ($('.chaqz-info-wrapper.pop').length) {
+            this.changeDom(type, data)
+            return false
+        }
+        var wrapFont = '<div class="chaqz-info-wrapper pop"><div class="c-cont"><span class="close hided" click="hideInfo">×</span><div class="alert">'
+        var wrapEnd = '</div></div></div>'
+        var resultDom = ''
+        if (typeof this[type] == 'function') {
+            resultDom = this[type](data)
+        } else {
+            resultDom = this[type]
+        }
+        var _html = wrapFont + resultDom + wrapEnd;
+        var _that = this
+        $('#page').append(_html)
+        // 事件加载
+        $('.chaqz-info-wrapper.pop').on('click', '.buyBtn', function () {
+            window.open(BASE_URL + '/vipInfo')
+            _that.init('orderSucc')
+        })
+        $('.chaqz-info-wrapper.pop').on('click', '#pageRefresh', function () { //刷新
+            window.location.reload();
+        })
+        $(document).on('click', '.chaqz-info-wrapper.pop .contactService', function () {
+            _that.init('weixin')
+        })
+    },
+    changeDom: function (type, data) {
+        //弹窗存在更换内容
+        var changeHtml = ''
+        if (typeof this[type] == 'function') {
+            changeHtml = this[type](data)
+        } else {
+            changeHtml = this[type]
+        }
+        $('.chaqz-info-wrapper.pop .c-cont .alert').html(changeHtml)
+        $('.chaqz-info-wrapper.pop').show()
+    },
+
+}
+function popTip(text, options) {
+    var st = '';
+    var tm = '';
+    if (options) {
+        st = options ? options.style : '';
+        tm = options ? options.time : 500;
+    }
+    $('#page').append('<div class="small-alert" style="' + st + '">' + text + '</div>');
+    setTimeout(function () {
+        $('#page .small-alert').fadeOut(300, function () {
+            $('#page .small-alert').remove();
+        })
+    }, tm)
+}
+ // 关闭登录弹窗
+ $(document).on('click', '.chaqz-info-wrapper .hided', function () {
+     $('.chaqz-info-wrapper.login').remove()
+ })

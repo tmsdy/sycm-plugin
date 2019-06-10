@@ -574,6 +574,88 @@
     transform: translateZ(0);
 }
 
+/* taobao 交易明细 */
+.tbtrade-btn {
+    width: 92px;
+    height: 28px;
+    background: rgba(255, 101, 39, 1);
+    border-radius: 3px;
+    outline: none;
+    border: 0;
+    color: #fff;
+}
+.tbtrade .c-cont {
+    width: 1200px;
+    padding: 16px 30px;
+    font-size: 14px;
+    color: #222;
+}
+
+.tbtrade .c-cont .trade-table,
+.tbtrade .c-cont .report-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.tbtrade .c-cont .trade-table td {
+    height: 45px;
+}
+
+.tbtrade .c-cont .trade-table td .label {
+    display: inline-block;
+    width: 108px;
+}
+
+.tbtrade .c-cont .trade-table img {
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.tbtrade .c-cont .trade-table .hot {
+    color: #FF4C3E;
+}
+
+.tbtrade .c-cont .trade-table .blue {
+    color: #3A7D21;
+}
+
+.tbtrade .c-cont .customer-label {
+    margin-top: 15px;
+    padding-top: 20px;
+    padding-bottom: 30px;
+    border-top: 1px solid #E5E5E5;
+}
+
+.tbtrade .c-cont .customer-label .customr {
+    display: inline-block;
+    width: 70px;
+    height: 26px;
+    line-height: 24px;
+    border: 1px solid rgba(75, 146, 236, 1);
+    border-radius: 5px;
+    text-align: center;
+    color: #4B92EC;
+    margin-right: 10px;
+}
+
+.tbtrade .c-cont .report-table {
+    border: 1px solid #E5E5E5;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.tbtrade .c-cont .report-table .thead {
+    background: #4B92EC;
+}
+
+.tbtrade .c-cont .report-table td {
+    color: #666;
+    height: 43px;
+}
+.tbtrade .c-cont .report-table .thead td {
+    color: #fff;
+}
+
 @keyframes load3 {
     0% {
         -webkit-transform: scale(0);
@@ -609,6 +691,7 @@
 .chaqz-info-wrapper.login .c-cont {
     width: 360px;
     padding: 30px;
+    box-sizing: border-box;
 }
 
 .chaqz-info-wrapper.login .login-btn {
@@ -760,7 +843,7 @@
     height: 60px;
     line-height: 60px;
     text-align: center;
-    padding:0 10px;
+    padding: 0 10px;
     color: #fff;
     font-size: 14px;
     border-radius: 5px;
@@ -903,6 +986,7 @@
 .analy-goods .good-tips.alert {
     display: block;
 }
+
 /* 市场--搜索分析 */
 .root-word-entry {
     font-size: 24px;
@@ -910,12 +994,15 @@
     margin-top: 50px;
     text-align: center;
 }
-.op-mc-search-analyze-container .chaqz-btns.btnsItem1{
+
+.op-mc-search-analyze-container .chaqz-btns.btnsItem1 {
     float: left;
 }
-#chaqz-table-trend .bstr{
-    background: rgba(75, 146, 236,0.5);
+
+#chaqz-table-trend .bstr {
+    background: rgba(75, 146, 236, 0.5);
 }
+
 /* loading */
 .load-pop {
     position: fixed;
@@ -925,16 +1012,19 @@
     z-index: 10000000000000;
     /* display: none; */
 }
+
 .load-pop.progress {
     background: rgba(0, 0, 0, .5);
 }
+
 .load-pop.progress .spinner {
     width: 70px;
     height: 70px;
 }
+
 .load-pop.progress .load-text {
-   text-align: center;
-   font-size: 20px;
+    text-align: center;
+    font-size: 20px;
 }
 
 .spinner {
@@ -1079,61 +1169,65 @@
         -webkit-transform: scale(1.0);
     }
 }
+
 /* loaigng text */
-   #caseBlanche {
-       background-color: rgba(0, 0, 0, 0.75);
-       height: 100%;
-       width: 100%;
-       /* padding-top: 10px; */
-       float: left;
-       position: fixed;
-       top: 0;
-       left: 0;
-       z-index: 10000000;
-       font-size: 20px;
-   }
+#caseBlanche {
+    background-color: rgba(0, 0, 0, 0.75);
+    height: 100%;
+    width: 100%;
+    /* padding-top: 10px; */
+    float: left;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000000;
+    font-size: 20px;
+}
 
-   #caseBlanche #load {
-       color: #fff;
-       /* font-family: calibri; */
-       text-align: center;
-       position: absolute;
-       top: 50%;
-       left: 50%;
-       transform: translate(-50%, -50%);
-   }
-   #caseBlanche #load .text{
-       display: inline-block;
-   }
- #rond {
-     height: 20px;
-     width: 20px;
-     border: 1px solid #fff;
-     border-radius: 50%;
-     animation: rond 2s infinite;
-     -webkit-animation: rond 2s infinite;
-     border: 2px solid #366CE7;
-     border-bottom: 0;
-     display: inline-block;
-     vertical-align: middle;
-     margin-right: 10px;
- }
- @keyframes rond {
-     0% {
-         transform: rotate(0deg);
-     }
+#caseBlanche #load {
+    color: #fff;
+    /* font-family: calibri; */
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
 
-     100% {
-         transform: rotate(360deg);
-     }
- }
+#caseBlanche #load .text {
+    display: inline-block;
+}
 
- @-webkit-keyframes rond {
-     0% {
-         -webkit-transform: rotate(0deg);
-     }
+#rond {
+    height: 20px;
+    width: 20px;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    animation: rond 2s infinite;
+    -webkit-animation: rond 2s infinite;
+    border: 2px solid #366CE7;
+    border-bottom: 0;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
 
-     100% {
-         -webkit-transform: rotate(360deg);
-     }
- }
+@keyframes rond {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes rond {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
