@@ -477,7 +477,8 @@ function dealTradeGrowth(data) {
     var chooseTop = $('.mc-marketMonitor .oui-tab-switch .oui-tab-switch-item-active').index()
     var curPage = $('.mc-marketMonitor .ant-pagination .ant-pagination-item-active').attr('title')
     var curPageSize = $('.mc-marketMonitor .oui-page-size .ant-select-selection-selected-value').text()
-    var backT = chooseTop ? 'marketFood' : 'marketShop';
+    curPageSize = Number(curPageSize)
+    var backT = chooseTop ? 'monitFood' : 'marketShop';
    // var itemKey = getSearchParams(backT, curPage, curPageSize)
 
    var localCache = false;

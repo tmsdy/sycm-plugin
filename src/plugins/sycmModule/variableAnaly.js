@@ -782,7 +782,7 @@ $(document).on('click', '.op-mc-search-analyze-container #search', function () {
      };
     $('.op-mc-search-analyze-container .ebase-Switch__root .ebase-Switch__item').eq(1).trigger('click');
     $('.op-mc-search-analyze-container .oui-card .oui-card-header-wrapper .oui-tab-switch-item:contains("相关搜索词")').trigger('click');
-    var searchWord = $('.op-mc-search-analyze-container .op-cc-item-info .item-keyword').text();
+    var searchWord = $('.op-mc-search-analyze-container .op-cc-item-info .item-keyword').text().toLocaleLowerCase();
     var searchTime = $('.op-mc-search-analyze-container .oui-date-picker-current-date').text()
     var serDate = searchTime.split(' ')[1];
     var hasSaveData = sessionStorage.getItem(searchWord + '/' + serDate);
@@ -807,7 +807,8 @@ function relateWordDeal(searchWord, serDate) {
     }else{
         setTimeout(function(){
             if(COUNTER>20){
-                textLoading('', 'hide')
+                textLoading('', 'hide');
+                COUNTER=0;
                 popTip('数据获取失败，请刷新重试！');
                return false;
             }
@@ -865,19 +866,20 @@ function relateHotDeal(searchWord, serDate) {
                 tenKeyWords: needSearAll,
                 tenKeySearch: {}}
         }, function () {
-            //  var urlBase = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
-            //  window.open(urlBase, "_blank")
-            var iframe = document.createElement('iframe');
-            iframe.id = "chaqz_ztc_frame",
-            iframe.style = "display:none;",
-            iframe.name = "ztc_polling",
-            iframe.src = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
-            $('#app').append(iframe);
+             var urlBase = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
+             window.open(urlBase)
+            // var iframe = document.createElement('iframe');
+            // iframe.id = "chaqz_ztc_frame",
+            // iframe.style = "display:none;",
+            // iframe.name = "ztc_polling",
+            // iframe.src = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
+            // $('#app').append(iframe);
         })
     } else {
         setTimeout(function () {
             if (COUNTER > 20) {
                 popTip('数据获取失败，请刷新重试！');
+                COUNTER = 0;
                 return false;
             }
             COUNTER++
@@ -1826,13 +1828,16 @@ function weightParsing(rivald, category, itemInfo) {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == 'chaqzWordHasDone') {
         if (request.cont.type == 'personSear' && request.cont.hasDone) {
+            console.log('ztcddd')
             personDone = request.cont.hasDone;
             $('#chaqz_frame').remove();
         }
         if (request.cont.type == 'ztcSear') {
+            console.log('ztcSear')
             ztcDone = request.cont.hasZTCDone;
             $('#chaqz_ztc_frame').remove();
         } else if (request.cont.type == 'ztcBreak'){
+            console.log('break')
              chrome.storage.local.set({
                          ztcAreaData: {
                              ISFINSH:true
@@ -1969,6 +1974,7 @@ function checkLoaded(opWord, nextSearchKey, searchData) {
 }
 
 function getLocalItemData(keyword, opWord, type) {
+    opWord = opWord ? opWord.toLocaleLowerCase() : '';
     var opWord = type ? (opWord + '||') : opWord;
     var _selfCarceer = getSearchParams(keyword, 1, 10, 0, {
         keyword: opWord,

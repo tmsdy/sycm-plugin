@@ -51,6 +51,7 @@ function judgeGetData() {
         if (isFinshed) {
             return false
         }
+        textLoading()
         cycleData(baseData)
     })
 }
@@ -71,7 +72,8 @@ function cycleData(baseData) {
         var finalArea = filterAreaData(keyword, areaInfo, deviceData);
         var curStep = baseData.step;
         baseData.step = curStep + 1;
-        if (curStep >= baseData.tenKeyWords.length-1) {
+        textLoading(curStep + '/' + baseData.tenKeyWords.length + ',获取数据中，请稍等…')
+        if (curStep >= baseData.tenKeyWords.length) {
             baseData.ISFINSH = true;
              chrome.storage.local.set({
                  ztcAreaData: baseData
@@ -84,11 +86,13 @@ function cycleData(baseData) {
                       }
                   }, function () {})
              })
+             window.close();
             return false;
         }
         
         var nextSearchKey = baseData.tenKeyWords[curStep + 1]; //下一个搜索词
         baseData.tenKeySearch[keyword] = finalArea;
+        console.log(nextSearchKey)
         var urlBase = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + nextSearchKey + '&tab=tabs-region';
         window.open(urlBase, "_self")
         dataWrapper.deviceData.data = '';
@@ -104,18 +108,18 @@ function cycleData(baseData) {
         // })
     } else {
         setTimeout(function(){
-            if (ZTCCOUNT<10){
-                 ZTCCOUNT++;
+            // if (ZTCCOUNT<20){
+                //  ZTCCOUNT++;
                  cycleData(baseData)
-            }else{
-                 chrome.runtime.sendMessage({
-                     type: 'chaqzRootWordEnd',
-                     cont: {
-                         hasZTCDone: false,
-                         type: 'ztcBreak'
-                     }
-                 }, function () {})
-            }
+            // }else{
+                //  chrome.runtime.sendMessage({
+                //      type: 'chaqzRootWordEnd',
+                //      cont: {
+                //          hasZTCDone: false,
+                //          type: 'ztcBreak'
+                //      }
+                //  }, function () {})
+            // }
         },500)
     }
 }
@@ -151,4 +155,18 @@ function bubbleSort(arr) { //排序
         }
     }
     return arr;
+}
+// loading
+function textLoading(text, statu) {
+    if (statu) {
+        $('#caseBlanche').remove();
+    } else {
+        var deText = text ? text : '获取数据中，请稍等…';
+        var hasSave = $('#caseBlanche').length;
+        if (hasSave){
+            $('#caseBlanche .text').text(text);
+        }else{
+             $('body').append('<div id="caseBlanche"><div id="load"><p id="rond"></p><p class="text">' + deText + '</p></div></div>');
+        }
+    }
 }

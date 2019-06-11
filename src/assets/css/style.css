@@ -1021,7 +1021,12 @@
 #chaqz-table-trend .bstr {
     background: rgba(75, 146, 236, 0.5);
 }
-
+.chaqz-wrapper .rootword-table table tr th,
+.chaqz-wrapper .rootword-table table tr td{
+    white-space: nowrap;
+    padding-left: 3px;
+    padding-right: 3px;
+}
 /* loading */
 .load-pop {
     position: fixed;
