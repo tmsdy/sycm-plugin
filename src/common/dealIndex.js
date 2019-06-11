@@ -44,6 +44,7 @@
                      responseData[compareItem][type] = val.data
                  }
              } else if (val.code == 2030) {
+                 popTip('登录过期，请重新登录！');
                  LogOut()
                  requestNum = 0
              }

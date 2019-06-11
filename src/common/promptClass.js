@@ -123,10 +123,10 @@ import {
  // tushi
  export function popTip(text, options) {
      var st = '';
-     var tm = '';
+     var tm = 500;
      if(options){
          st = options ? options.style:'';
-         tm = options ? options.time:500;
+         tm = options ? options.time:tm;
      }
      $('#app').append('<div class="small-alert" style="' + st + '">' + text + '</div>');
      setTimeout(function () {
