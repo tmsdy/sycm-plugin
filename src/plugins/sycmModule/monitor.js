@@ -110,7 +110,9 @@ var PLAN_LIST = [];
                   $('.mc-marketMonitor .ant-pagination .ant-pagination-item-' + (info.page + 1)).click()
                   var titleType = title == '监控店铺' ? 'marketShop' : 'monitFood'
                   var localKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize)
-                  var hasSave = localStorage.getItem(localKey)
+                  var localCacheKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize, 'local');
+                  var hasSave = localStorage.getItem(localKey);
+                  var localSave = localStorage.getItem(localCacheKey);
                  if (!(hasSave || localSave)) {
                      timer = setInterval(function () {
                          hasSave = localStorage.getItem(localKey);
@@ -166,7 +168,9 @@ var PLAN_LIST = [];
                   $('.chaqz-wrapper .chaqz-mask').show(100)
                   $('#mqItemMonitor .ant-pagination .ant-pagination-item-' + (info.page + 1)).click()
                   var localKey = getSearchParams('monitFood', (info.page + 1), data.paging.pageSize)
-                  var hasSave = localStorage.getItem(localKey)
+                  var localCacheKey = getSearchParams('monitFood', (info.page + 1), data.paging.pageSize,'local')
+                  var hasSave = localStorage.getItem(localKey);
+                  var localSave = localStorage.getItem(localCacheKey);
                  if (!(hasSave || localSave)) {
                      timer = setInterval(() => {
                          hasSave = localStorage.getItem(localKey);

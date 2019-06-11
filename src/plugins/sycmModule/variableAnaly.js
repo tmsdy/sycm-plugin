@@ -28,6 +28,7 @@ import {
 var tableInstance = null; //table实例对象
 var echartsInstance = null; //echarts实例对象
 var competeSelectId =0;
+var competeType = 'cross';
 var rootWordSaveKey = '';
 var COUNTER = 0;
 // 判断是否有没有处理的词根模块的数据
@@ -70,8 +71,9 @@ function domStructEchart(data, eDate, edata, time, chartType) {
         ]
     });
     echartsInstance = echarts.init(document.getElementById('chaqzx-echarts-wrap'));
+    var option = '';
     if (chartType == 1) {
-        var option = {
+         option = {
             tooltip: {
                 trigger: 'axis'
             },
@@ -138,7 +140,7 @@ function domStructEchart(data, eDate, edata, time, chartType) {
             ]
         };
     } else if (chartType == 2) {
-        var option = {
+         option = {
             tooltip: {
                 trigger: 'axis'
             },
@@ -190,8 +192,98 @@ function domStructEchart(data, eDate, edata, time, chartType) {
                 }
             ]
         };
+    } else if (competeType=='cross') {
+         option = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            toolbox: {
+                show: true
+            },
+            legend: {
+                show: true
+            },
+            grid: {
+                right: '5%',
+                left: '5%',
+                bottom: 100
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: eDate
+            },
+            yAxis: [
+                {
+                type: 'value',
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    show: false
+                },
+                splitLine: {
+                    show: true
+                }
+                }, 
+                {
+                    type: 'value',
+                    show: false,
+                }, 
+                {
+                    type: 'value',
+                    show: false,
+                }],
+            series: [
+                {
+                    name: '访客人数',
+                    type: 'line',
+                    smooth: true,
+                    yAxisIndex: 0,
+                    data: edata.uvIndex
+                },
+                {
+                    name: '交易金额',
+                    type: 'line',
+                    smooth: true,
+                    yAxisIndex: 2,
+                    data: edata.tradeIndex
+                },
+                {
+                    name: '转化率（%）',
+                    type: 'line',
+                    smooth: true,
+                    yAxisIndex: 1,
+                    data: edata.payRateIndex
+                },
+                {
+                    name: 'uv价值',
+                    type: 'line',
+                    smooth: true,
+                    yAxisIndex: 1,
+                    data: edata.uvPrice
+                },
+                {
+                    name: '买家数',
+                    type: 'line',
+                    smooth: true,
+                    yAxisIndex: 0,
+                    data: edata.payByr
+                },
+                {
+                    name: '客单价',
+                    type: 'line',
+                    smooth: true,
+                    yAxisIndex: 0,
+                    data: edata.kdPrice
+                },
+            ]
+        };
     } else {
-        var option = {
+         option = {
             tooltip: {
                 trigger: 'axis'
             },
@@ -525,6 +617,22 @@ function domStructRootWord(data, rootType) {
     textLoading('', 'hide');
 }
 /*------触发方法点击类-----*/
+ // 竞品解析-切换是否夸类目-关键词项显影
+ $(document).on('click', '.chaqz-info-wrapper .cross-btn', function () {
+      if ($(this).hasClass('hasCross')) {
+          return false;
+      }
+      var _index = $(this).index();
+      $(this).addClass('hasCross').siblings().removeClass('hasCross');
+       competeType = _index ? 'all' : 'cross';
+      if (_index){
+        $('.chaqz-info-wrapper .analyBtn').eq(2).removeClass('hide-btn');
+        $('.chaqz-info-wrapper .bot-tips').removeClass('hide-btn');
+      }else{
+          $('.chaqz-info-wrapper .analyBtn').eq(2).addClass('hide-btn');
+          $('.chaqz-info-wrapper .bot-tips').addClass('hide-btn');
+      }
+ })
  // 竞品解析-切换终端-数据解析
  $(document).on('click', '.chaqz-wrapper .switchData', function () {
      if ($(this).hasClass('active')) {
@@ -532,8 +640,8 @@ function domStructRootWord(data, rootType) {
      }
      var btnArr = [0, 2, 1];
      var btnIndex = $(this).index();
-     $(this).addClass('active').siblings().removeClass('active')
-     competeDataAnaly(competeSelectId, btnArr[btnIndex])
+     $(this).addClass('active').siblings().removeClass('active');
+     competeDataAnaly(competeSelectId, btnArr[btnIndex],competeType);
  })
  // 竞品解析-切换终端-流量解析
  $(document).on('click', '.chaqz-wrapper .switchFlow', function () {
@@ -573,7 +681,7 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
     var index = $(this).index();
     switch (index) {
         case 0:
-            competeDataAnaly(isPassReg, 0);
+            competeDataAnaly(isPassReg, 0, competeType);
             break;
         case 1:
             competeFlowAnaly(isPassReg, 2);
@@ -953,14 +1061,17 @@ function concatArr(decryData, decryDataTwo) {
 }
 /**=========================== table数据获取 ======================================= */
 // 竞品解析-数据解析
- function competeDataAnaly(rivalId, device) {
+ function competeDataAnaly(rivalId, device,type) {
     LoadingPop('show')
     var nowTime = getCurrentTime('moreDay');
-    //  var dateRange = setDateRange(nowTime, 'day');
+     var dayRange = setDateRange(nowTime, 'day');
     var dateRange = setDateRange(nowTime);
     var titleDate = dateRange.replace('|', '~');
     var localCateId = localStorage.getItem('shopCateId');
     var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent30&dateRange=" + dateRange + "&device=" + device + "&cateId=" + localCateId + "&rivalItem1Id=" + rivalId;
+    if(type=='cross'){
+        finalUrl = 'https://sycm.taobao.com/mc/ci/item/trend.json?dateType=day&dateRange=' + dayRange + '&cateId=' + localCateId + '&itemId=' + rivalId + '&device=' + device + '&sellerType=-1&indexCode=uvIndex%2CpayRateIndex%2CtradeIndex%2CpayByrCntIndex'
+    }
     var localData = localStorage.getItem(finalUrl);
     var hasWrap = $('.chaqz-wrapper').length
     if (localData) {
@@ -969,34 +1080,57 @@ function concatArr(decryData, decryDataTwo) {
             var echartData = saveData.eData
             tableInstance.clear();
             tableInstance.rows.add(saveData.tableData).draw()
-            echartsInstance.setOption({
-                series: [{
-                    data: echartData.uvIndex
-                }, {
-                    data: echartData.tradeIndex
-                }, {
-                    data: echartData.seIpvUvHits
-                }, {
-                    data: echartData.cltHits
-                }, {
-                    data: echartData.payRateIndex
-                }, {
-                    data: echartData.payItemCnt
-                }, {
-                    data: echartData.cartHits
-                }, {
-                    data: echartData.uvPrice
-                }, {
-                    data: echartData.searchRate
-                }, {
-                    data: echartData.cangRate
-                }, {
-                    data: echartData.payItemCnt
-                }, {
-                    data: echartData.buyRate
-                }]
-            })
-
+            if (type == 'cross') {
+                echartsInstance.setOption({
+                    series: [{
+                            data: echartData.uvIndex
+                        },
+                        {
+                            data: echartData.tradeIndex
+                        },
+                        {
+                            data: echartData.payRateIndex
+                        },
+                        {
+                            data: echartData.uvPrice
+                        },
+                        {
+                            data: echartData.payByr
+                        },
+                        {
+                            data: echartData.kdPrice
+                        },
+                    ]
+                })
+            }else{
+                echartsInstance.setOption({
+                    series: [{
+                        data: echartData.uvIndex
+                    }, {
+                        data: echartData.tradeIndex
+                    }, {
+                        data: echartData.seIpvUvHits
+                    }, {
+                        data: echartData.cltHits
+                    }, {
+                        data: echartData.payRateIndex
+                    }, {
+                        data: echartData.payItemCnt
+                    }, {
+                        data: echartData.cartHits
+                    }, {
+                        data: echartData.uvPrice
+                    }, {
+                        data: echartData.searchRate
+                    }, {
+                        data: echartData.cangRate
+                    }, {
+                        data: echartData.payItemCnt
+                    }, {
+                        data: echartData.buyRate
+                    }]
+                })
+                }
         } else {
             domStructEchart({
                 data: saveData.tableData,
@@ -1025,8 +1159,13 @@ function concatArr(decryData, decryDataTwo) {
                     return false;
                 }
                 // var decryData =res.data.rivalItem1;
-                var decryData = JSON.parse(Decrypt(res.data)).rivalItem1;
-                var sendDecryData = {
+                var decryData = type == 'cross' ? JSON.parse(Decrypt(res.data)):JSON.parse(Decrypt(res.data)).rivalItem1;
+                var sendDecryData = type == 'cross' ?{
+                    payRateIndex: decryData.payRateIndex,
+                    payByr: decryData.payByrCntIndex ? decryData.payByrCntIndex : [],
+                    tradeIndex: decryData.tradeIndex,
+                    uvIndex: decryData.uvIndex
+                } :{
                     cartHits: decryData.cartHits,
                     cltHits: decryData.cltHits,
                     payRateIndex: decryData.payRateIndex,
@@ -1044,7 +1183,9 @@ function concatArr(decryData, decryDataTwo) {
                     res.searchRate = []
                     res.cangRate = []
                     res.buyRate = []
-                    res.payItemCnt = decryData.payItemCnt
+                    res.kdPrice = []
+                    res.payByr = res.payByrCntIndex ? res.payByrCntIndex:[];
+                    res.payItemCnt = decryData.payItemCnt;
                     var eDateArr = getDateRange(nowTime);
                     var tableDateArr = getDateRange(nowTime);
                     for (var i = 0; i < 30; i++) {
@@ -1053,11 +1194,26 @@ function concatArr(decryData, decryDataTwo) {
                         obj.date = tableDateArr[i]
                         obj.tradeIndex = res.tradeIndex[i] == '超出范围,请使用插件最高支持7.8亿' ? '-' : res.tradeIndex[i]
                         obj.uvIndex = res.uvIndex[i]
+                        obj.payRate = res.payRateIndex[i] + "%";
+                        obj.uvPrice = formula(obj.tradeIndex, res.uvIndex[i], 1)
+                        if (type == 'cross'){
+                            if (res.payByrCntIndex){
+                                obj.payByr = res.payByrCntIndex[i];
+                            }else{
+                                obj.payByr = Math.floor(res.payRateIndex[i] * res.uvIndex[i] / 100);
+                                 res.payByr.push(obj.payByr)
+                            }
+                            obj.kdPrice = formula(obj.tradeIndex, obj.payByr, 1);
+
+                              //  echarts数据
+                              res.kdPrice.push(obj.kdPrice);
+                              res.uvPrice.push(obj.uvPrice);
+                              resData.push(obj);
+                              continue;
+                        }
                         var paybyr = res.payRateIndex[i] * res.uvIndex[i] / 100;
                         obj.payByr = isNaN(paybyr) ? '-' : Math.floor(paybyr);
-                        obj.payRate = res.payRateIndex[i] + "%";
                         obj.kdPrice = formula(obj.tradeIndex, res.payItemCnt[i], 1)
-                        obj.uvPrice = formula(obj.tradeIndex, res.uvIndex[i], 1)
                         obj.seIpv = res.seIpvUvHits[i]
                         obj.cltHit = res.cltHits[i]
                         obj.cartHit = res.cartHits[i]
@@ -1071,104 +1227,167 @@ function concatArr(decryData, decryDataTwo) {
                         res.buyRate.push(obj.jgRate.slice(0, -1));
                         resData.push(obj);
                     }
-                    var cols = [{
-                            data: 'order',
-                            title: '序号',
-                        },
-                        {
-                            data: 'date',
-                            title: '日期',
-                        },
-                        {
-                            data: 'uvIndex',
-                            title: '访客人数',
-                        }, {
-                            data: 'seIpv',
-                            title: '搜索人数',
-                        },
-                        {
-                            data: 'searRate',
-                            title: '搜索占比',
-                        },
-                        {
-                            data: 'payByr',
-                            title: '购买人数',
-                        },
-                        {
-                            data: 'payRate',
-                            title: '支付转化率',
-                        },
-                        {
-                            data: 'cltHit',
-                            title: '收藏人数',
-                        },
-                        {
-                            data: 'scRate',
-                            title: '收藏率',
-                        },
-                        {
-                            data: 'cartHit',
-                            title: '加购人数',
-                        },
-                        {
-                            data: 'jgRate',
-                            title: '加购率',
-                        },
-                        {
-                            data: 'tradeIndex',
-                            title: '交易金额',
-                        },
-                        {
-                            data: 'kdPrice',
-                            title: '客单价',
-                        },
-                        {
-                            data: 'uvPrice',
-                            title: 'UV价值',
-                        }
-                    ]
+                    var cols ='';
+                    if (type == 'cross'){
+                        cols = [{
+                                data: 'order',
+                                title: '序号',
+                            },
+                            {
+                                data: 'date',
+                                title: '日期',
+                            },
+                            {
+                                data: 'uvIndex',
+                                title: '访客人数',
+                            },
+                            {
+                                data: 'payByr',
+                                title: '购买人数',
+                            },
+                            {
+                                data: 'payRate',
+                                title: '支付转化率',
+                            },
+                            {
+                                data: 'tradeIndex',
+                                title: '交易金额',
+                            },
+                            {
+                                data: 'kdPrice',
+                                title: '客单价',
+                            },
+                            {
+                                data: 'uvPrice',
+                                title: 'UV价值',
+                            }
+                        ]
+                    }else{
+                         cols = [
+                            {
+                                data: 'order',
+                                title: '序号',
+                            },
+                            {
+                                data: 'date',
+                                title: '日期',
+                            },
+                            {
+                                data: 'uvIndex',
+                                title: '访客人数',
+                            }, 
+                            {
+                                data: 'seIpv',
+                                title: '搜索人数',
+                            },
+                            {
+                                data: 'searRate',
+                                title: '搜索占比',
+                            },
+                            {
+                                data: 'payByr',
+                                title: '购买人数',
+                            },
+                            {
+                                data: 'payRate',
+                                title: '支付转化率',
+                            },
+                            {
+                                data: 'cltHit',
+                                title: '收藏人数',
+                            },
+                            {
+                                data: 'scRate',
+                                title: '收藏率',
+                            },
+                            {
+                                data: 'cartHit',
+                                title: '加购人数',
+                            },
+                            {
+                                data: 'jgRate',
+                                title: '加购率',
+                            },
+                            {
+                                data: 'tradeIndex',
+                                title: '交易金额',
+                            },
+                            {
+                                data: 'kdPrice',
+                                title: '客单价',
+                            },
+                            {
+                                data: 'uvPrice',
+                                title: 'UV价值',
+                            }
+                        ]
+                    }
                     if (hasWrap) {
                         tableInstance.clear();
                         tableInstance.rows.add(resData).draw()
-                        echartsInstance.setOption({
-                            series: [{
-                                    data: res.uvIndex
-                                },
-                                {
-                                    data: res.tradeIndex
-                                },
-                                {
-                                    data: res.seIpvUvHits
-                                },
-                                {
-                                    data: res.cltHits
-                                },
-                                {
-                                    data: res.payRateIndex
-                                },
-                                {
-                                    data: res.payItemCnt
-                                },
-                                {
-                                    data: res.cartHits
-                                },
-                                {
-                                    data: res.uvPrice
-                                },
-                                {
-                                    data: res.searchRate
-                                },
-                                {
-                                    data: res.cangRate
-                                },
-                                {
-                                    data: res.payItemCnt
-                                },
-                                {
-                                    data: res.buyRate
-                                }
-                            ]
-                        })
+                        if(type == 'cross'){
+                            echartsInstance.setOption({
+                                 series: [{
+                                         data: res.uvIndex
+                                     },
+                                     {
+                                         data: res.tradeIndex
+                                     },
+                                     {
+                                         data: res.payRateIndex
+                                     },
+                                     {
+                                         data: res.uvPrice
+                                     },
+                                     {
+                                         data: res.payByr
+                                     },
+                                     {
+                                         data: res.kdPrice
+                                     },
+                                 ]
+                            })
+                        }else{
+                            echartsInstance.setOption({
+                                series: [{
+                                        data: res.uvIndex
+                                    },
+                                    {
+                                        data: res.tradeIndex
+                                    },
+                                    {
+                                        data: res.seIpvUvHits
+                                    },
+                                    {
+                                        data: res.cltHits
+                                    },
+                                    {
+                                        data: res.payRateIndex
+                                    },
+                                    {
+                                        data: res.payItemCnt
+                                    },
+                                    {
+                                        data: res.cartHits
+                                    },
+                                    {
+                                        data: res.uvPrice
+                                    },
+                                    {
+                                        data: res.searchRate
+                                    },
+                                    {
+                                        data: res.cangRate
+                                    },
+                                    {
+                                        data: res.payItemCnt
+                                    },
+                                    {
+                                        data: res.buyRate
+                                    }
+                                ]
+                            })
+                        }
                     } else {
                         domStructEchart({
                             data: resData,

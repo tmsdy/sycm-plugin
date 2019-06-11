@@ -509,9 +509,6 @@
     color: #999;
     margin-top: -10px;
 }
-
-/* 登录窗口 */
-
 /* echarts */
 #chaqzx-echarts-wrap {
     width: 100%;
@@ -884,7 +881,7 @@
 }
 
 .analy-goods {
-    margin-top: 48px;
+    margin-top: 45px;
     margin-bottom: 30px;
     font-size: 14px;
     color: #555;
@@ -902,6 +899,29 @@
 
 .analy-goods .good-tips.alert {
     display: block;
+}
+.chaqz-info-wrapper .c-cont .cross-tabs {
+    margin: 20px 0;
+    border-bottom: 1px solid #f1f1f1;
+    text-align: left;
+}
+
+.chaqz-info-wrapper.pop .c-cont .cross-btn {
+    width: 90px;
+    height: 40px;
+    display: inline-block;
+    line-height: 38px;
+    text-align: center;
+    font-size: 15px;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.chaqz-info-wrapper.pop .c-cont .hasCross {
+    border-bottom: 2px solid rgb(255, 162, 0);
+}
+.chaqz-info-wrapper .c-cont  .hide-btn{
+    display: none;
 }
 /* 市场--搜索分析 */
 .root-word-entry {
