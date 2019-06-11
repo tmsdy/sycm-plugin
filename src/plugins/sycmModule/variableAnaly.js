@@ -627,10 +627,8 @@ function domStructRootWord(data, rootType) {
        competeType = _index ? 'all' : 'cross';
       if (_index){
         $('.chaqz-info-wrapper .analyBtn').eq(2).removeClass('hide-btn');
-        $('.chaqz-info-wrapper .bot-tips').removeClass('hide-btn');
       }else{
           $('.chaqz-info-wrapper .analyBtn').eq(2).addClass('hide-btn');
-          $('.chaqz-info-wrapper .bot-tips').addClass('hide-btn');
       }
  })
  // 竞品解析-切换终端-数据解析

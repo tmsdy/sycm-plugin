@@ -920,7 +920,7 @@
 .chaqz-info-wrapper.pop .c-cont .hasCross {
     border-bottom: 2px solid rgb(255, 162, 0);
 }
-.chaqz-info-wrapper .c-cont  .hide-btn{
+.chaqz-info-wrapper .c-cont .cha-btns .hide-btn{
     display: none;
 }
 /* 市场--搜索分析 */
