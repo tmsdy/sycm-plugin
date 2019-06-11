@@ -1,5 +1,4 @@
 
-console.log("taobao 直通车");
 var dataWrapper = {
     deviceData: {
         urlReg: /\/report\/getNetworkPerspective\.htm.*perspectiveType=2$/,
@@ -10,6 +9,7 @@ var dataWrapper = {
         data: ''
     }
 }
+var ZTCCOUNT = 0;
 interceptRequest();
 $(function () {
     judgeGetData()
@@ -39,7 +39,6 @@ function receiveResponse(reqParams, resData, xhrType) {
     for (var k in dataWrapper) {
         if (dataWrapper[k].urlReg.test(baseUrl)) {
             var finaData = resData ? JSON.parse(resData) : resData;
-            console.log(finaData)
             dataWrapper[k].data = finaData.result;
         }
     }
@@ -73,6 +72,7 @@ function cycleData(baseData) {
         var curStep = baseData.step;
         baseData.step = curStep + 1;
         if (curStep >= baseData.tenKeyWords.length-1) {
+            baseData.ISFINSH = true;
              chrome.storage.local.set({
                  ztcAreaData: baseData
              }, function () {
@@ -89,7 +89,6 @@ function cycleData(baseData) {
         
         var nextSearchKey = baseData.tenKeyWords[curStep + 1]; //下一个搜索词
         baseData.tenKeySearch[keyword] = finalArea;
-        console.log(curStep + 1, finalArea)
         var urlBase = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + nextSearchKey + '&tab=tabs-region';
         window.open(urlBase, "_self")
         dataWrapper.deviceData.data = '';
@@ -105,7 +104,18 @@ function cycleData(baseData) {
         // })
     } else {
         setTimeout(function(){
-            cycleData(baseData)
+            if (ZTCCOUNT<10){
+                 ZTCCOUNT++;
+                 cycleData(baseData)
+            }else{
+                 chrome.runtime.sendMessage({
+                     type: 'chaqzRootWordEnd',
+                     cont: {
+                         hasZTCDone: false,
+                         type: 'ztcBreak'
+                     }
+                 }, function () {})
+            }
         },500)
     }
 }
@@ -117,7 +127,7 @@ function filterAreaData(word, areaData, devData) {
     var len = areaArr.length
     for (let i = 0; i < len; i++) {
         const element = areaArr[i];
-        finalArea.push(element.inRecordBaseDTO.click)
+        finalArea.push(element.name)
     }
     return {
         device: devData,

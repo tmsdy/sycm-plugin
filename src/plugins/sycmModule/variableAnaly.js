@@ -420,7 +420,7 @@ function domStructRootWord(data, rootType) {
     var title = '分析结果';
     var chqzWrap = $('.chaqz-wrapper').length;
     if (!chqzWrap) {
-        var wrapper = '<div class="chaqz-wrapper"><div class="content"><div class="chaqz-top-tabs">' + switchType + '</div><div class="cha-box"><div class="head"><div class="title"><span class="chaqz-table-title">' + title + '</span></div></div><div class="chaqz-echarts-wrap"></div><div class="table-box"><table id="chaqz-table-trend" class="trend-table"></table></div></div><span class="chaqz-close">×</span></div></div>'
+        var wrapper = '<div class="chaqz-wrapper"><div class="content"><div class="chaqz-top-tabs">' + switchType + '</div><div class="cha-box"><div class="head"><div class="title"><span class="chaqz-table-title">' + title + '</span></div></div><div class="chaqz-echarts-wrap"></div><div class="table-box rootword-table"><table id="chaqz-table-trend" class="trend-table"></table></div></div><span class="chaqz-close">×</span></div></div>'
         $('#app').append(wrapper)
     }
     if (tableInstance) {
@@ -430,6 +430,7 @@ function domStructRootWord(data, rootType) {
         tableInstance = $('#chaqz-table-trend').DataTable({
             data: data.data,
             columns: data.cols,
+            // "scrollX": true,
             language: {
                 "paginate": {
                     "next": "&gt;",
@@ -1612,6 +1613,19 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.cont.type == 'ztcSear') {
             ztcDone = request.cont.hasZTCDone;
             $('#chaqz_ztc_frame').remove();
+        } else if (request.cont.type == 'ztcBreak'){
+             chrome.storage.local.set({
+                         ztcAreaData: {
+                             ISFINSH:true
+                         }
+                     }, function () {})
+             chrome.storage.local.set({
+                         chaqzRootWord: {
+                             hasDone: true
+                         }
+                     }, function () {})
+            popTip('获取数据失败，请刷新重试！')
+            textLoading('', 'hide');
         }
         if (personDone && ztcDone) {
             // 重置结果
@@ -1628,10 +1642,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                sessionStorage.setItem(rootWordSaveKey, JSON.stringify(chaqzRoot));
                rootWordAnaly(chaqzRoot);
            })
-        } else {
+        } else if (request.cont.text) {
             $('#caseBlanche #load .text').text(request.cont.text + '，获取数据中，请稍等…');
         }
     }
+    sendResponse();
     return true
 });
 // 获取搜索人群
@@ -1659,6 +1674,7 @@ function searchPeople() {
                     window.location.reload();
                      return false;
                  }
+                 COUNTER++;
                 searchPeople();
             }, 500);
             return
@@ -1710,6 +1726,7 @@ function checkLoaded(opWord, nextSearchKey, searchData) {
                  window.location.reload();
                  return false;
              }
+             COUNTER++;
             checkLoaded(opWord, nextSearchKey, searchData)
         }, 300)
         return false;
@@ -1852,7 +1869,8 @@ function rootWordPerson(sendData) {
         var relateWord = chaqzRoot.allRelatedHotWord;
         var tenRelateWord = relateWord.slice(0, 10); //热词前十
         var personSear = chaqzRoot.tenKeySearch; //人群搜索所有词的数据
-        var dealData = dealRootPerson(tenRelateWord, personSear)
+        var areaTop = chaqzRoot.ztcData; //直通车的数据
+        var dealData = dealRootPerson(tenRelateWord, personSear,areaTop,1)
         var cols = [{
                 data: 'keyword',
                 title: '词根',
@@ -1881,6 +1899,10 @@ function rootWordPerson(sendData) {
                 data: 'cerTwo',
                 title: '流量第二大职业',
             },
+            {
+                data: 'ztcAreaTen',
+                title: '流量地域前十',
+            }
         ];
         domStructRootWord({
             data: dealData,
@@ -1889,8 +1911,8 @@ function rootWordPerson(sendData) {
     // })
 }
 
-function dealRootPerson(tenWord, minxData) {
-    var ageItem = minxData.age;
+function dealRootPerson(tenWord, minxData, areaTop,type) {
+    // var ageItem = minxData.age;
     var len = tenWord.length;
     var resData = [];
     for (let i = 0; i < len; i++) {
@@ -1914,7 +1936,10 @@ function dealRootPerson(tenWord, minxData) {
         objItem.sexTwo = genderItem[1] ? genderItem[1].key : '-';
         objItem.ageTwo = ageItem[1] ? ageItem[1].stage : '-';
         objItem.cerTwo = careerItem[1] ? careerItem[1].key : '-';
-        objItem.echrtData = getEchartsData(genderItem.concat(ageItem, careerItem));
+        objItem.ztcAreaTen = areaTop[elemKey] ? areaTop[elemKey].areaInfo.join(',') : '';
+        if (type) {
+         objItem.echrtData = getEchartsData(genderItem.concat(ageItem, careerItem));
+        }
         resData.push(objItem)
     }
     return resData;
@@ -1965,7 +1990,8 @@ function personRootWord(sendData) {
         // var chaqzRoot = val.chaqzRootWord;
         var relateWord = chaqzRoot.tenRelatedword;
         var relateFilter = getRelateIndex(relateWord);
-        var personSearchData = dealRootPerson(relateWord, chaqzRoot.tenKeySearch);
+        var areaTop = chaqzRoot.ztcData; //直通车的数据
+        var personSearchData = dealRootPerson(relateWord, chaqzRoot.tenKeySearch, areaTop);
         dealIndex({
             type: 'dealTrend',
             dataType: relateFilter
@@ -1989,6 +2015,29 @@ function personRootWord(sendData) {
                 obj.sexTwo = personSearchData[i].sexTwo;
                 obj.ageTwo = personSearchData[i].ageTwo;
                 obj.cerTwo = personSearchData[i].cerTwo;
+                obj.ztcAreaTen = personSearchData[i].ztcAreaTen;
+                 var deviceData = areaTop[obj.keyword] ? areaTop[obj.keyword].device : [];
+                //  if (deviceData[0]) {
+                     var webData = deviceData[1];
+                     var pcData = deviceData[0];
+                     obj.webShowRate = webData ? webData.impressionRate ? (webData.impressionRate / 100).toFixed(1) + '%' : '-' : '-';
+                     obj.webShowIndex = webData ? webData.impression ? webData.impression : '-' : '-';
+                     obj.webClickIndex = webData ? webData.click ? webData.click : '-' : '-';
+                     obj.webClickRate = webData ? webData.ctr ? (webData.ctr / 100).toFixed(1) + '%' : '-' : '-';
+                     obj.webClickPayrate = webData ? webData.cvr ? (webData.cvr / 100).toFixed(1) + '%' : '-' : '-';
+                     obj.webOrderIndex =  webData ? (webData.click&&webData.cvr) ? Math.ceil(webData.click*webData.cvr / 100) : '-': '-';
+                     obj.webAvg = webData ? webData.avgPrice ? "￥" + (webData.avgPrice / 100) : '-' : '-';
+                     obj.webCom = webData ? webData.competition ? webData.competition : '-' : '-';
+                     // pc
+                     obj.pcShowRate = pcData? pcData.impressionRate ? (pcData.impressionRate / 100).toFixed(1) + '%' : '-': '-';
+                     obj.pcShowIndex = pcData ? pcData.impression ? pcData.impression : '-' : '-';
+                     obj.pcClickIndex = pcData ? pcData.click ? pcData.click : '-' : '-';
+                     obj.pcClickRate = pcData ? pcData.ctr ? (pcData.ctr / 100).toFixed(1) + '%' : '-' : '-';
+                     obj.pcClickPayrate = pcData ? pcData.cvr ? (pcData.cvr / 100).toFixed(1) + '%' : '-' : '-';
+                     obj.pcOrderIndex = pcData ? (pcData.click && pcData.cvr) ? Math.ceil(pcData.click * pcData.cvr / 100) : '-' : '-';
+                     obj.pcAvg = pcData ? pcData.avgPrice ? "￥" + (pcData.avgPrice / 100) : '-' : '-';
+                     obj.pcCom = pcData ? pcData.competition ? pcData.competition : '-' : '-';
+                //  }
                 dealData.push(obj)
             }
             var cols = [
@@ -2021,24 +2070,97 @@ function personRootWord(sendData) {
                     title: '平均客单价',
                 },
                 {
+                    data: 'webShowRate',
+                    title: '移动端展现占比',
+                }, 
+                {
+                    data: 'webShowIndex',
+                    title: '移动端展现指数',
+                }, 
+                {
+                    data: 'webClickIndex',
+                    title: '移动端点击指数',
+                }, 
+                {
+                    data: 'webClickRate',
+                    title: '移动端点击率',
+                }, 
+                {
+                    data: 'webClickPayrate',
+                    title: '移动端点击转化率',
+                }, 
+                {
+                    data: 'webAvg',
+                    title: '移动端市场均价',
+                }, 
+                {
+                    data: 'webOrderIndex',
+                    title: '移动端订单指数',
+                }, 
+                {
+                    data: 'webCom',
+                    title: '移动端竞争度',
+                }, 
+                {
+                    data: 'pcShowRate',
+                    title: 'PC端展现占比',
+                }, 
+                {
+                    data: 'pcShowIndex',
+                    title: 'PC端展现指数',
+                }, 
+                {
+                    data: 'pcClickIndex',
+                    title: 'PC端点击指数',
+                }, 
+                {
+                    data: 'pcClickRate',
+                    title: 'PC端点击率',
+                }, 
+                {
+                    data: 'pcClickPayrate',
+                    title: 'PC端点击转化率',
+                }, 
+                {
+                    data: 'pcAvg',
+                    title: 'PC端市场均价',
+                }, 
+                {
+                    data: 'pcOrderIndex',
+                    title: 'PC端订单指数',
+                }, 
+                {
+                    data: 'pcCom',
+                    title: 'PC端竞争度',
+                },
+                {
                     data: 'sexOne',
                     title: '性别订单最大标签',
-                }, {
+                }, 
+                {
                     data: 'ageOne',
                     title: '年龄订单最大标签',
-                }, {
+                },
+                {
                     data: 'cerOne',
                     title: '职业订单最大标签',
-                }, {
+                }, 
+                {
                     data: 'sexTwo',
                     title: '性别第二大标签',
-                }, {
+                }, 
+                {
                     data: 'ageTwo',
                     title: '年龄第二大标签',
-                }, {
+                }, 
+                {
                     data: 'cerTwo',
                     title: '职业第二大标签',
                 },
+                {
+                    data: 'ztcAreaTen',
+                    title: '地域订单前10名标签',
+                }
             ];
             domStructRootWord({
                 data: dealData,
