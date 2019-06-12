@@ -110,6 +110,7 @@ chrome.storage.local.get('chaqz_token', function (valueArray) {
         localStorage.setItem('chaqz_token', tok);
         isLogin = true;
     } else {
+        LogOut()
         isLogin = false;
     }
 });
@@ -426,7 +427,7 @@ function competePop() {
     var reg = /https:\/\/sycm\.taobao\.com\/mc\/(mq|ci)/
     var monitorPart = reg.test(url) ;
     if (isLogin && monitorPart) {
-       $('body').append('<div class="chaqz-compete-wrap"><div class="head"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content" id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div><div class="content" id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/root-word.png" alt=""></div></div>')
+       $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><img class="" src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content"><div id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div><div class="footer" id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/root-word.png" alt=""></div></div></div>')
     } else {
         $('.chaqz-compete-wrap').remove();
     }
@@ -746,7 +747,7 @@ function getParamsItem(para, com, trend) {
         var itemArr = item.split('=')
         keyObj[itemArr[0]] = itemArr[1]
     })
-    if (com != 'passCateid' || com != 'trend') {
+    if (!(com == 'passCateid' || com == 'trend')) {
         keyObj['cateId'] ? localStorage.setItem('shopCateId', keyObj['cateId']) : '';
     }
     keyObj['dateRange'] = keyObj['dateRange'] ? decodeURIComponent(keyObj['dateRange']) : '';
@@ -862,3 +863,63 @@ function interceptRequest() {
      receiveResponse(event.detail.url, event.detail.data, event.detail.type);
  })
 }
+//拖拽事件
+var dragStatus = {
+    disX: 0,
+    disY: 0,
+    _start: false,
+    hasSet: false,
+    time: false
+}
+$(document).on('mousedown', '.popover-header', function (ev) {
+    // 点击移动事件bug
+    dragStatus.time = new Date();
+    var ele = $('.chaqz-compete-wrap');
+    dragStatus._start = true;
+    var oEvent = ev || event;
+    dragStatus.disX = oEvent.clientX - ele.offset().left;
+    dragStatus.disY = oEvent.clientY - ele.offset().top;
+    if (dragStatus.hasSet) {
+        return;
+    }
+    dragStatus.hasSet = true;
+    $(document).on("mousemove", function (ev) {
+        if (dragStatus._start != true) {
+            return false
+        }
+        //  if (obj != self.moved) {
+        //      return false
+        //  }
+        //  self._move = true;
+        var oEvent1 = ev || event;
+        var l = oEvent1.clientX - dragStatus.disX;
+        var t = oEvent1.clientY - dragStatus.disY;
+        ele.css({
+            'left': l,
+            top: t,
+            bottom:'unset'
+        })
+    });
+    $(document).on("mouseup", function (ev) {
+        if (dragStatus._start != true) {
+            return false
+        }
+        //  ele.unbind("onmousemove");
+        //  ele.unbind("onmouseup");
+        dragStatus._start = false;
+    });
+})
+$(document).on('click', '.popover-header', function (ev) {
+    var nowTime = new Date();
+    var miunsTime = nowTime - dragStatus.time;
+    if (miunsTime<500) {
+        var ele = $('.chaqz-compete-wrap .content');
+        if(ele.hasClass('isshow')){
+            ele.show(300);
+            ele.removeClass('isshow');
+        }else{
+            ele.hide(300);
+            ele.addClass('isshow');
+        }
+    }
+})

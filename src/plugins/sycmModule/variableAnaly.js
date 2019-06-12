@@ -630,9 +630,11 @@ function domStructRootWord(data, rootType) {
        competeType = _index ? 'all' : 'cross';
       if (_index){
         $('.chaqz-info-wrapper .analyBtn').eq(2).removeClass('hide-btn');
+        $('.chaqz-info-wrapper .analyBtn').eq(1).removeClass('hide-btn');
         $('.chaqz-info-wrapper .bot-tips').removeClass('hide-btn');
       }else{
           $('.chaqz-info-wrapper .analyBtn').eq(2).addClass('hide-btn');
+          $('.chaqz-info-wrapper .analyBtn').eq(1).addClass('hide-btn');
           $('.chaqz-info-wrapper .bot-tips').addClass('hide-btn');
       }
  })
@@ -857,23 +859,6 @@ function relateHotDeal(searchWord, serDate) {
             $('#app').append(iframe);
             // var urlBase = 'https://sycm.taobao.com/mc/mq/search_customer?selfCustomerId=' + searchFrist;
             // window.open(urlBase, "_blank")
-        })
-        //  直通车数据存取
-        chrome.storage.local.set({
-            ztcAreaData: {
-                keyword: searchWord,
-                step: 0,
-                tenKeyWords: needSearAll,
-                tenKeySearch: {}}
-        }, function () {
-             var urlBase = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
-             window.open(urlBase)
-            // var iframe = document.createElement('iframe');
-            // iframe.id = "chaqz_ztc_frame",
-            // iframe.style = "display:none;",
-            // iframe.name = "ztc_polling",
-            // iframe.src = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
-            // $('#app').append(iframe);
         })
     } else {
         setTimeout(function () {
@@ -1667,14 +1652,14 @@ function concatArr(decryData, decryDataTwo) {
                         LoadingPop()
                     },
                     success: function (resTwo) {
+                         if (!resTwo.data) {
+                             popTip('暂不支持，请先将商品添加监控')
+                             LoadingPop()
+                             return false;
+                         }
                         // var decryDataTwo = resTwo.data;
                         var decryDataTwo = JSON.parse(Decrypt(resTwo.data));
                         var finaData = concatArr(decryData, decryDataTwo);
-                        if (!finaData.length) {
-                            popTip('暂不支持，请先将商品添加监控')
-                            LoadingPop()
-                            return false;
-                        }
                         var indexData = [];
                         finaData.forEach(function (item) {
                             var indx = item.tradeIndex ? item.tradeIndex.value : 0;
@@ -1828,16 +1813,12 @@ function weightParsing(rivald, category, itemInfo) {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == 'chaqzWordHasDone') {
         if (request.cont.type == 'personSear' && request.cont.hasDone) {
-            console.log('ztcddd')
             personDone = request.cont.hasDone;
-            $('#chaqz_frame').remove();
         }
         if (request.cont.type == 'ztcSear') {
-            console.log('ztcSear')
             ztcDone = request.cont.hasZTCDone;
-            $('#chaqz_ztc_frame').remove();
+            $('#chaqz_frame').remove();
         } else if (request.cont.type == 'ztcBreak'){
-            console.log('break')
              chrome.storage.local.set({
                          ztcAreaData: {
                              ISFINSH:true
@@ -1848,8 +1829,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                              hasDone: true
                          }
                      }, function () {})
-            popTip('获取数据失败，请刷新重试！')
+            popTip('获取数据失败，请刷新重试！');
+             $('#chaqz_frame').remove();
             textLoading('', 'hide');
+        }
+        if (request.cont.text) {
+            textLoading(request.cont.text + '，获取数据中，请稍等…');
         }
         if (personDone && ztcDone) {
             // 重置结果
@@ -1866,9 +1851,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                sessionStorage.setItem(rootWordSaveKey, JSON.stringify(chaqzRoot));
                rootWordAnaly(chaqzRoot);
            })
-        } else if (request.cont.text) {
-            $('#caseBlanche #load .text').text(request.cont.text + '，获取数据中，请稍等…');
-        }
+        } 
+       
     }
     sendResponse();
     return true
@@ -1920,7 +1904,27 @@ function searchPeople() {
                     hasDone:true,
                     type: 'personSear'
                 }
-            }, function () {})
+            }, function () {
+            })
+             //  直通车数据存取
+             chrome.storage.local.set({
+                 ztcAreaData: {
+                     keyword: baseDa.keyword,
+                     step: 0,
+                     tenKeyWords: baseDa.tenKeyWords,
+                     tenKeySearch: {}
+                 }
+             }, function () {
+                 var searchFrist = baseDa.tenKeyWords[0];
+                 var urlBase = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
+                 window.open(urlBase, "_self")
+                 //  var iframe = document.createElement('iframe');
+                 //  iframe.id = "chaqz_ztc_frame",
+                 //      iframe.style = "display:none;",
+                 //      iframe.name = "ztc_polling",
+                 //      iframe.src = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + searchFrist + '&tab=tabs-region';
+                 //  $('#app').append(iframe);
+             })
             // window.close();
             return  false;
         }
@@ -1959,7 +1963,7 @@ function checkLoaded(opWord, nextSearchKey, searchData) {
     chrome.storage.local.set({
         chaqzRootWord: searchData
     }, function () {
-        var curStepPro = searchData.step + '/' + searchData.tenKeyWords.length;
+        var curStepPro = searchData.step + '/' + (searchData.tenKeyWords.length+1);
         chrome.runtime.sendMessage({
             type: 'chaqzRootWordEnd',
             cont: {
@@ -1976,17 +1980,18 @@ function checkLoaded(opWord, nextSearchKey, searchData) {
 function getLocalItemData(keyword, opWord, type) {
     opWord = opWord ? opWord.toLocaleLowerCase() : '';
     var opWord = type ? (opWord + '||') : opWord;
-    var _selfCarceer = getSearchParams(keyword, 1, 10, 0, {
-        keyword: opWord,
-        attrType: type
-    })
+    // var _selfCarceer = getSearchParams(keyword, 1, 10, 0, {
+    //     keyword: opWord,
+    //     attrType: type
+    // })
     var localCarceer = getSearchParams(keyword, 1, 10, 1, {
         keyword: opWord,
         attrType: type
     })
-    var SearchCarData = localStorage.getItem(_selfCarceer);
+    // var SearchCarData = localStorage.getItem(_selfCarceer);
     var SearchCarLocal = localStorage.getItem(localCarceer);
-    var res = SearchCarData || filterLocalData(SearchCarLocal);
+    // var res = SearchCarData || filterLocalData(SearchCarLocal);
+    var res = filterLocalData(SearchCarLocal);
     res = res ? JSON.parse(res) : '';
     return res;
 }
@@ -2417,11 +2422,16 @@ function getRelateIndex(data) {
      resId ? localStorage.setItem('shopCateId', resId) : ''
  }
 // loading
-function textLoading(text,statu) {
-    if(statu){
+function textLoading(text, statu) {
+    if (statu) {
         $('#caseBlanche').remove();
-    }else{
-        var deText = text ? text : '获取数据中，请稍等…'
-        $('body').append('<div id="caseBlanche"><div id="load"><p id="rond"></p><p class="text">' + deText + '</p></div></div>');
+    } else {
+        var deText = text ? text : '获取数据中，请稍等…';
+        var hasSave = $('#caseBlanche').length;
+        if (hasSave) {
+            $('#caseBlanche .text').text(text);
+        } else {
+            $('body').append('<div id="caseBlanche"><div id="load"><p id="rond"></p><p class="text">' + deText + '</p></div></div>');
+        }
     }
 }

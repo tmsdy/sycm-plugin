@@ -51,7 +51,6 @@ function judgeGetData() {
         if (isFinshed) {
             return false
         }
-        textLoading()
         cycleData(baseData)
     })
 }
@@ -72,8 +71,8 @@ function cycleData(baseData) {
         var finalArea = filterAreaData(keyword, areaInfo, deviceData);
         var curStep = baseData.step;
         baseData.step = curStep + 1;
-        textLoading(curStep + '/' + baseData.tenKeyWords.length + ',获取数据中，请稍等…')
         if (curStep >= baseData.tenKeyWords.length) {
+            var curStepPro = baseData.tenKeyWords.length + 1;
             baseData.ISFINSH = true;
              chrome.storage.local.set({
                  ztcAreaData: baseData
@@ -82,7 +81,8 @@ function cycleData(baseData) {
                       type: 'chaqzRootWordEnd',
                       cont: {
                           hasZTCDone: true,
-                          type: 'ztcSear'
+                          type: 'ztcSear',
+                          text: curStepPro + '/' + curStepPro
                       }
                   }, function () {})
              })
@@ -108,18 +108,19 @@ function cycleData(baseData) {
         // })
     } else {
         setTimeout(function(){
-            // if (ZTCCOUNT<20){
-                //  ZTCCOUNT++;
+            if (ZTCCOUNT<40){
+                 ZTCCOUNT++;
                  cycleData(baseData)
-            // }else{
-                //  chrome.runtime.sendMessage({
-                //      type: 'chaqzRootWordEnd',
-                //      cont: {
-                //          hasZTCDone: false,
-                //          type: 'ztcBreak'
-                //      }
-                //  }, function () {})
-            // }
+            }else{
+                ZTCCOUNT =0;
+                 chrome.runtime.sendMessage({
+                     type: 'chaqzRootWordEnd',
+                     cont: {
+                         hasZTCDone: false,
+                         type: 'ztcBreak'
+                     }
+                 }, function () {})
+            }
         },500)
     }
 }
@@ -155,18 +156,4 @@ function bubbleSort(arr) { //排序
         }
     }
     return arr;
-}
-// loading
-function textLoading(text, statu) {
-    if (statu) {
-        $('#caseBlanche').remove();
-    } else {
-        var deText = text ? text : '获取数据中，请稍等…';
-        var hasSave = $('#caseBlanche').length;
-        if (hasSave){
-            $('#caseBlanche .text').text(text);
-        }else{
-             $('body').append('<div id="caseBlanche"><div id="load"><p id="rond"></p><p class="text">' + deText + '</p></div></div>');
-        }
-    }
 }

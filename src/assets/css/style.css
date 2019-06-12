@@ -35,12 +35,6 @@
 }
 
 .chaqz-wrapper .content .table-box {
-    /* position: absolute;
-    height: 85%;
-    width: 100%;
-    padding: 15px;
-    box-sizing: border-box;
-    overflow-y: scroll; */
     margin: 0 15px;
 }
 
@@ -81,17 +75,6 @@
     text-align: center;
     padding: 0;
 }
-
-/* .chaqz-wrapper .content .btns button {
-    width: 100px;
-    height: 30px;
-    background: #4B92EC;
-    font-size: 14px;
-    color: #fff;
-    margin-left: 15px;
-    border: 0;
-    outline: none;
-} */
 .chaqz-wrapper div.dt-buttons {
     float: right;
     margin-top: -44px;
@@ -951,6 +934,16 @@
 .chaqz-compete-wrap .head {
     padding: 10px 0;
     background: #2158F6;
+    cursor: move;
+    position: relative;
+}
+.chaqz-compete-wrap .head::after{
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top:0;
+    left:0;
 }
 
 .chaqz-compete-wrap .content {
@@ -959,7 +952,7 @@
 }
 
 .chaqz-compete-wrap .footer {
-    margin-bottom: 20px;
+    margin-top: 20px;
     cursor: pointer;
 }
 

@@ -1,6 +1,6 @@
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'http://www.chaquanzhong.com' :
     'http://118.25.153.205:8090';
-$(function () {
+// $(function () {
     // 获取线上资源
     function loadCDNCss(cssUrl) {
         chrome.runtime.sendMessage({
@@ -47,8 +47,8 @@ $(function () {
                 var cssurl = res.data.css.tradeStyle
                 var jsurl = res.data.js.tbbackTrade
                 jsurl ? loadCDNJs(jsurl) : '';
-                tradeStyle ? loadCDNCss(cssurl) : '';
+                cssurl ? loadCDNCss(cssurl) : '';
             }
         });
-    }, 500);
+    // }, 500);
 })

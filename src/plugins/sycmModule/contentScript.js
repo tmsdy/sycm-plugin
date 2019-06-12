@@ -1,6 +1,6 @@
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'http://www.chaquanzhong.com' :
     'http://118.25.153.205:8090';
-window.CHAQZ_VERSION = "1.0.6";
+window.CHAQZ_VERSION = "1.0.7";
 window.SET_WAIT_TIME = 300000;
 // $(function () {
     // 获取线上资源

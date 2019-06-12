@@ -23,7 +23,7 @@
         },
         {
              "matches": ["*://*.chaquanzhong.com/*", "http://118.25.153.205:8090/*"],
-             "js": ["js/jquery-3.2.1.min.js", "js/chaqz_web.js"],
+             "js": ["js/jquery-3.2.1.min.js", "js/chaqzContent.js"],
              "run_at": "document_end"
             
         },
@@ -31,11 +31,13 @@
              "matches": ["https://subway.simba.taobao.com/*"],
              "js": ["js/jquery-3.2.1.min.js", "js/insertSha.js", "js/tbDirect.js"],
              "css": ["css/style.css"],
-             "run_at": "document_start"
+             "run_at": "document_start",
+             "all_frames": true
         },
         {
              "matches": ["https://trade.taobao.com/*"],
              "js": ["js/jquery-3.2.1.min.js", "js/tbTrade.js"],
+             "css": ["css/style.css"],
              "run_at": "document_start"
             
         }
