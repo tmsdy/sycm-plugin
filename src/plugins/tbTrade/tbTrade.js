@@ -29,7 +29,6 @@ $(function () {
 })
 $(document).on('click', '#chaqzSearch', function () {
     var tbName = $(this).siblings().find('.buyer-mod__name___S9vit').text();
-    console.log(tbName)
     isLogin ? anyDom.searchHei(tbName) : anyDom.init(tbName);
 
 })
@@ -126,8 +125,8 @@ var anyDom = {
                 LoadingPop()
             } else if (val.code == -5500 || val.code == -5501 || val.code == -5502) {
                 popUp.init('renewal')
-                 LoadingPop()
-            }else{
+                LoadingPop()
+            } else {
                 LoadingPop()
                 popTip('未查询到结果')
             }
@@ -151,12 +150,22 @@ function domstrcut(data) {
     if (!data) {
         return ''
     }
-    var wLevel = data.vLevel ? data.vLevel.slice(1):'';
-    var isShoper = data.supper == '是' ? 'hShoper.png' : data.supper == '否' ? 'hNoshpper.png' : '';
-    var sex = data.sex == '女' ? 'hSex-w.png' : data.sex == '男' ? 'hSex-w.png' : '';
-    var customerLabel = data.tag? ('<div class="customer-label"><span class="customr">用户标签</span>' + data.tag + '</div>'):'';
-    var isShop = data.isshoper ? data.isshoper:'~';
-    var dom = '<div class="chaqz-info-wrapper tbtrade"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><table class="trade-table"><tr><td><span class="label">旺旺号：</span>' + data.aliname + '<img src="https://file.cdn.chaquanzhong.com/hwangwnag.png"alt=""></td><td><span class="label">会员等级：</span>' + data.vLevel + '<img src="https://file.cdn.chaquanzhong.com/hLevel-' + wLevel + '.png"alt=""></td><td><span class="label">是否商家：</span>' + isShop + '</td></tr><tr><td><span class="label">性别：</span>' + data.sex + '<img src="https://file.cdn.chaquanzhong.com/' + sex + '"alt=""></td><td><span class="label">好评率：</span><span class="hot">' + data.ReceiveGoodRate + '</span></td><td><span class="label">账号类型：</span>~</td></tr><tr><td><span class="label">注册时间：</span>' + data.register + '</td><td><span class="label">淘龄：</span><span class="hot">' + data.tbages + '</span></td><td><span class="label">周均单：</span>' + data.week + '</td></tr><tr><td><span class="label">是否实名：</span><span class="blue">' + data.realname + '</span></td><td><span class="label">是否超级会员：</span>' + data.supper + '<img src="https://file.cdn.chaquanzhong.com/' + isShoper + '"alt=""></td><td><span class="label">买家信誉：</span>' + data.prestige + '</td></tr><tr><td><span class="label">最近消费力度：</span><span>' + data.xfld + '</span></td><td><span class="label">最近登录时间：</span>' + data.LastLoginTime + '</td><td><span class="label">查询次数：</span>' + data.snums + '</td></tr></table>' + customerLabel + '<table class="report-table"><tr class="thead"><td>举报类型</td><td>跑单</td><td>敲诈</td><td>骗子</td><td>打假</td><td>差评</td><td>淘客</td><td>降权</td><td>黑名单</td></tr><tr><td>举报次数</td><td>' + data.pd + '</td><td>' + data.qz + '</td><td>' + data.pz + '</td><td>' + data.dj + '</td><td>' + data.cp + '</td><td>~</td><td>' + data.jq + '</td><td>' + data.hmd + '</td></tr></table></div></div>';
+    var wLevel = /^V/.test(data.vLevel) ? data.vLevel : data.vLevel !== '-1' ? ('V' + data.vLevel) : '0'; //等级
+    var levelImg = wLevel ? ('<img src="https://file.cdn.chaquanzhong.com/hLevel-' + wLevel + '.png"alt="">') : ''; //等级icon
+    var isShoper = data.supper == '是' ? '是' : data.supper == '否' ? '否' : '否';
+    var isShoperImg = data.supper == '是' ? 'hShoper.png' : 'hNoshpper.png';
+
+    var sex = data.sex.indexOf('女') != -1 ? '女' : data.sex.indexOf('男') != -1 ? '男' : '';
+    var sexImg = data.sex.indexOf('女') != -1 ? 'hSex-w.png' : data.sex.indexOf('男') != -1 ? 'hSex-m.png' : '';
+    var customerLabel = data.tag ? ('<div class="customer-label"><span class="customr">用户标签</span>' + data.tag + '</div>') : '';
+    var isShop = data.isshoper ? data.isshoper : '~';
+    var week = data.week !== '' ? data.week : '~'; //周率
+    var prestige = heartShow(data.prestige); //星钻
+    var xfld = data.xfld ? data.xfld + '元' : "~"; //消费力度
+    var LastLoginTime = data.LastLoginTime ? data.LastLoginTime : data.last_visit ? data.last_visit : '~';; //最近登录
+    var regArea = data.area ? data.area : data.Area ? data.Area : '~';
+    var queryNum = data.QueryNum ? data.QueryNum : 0;
+    var dom = '<div class="chaqz-info-wrapper tbtrade"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><table class="trade-table"><tr><td><span class="label">旺旺号：</span>' + data.aliname + '<img src="https://file.cdn.chaquanzhong.com/hwangwnag.png"alt=""></td><td><span class="label">会员等级：</span>' + wLevel + levelImg + '</td><td><span class="label">是否商家：</span>' + isShop + '</td></tr><tr><td><span class="label">性别：</span>' + sex + '<img src="https://file.cdn.chaquanzhong.com/' + sexImg + '"alt=""></td><td><span class="label">好评率：</span><span class="hot">' + data.evaluate + '</span></td><td><span class="label">注册地区：</span>' + regArea + '</td></tr><tr><td><span class="label">注册时间：</span>' + data.register + '</td><td><span class="label">淘龄：</span><span class="hot">' + data.tbages + '</span></td><td><span class="label">周均单：</span>' + week + '</td></tr><tr><td><span class="label">是否实名：</span><span class="blue">' + data.realname + '</span></td><td><span class="label">是否超级会员：</span>' + isShoper + '<img src="https://file.cdn.chaquanzhong.com/' + isShoperImg + '"alt=""></td><td><span class="label">买家信誉：</span>' + prestige + '</td></tr><tr><td><span class="label">最近消费力度：</span><span>' + xfld + '</span></td><td><span class="label">最近登录时间：</span>' + LastLoginTime + '</td><td><span class="label">查询次数：</span>' + queryNum + '</td></tr></table>' + customerLabel + '<table class="report-table"><tr class="thead"><td>举报类型</td><td>跑单</td><td>敲诈</td><td>骗子</td><td>打假</td><td>差评</td><td>淘客</td><td>降权</td><td>黑名单</td></tr><tr><td>举报次数</td><td>' + data.pd + '</td><td>' + data.qz + '</td><td>' + data.pz + '</td><td>' + data.dj + '</td><td>' + data.cp + '</td><td>~</td><td>' + data.jq + '</td><td>' + data.hmd + '</td></tr></table></div></div>';
     $('#page').append(dom);
 }
 $(document).on('click', '.chaqz-info-wrapper .hided', function () {
@@ -207,6 +216,7 @@ var popUp = {
     },
 
 }
+
 function popTip(text, options) {
     var st = '';
     var tm = '';
@@ -221,7 +231,96 @@ function popTip(text, options) {
         })
     }, tm)
 }
- // 关闭登录弹窗
- $(document).on('click', '.chaqz-info-wrapper .hided', function () {
-     $('.chaqz-info-wrapper.login').remove()
- })
+// 关闭登录弹窗
+$(document).on('click', '.chaqz-info-wrapper .hided', function () {
+    $('.chaqz-info-wrapper.login').remove()
+})
+
+//  星级表示
+function heartShow(star) {
+    if (!star) {
+        return "~"
+    }
+    var prestigeIcon = {
+        type: 0,
+        num: 0
+    }
+    if (star !== '' && star < 4) {
+        return satr
+    }
+    if (star >= 4 && star <= 10) {
+        prestigeIcon.type = 1
+        prestigeIcon.num = 1
+    } else if (star >= 11 && star <= 40) {
+        prestigeIcon.type = 1
+        prestigeIcon.num = 2
+    } else if (star >= 41 && star <= 90) {
+        prestigeIcon.type = 1
+        prestigeIcon.num = 3
+    } else if (star >= 91 && star <= 150) {
+        prestigeIcon.type = 1
+        prestigeIcon.num = 4
+    } else if (star >= 151 && star <= 250) {
+        prestigeIcon.type = 1
+        prestigeIcon.num = 5
+    } else if (star >= 251 && star <= 500) {
+        prestigeIcon.type = 2
+        prestigeIcon.num = 1
+    } else if (star >= 501 && star <= 1000) {
+        prestigeIcon.type = 2
+        prestigeIcon.num = 2
+    } else if (star >= 1001 && star <= 2000) {
+        prestigeIcon.type = 2
+        prestigeIcon.num = 3
+    } else if (star >= 2001 && star <= 5000) {
+        prestigeIcon.type = 2
+        prestigeIcon.num = 4
+    } else if (star >= 5001 && star <= 10000) {
+        prestigeIcon.type = 2
+        prestigeIcon.num = 5
+    } else if (star >= 10001 && star <= 20000) {
+        prestigeIcon.type = 3
+        prestigeIcon.num = 1
+    } else if (star >= 20001 && star <= 50000) {
+        prestigeIcon.type = 3
+        prestigeIcon.num = 2
+    } else if (star >= 50001 && star <= 100000) {
+        prestigeIcon.type = 3
+        prestigeIcon.num = 3
+    } else if (star >= 100001 && star <= 200000) {
+        prestigeIcon.type = 3
+        prestigeIcon.num = 4
+    } else if (star >= 200001 && star <= 500000) {
+        prestigeIcon.type = 3
+        prestigeIcon.num = 5
+    } else if (star >= 500001 && star <= 1000000) {
+        prestigeIcon.type = 4
+        prestigeIcon.num = 1
+    } else if (star >= 1000001 && star <= 2000000) {
+        prestigeIcon.type = 4
+        prestigeIcon.num = 2
+    } else if (star >= 2000001 && star <= 5000000) {
+        prestigeIcon.type = 4
+        prestigeIcon.num = 3
+    } else if (star >= 5000001 && star <= 10000000) {
+        prestigeIcon.type = 4
+        prestigeIcon.num = 4
+    } else if (star >= 10000001) {
+        prestigeIcon.type = 4
+        prestigeIcon.num = 5
+    } else {
+        prestigeIcon.type = 0
+        prestigeIcon.num = 0
+    }
+    if (!prestigeIcon.num) {
+        return '~'
+    }
+    var imgfont = '<img class="no-margin" src="https://file.cdn.chaquanzhong.com/heartShow';
+    var imgend = '.png"alt="">';
+    var html = '';
+    for (let i = 0; i < prestigeIcon.num; i++) {
+        html += imgfont + prestigeIcon.type + imgend
+    }
+    html = star + html;
+    return html;
+}

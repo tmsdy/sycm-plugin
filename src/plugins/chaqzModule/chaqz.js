@@ -12,7 +12,7 @@ chrome.storage.local.get(['chaqz_token', 'compareProduceData'], function (valueA
             localStorage.setItem('pluginHasSetToken', valueArray.chaqz_token);
             var url = window.location.href
             if (url.indexOf('plugin') != -1) {
-                window.location.href = BASE_URL + "/homePage?from=plugin"
+                window.location.href = BASE_URL + "/vipInfo?from=plugin"
             }
             if (url.indexOf('privilgeEscala') != -1) {
                 window.location.href = BASE_URL + "/privilgeEscala"

@@ -163,60 +163,61 @@ import {
           return false;
       }
       var memInfo = allInfo.member; //会员信息
-      var bindInfo = window.SAVE_BIND2; //绑定信息
-      var shopInfo = dealShopInfo(); //店铺信息
+    //   var bindInfo = window.SAVE_BIND2; //绑定信息
+    //   var shopInfo = dealShopInfo(); //店铺信息
       //不是否为会员
       if (!memInfo.level) {
           popUp.init('orderMem')
           return false;
       }
-      var star_time = allInfo.time;
-      var star_end = memInfo.expireAt;
-      var remian = new Date(star_end) - star_time * 1000;
+      return true
+    //   var star_time = allInfo.time;
+    //   var star_end = memInfo.expireAt;
+    //   var remian = new Date(star_end) - star_time * 1000;
       //会员过期
-      if (remian <= 0) {
-          popUp.init('overdue')
-          return false;
-      }
-      var hasBind = bindInfo.data.length; //已绑定数量
-      var totalBind = bindInfo.count; //可绑定数量
-      var isSelf = false
-      var isClose = false
-      var activeNum = 0
-      bindInfo.data.forEach(function (item) {
-          if (item['runShopId'] == shopInfo['runAsShopId']) {
-              isSelf = true
-              isClose = item['closed']
-          }
-          if (item['closed'] == 0) {
-              activeNum++
-          }
-      })
-      if (!isSelf) { // 不是本店铺
-          if (hasBind < totalBind) {
-              popUp.init('binding')
-              return false
-          }
-          if (memInfo.level < 4) {
-              popUp.init('upLimit')
-              return false
-          }
-          popUp.init('bindLimit')
-          return false
-      }
-      if (isClose == 0) { //激活
-          return true;
-      }
-      if (activeNum < totalBind) { //未达激活上限
-          popUp.init('active2')
-          return false
-      }
-      if (memInfo.level < 4) {
-          popUp.init('upLimit')
-          return false
-      }
-      popUp.init('bindLimit')
-      return false
+    //   if (remian <= 0) {
+    //       popUp.init('overdue')
+    //       return false;
+    //   }
+    //   var hasBind = bindInfo.data.length; //已绑定数量
+    //   var totalBind = bindInfo.count; //可绑定数量
+    //   var isSelf = false
+    //   var isClose = false
+    //   var activeNum = 0
+    //   bindInfo.data.forEach(function (item) {
+    //       if (item['runShopId'] == shopInfo['runAsShopId']) {
+    //           isSelf = true
+    //           isClose = item['closed']
+    //       }
+    //       if (item['closed'] == 0) {
+    //           activeNum++
+    //       }
+    //   })
+    //   if (!isSelf) { // 不是本店铺
+    //       if (hasBind < totalBind) {
+    //           popUp.init('binding')
+    //           return false
+    //       }
+    //       if (memInfo.level < 4) {
+    //           popUp.init('upLimit')
+    //           return false
+    //       }
+    //       popUp.init('bindLimit')
+    //       return false
+    //   }
+    //   if (isClose == 0) { //激活
+    //       return true;
+    //   }
+    //   if (activeNum < totalBind) { //未达激活上限
+    //       popUp.init('active2')
+    //       return false
+    //   }
+    //   if (memInfo.level < 4) {
+    //       popUp.init('upLimit')
+    //       return false
+    //   }
+    //   popUp.init('bindLimit')
+    //   return false
   }
 // 登录状态切换
 export function changeLoginStatus(type) {

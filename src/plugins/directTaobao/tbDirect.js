@@ -51,6 +51,13 @@ function judgeGetData() {
         if (isFinshed) {
             return false
         }
+        var isWantPage = testPages(baseData.step)
+        if (isWantPage){
+        //    setTimeout(function(){
+               var urlBase = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + baseData.tenKeyWords[baseData.step] + '&tab=tabs-region';
+               window.open(urlBase, "_self")
+        //    },500)
+        }
         cycleData(baseData)
     })
 }
@@ -71,7 +78,7 @@ function cycleData(baseData) {
         var finalArea = filterAreaData(keyword, areaInfo, deviceData);
         var curStep = baseData.step;
         baseData.step = curStep + 1;
-        if (curStep >= baseData.tenKeyWords.length) {
+        if (curStep >= baseData.tenKeyWords.length - 1 && !baseData.tenKeyWords[curStep]) {
             var curStepPro = baseData.tenKeyWords.length + 1;
             baseData.ISFINSH = true;
              chrome.storage.local.set({
@@ -86,7 +93,7 @@ function cycleData(baseData) {
                       }
                   }, function () {})
              })
-             window.close();
+            //  window.close();
             return false;
         }
         
@@ -97,7 +104,8 @@ function cycleData(baseData) {
         window.open(urlBase, "_self")
         dataWrapper.deviceData.data = '';
         dataWrapper.areaPers.data = '';
-        cycleData(baseData)
+        ZTCCOUNT = 0
+        cycleData(baseData);
         // chrome.storage.local.set({
         //     ztcAreaData: baseData
         // }, function () {
@@ -109,6 +117,7 @@ function cycleData(baseData) {
     } else {
         setTimeout(function(){
             if (ZTCCOUNT<40){
+                console.log(ZTCCOUNT)
                  ZTCCOUNT++;
                  cycleData(baseData)
             }else{
@@ -156,4 +165,14 @@ function bubbleSort(arr) { //排序
         }
     }
     return arr;
+}
+// 判断是否为获取数据页面
+function testPages(curStep){
+    var href = window.location.href;
+    var testRes = href.indexOf('https://subway.simba.taobao.com/#!/tools/insight');
+    console.log(href)
+    if (testRes != -1 || curStep>0) {
+        return false
+    }
+    return true;
 }

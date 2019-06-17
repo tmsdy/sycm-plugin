@@ -11,7 +11,7 @@ import {
 } from '../../common/promptClass'
 var isLogin = false; //是否登录
 var SAVE_MEMBER = {};
-var SAVE_BIND = {};
+// var SAVE_BIND = {};
 // var SET_WAIT_TIME = 600000
 // 对应模块数据存储
 var dataWrapper = {
@@ -91,7 +91,7 @@ var dataWrapper = {
 }
 window.dataWrapper2 = dataWrapper;
 window.SAVE_MEMBER2 = SAVE_MEMBER;
-window.SAVE_BIND2 = SAVE_BIND;
+// window.SAVE_BIND2 = SAVE_BIND;
 
 
 //  判断是否首次安装
@@ -186,8 +186,8 @@ var anyDom = {
         var title = memInfo.member.title;
         var expirTime = memInfo.member.expireAt;
         var whetherOrder = '';
-        var binded = '未绑定';
-        var shopInfo = dealShopInfo();
+        // var binded = '未绑定';
+        // var shopInfo = dealShopInfo();
         if (title && expirTime) {
             var formDate = new Date(expirTime)
             var isExpire = formDate - memInfo.time * 1000
@@ -196,18 +196,19 @@ var anyDom = {
             } else {
                 whetherOrder = '订购';
             }
-            bindedInfo.data.forEach(function (item) {
-                if (item['mainUid'] = shopInfo['mainUserId']) {
-                    binded = "已绑定"
-                }
-            })
+            // bindedInfo.data.forEach(function (item) {
+            //     if (item['mainUid'] = shopInfo['mainUserId']) {
+            //         binded = "已绑定"
+            //     }
+            // })
         } else {
             title = '普通会员';
             expirTime = '--';
             whetherOrder = '订购'
-            binded = '未绑定'
+            // binded = '未绑定'
         }
-        var wrap = '<div class="chaqz-info-wrapper user"><div class="c-cont"><span class="close2 hided">×</span><div class="help"><img src="https://file.cdn.chaquanzhong.com/wenhao.png" alt="?"><a href="' + BASE_URL + '/pluginIntro" target="_blank">帮助</a></div><div class="infoList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><ul class="user-list"><li><span class="name">账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span><span>' + acct + '</span><span class="fr" id="logout">退出登录</span></li><li><span class="name">会员信息:</span><span>' + title + '</span></li><li><span class="name">到期时间:</span><span>' + expirTime + '</span><a href="' + BASE_URL + '/homePage?from=plugin" target="_blank" class="fr">' + whetherOrder + '</a></li><li><span class="name">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span><span>' + LOCAL_VERSION + '</span></li><li><span class="name">联系客服:</span><span><a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><img class="mr_10" src="https://file.cdn.chaquanzhong.com/qq_icon.png" alt="qq"></a><img src="https://file.cdn.chaquanzhong.com/wx_icon.png" alt="wx" class="wxpop"></span></li><li><span class="name">店铺绑定</span><span>' + binded + '</span></li></ul></div></div></div>';
+        var wrap = '<div class="chaqz-info-wrapper user"><div class="c-cont"><span class="close2 hided">×</span><div class="help"><img src="https://file.cdn.chaquanzhong.com/wenhao.png" alt="?"><a href="' + BASE_URL + '/pluginIntro" target="_blank">帮助</a></div><div class="infoList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><ul class="user-list"><li><span class="name">账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span><span>' + acct + '</span><span class="fr" id="logout">退出登录</span></li><li><span class="name">会员信息:</span><span>' + title + '</span></li><li><span class="name">到期时间:</span><span>' + expirTime + '</span><a href="' + BASE_URL + '/vipInfo?from=plugin" target="_blank" class="fr">' + whetherOrder + '</a></li><li><span class="name">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span><span>' + LOCAL_VERSION + '</span></li><li><span class="name">联系客服:</span><span><a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><img class="mr_10" src="https://file.cdn.chaquanzhong.com/qq_icon.png" alt="qq"></a><img src="https://file.cdn.chaquanzhong.com/wx_icon.png" alt="wx" class="wxpop"></span></li></ul></div></div></div>';
+        // <li><span class="name">店铺绑定</span><span>' + binded + '</span></li>
         $('#app').append(wrap);
 
     },
@@ -242,7 +243,7 @@ var anyDom = {
                     'chaqz_token': token
                 }, function () {});
                 isLogin = true;
-                _that.getShopBind()
+                // _that.getShopBind()
                 changeLoginStatus()
                 $('.chaqz-info-wrapper.login').remove();
             } else {
@@ -316,9 +317,10 @@ var anyDom = {
             userWrap.show()
         } else {
             var memInfo = SAVE_MEMBER;
-            var bindInfo = SAVE_BIND;
+            // var bindInfo = SAVE_BIND;
             if (memInfo.token) {
-                this.infoDom(memInfo, bindInfo)
+                // this.infoDom(memInfo, bindInfo)
+                this.infoDom(memInfo)
             } else {
                 popUp.init('noShopInfo')
             }
@@ -358,7 +360,7 @@ function userInfoRes() {
         return false;
     }
     var saveToke = localStorage.getItem('chaqz_token');
-    anyDom.getShopBind();
+    // anyDom.getShopBind();
     chrome.runtime.sendMessage({
         key: 'getData',
         options: {
@@ -433,102 +435,102 @@ function competePop() {
     }
 }
 
- $(document).on('click', '.chaqz-info-wrapper.pop #goBind', function () { //绑定店铺
-     var curShop = dealShopInfo()
-     var saveToke = localStorage.getItem('chaqz_token')
-     chrome.runtime.sendMessage({
-         key: 'getData',
-         options: {
-             url: BASE_URL + '/api/v1/plugin/shop',
-             type: 'POST',
-             headers: {
-                 Authorization: "Bearer " + saveToke
-             },
-             contentType: "application/json,charset=utf-8",
-             data: JSON.stringify({
-                 "login_user_id": curShop.loginUserId,
-                 "login_user_name": curShop.loginUserName,
-                 "main_user_id": curShop.mainUserId,
-                 "main_user_name": curShop.mainUserName,
-                 "run_as_shop_id": curShop.runAsShopId,
-                 "run_as_shop_title": curShop.runAsShopTitle,
-                 "run_as_user_id": curShop.runAsUserId,
-                 "run_as_shop_type": curShop.runAsShopType,
-                 "run_as_user_name": curShop.runAsUserName
-             })
-         }
-     }, function (res) {
-         $('.chaqz-info-wrapper.pop').hide();
-         if (res.code == 200) {
-             popTip('已绑定成功')
-             window.location.reload()
-         } else if (res.code == 4005) {
-             popTip('用户无绑定店铺权限')
-         } else if (res.code == 4006) {
-             popTip('超出绑定上限')
-         } else if (res.code == 5005) {
-             popTip('店铺已被其他账号绑定 ')
-         } else if (res.code == 2030) {
-             LogOut()
-         } else {
-             popTip('绑定失败')
-         }
-     })
-     $('.chaqz-info-wrapper.pop').hide();
- })
- $(document).on('change', '.chaqz-info-wrapper.pop .table-wrap input', function () { //判断是否达到帮I定上限
-     var checkNum = $('.chaqz-info-wrapper.pop input:checked').length;
-     var totalBindNum = SAVE_BIND.count;
-     if (checkNum > totalBindNum) {
-         $(this).prop({
-             'checked': false
-         })
-         popTip('绑定用户达上限', 'top:10%;')
-     } else {
-         var isTrue = $(this).prop('checked')
-         if (isTrue) {
-             $(this).siblings('label').addClass('chose')
-         } else {
-             $(this).siblings('label').removeClass('chose')
-         }
-     }
- })
- $(document).on('click', '.chaqz-info-wrapper.pop .activeShop', function () {
-     var activeList = $('.chaqz-info-wrapper.pop input:checked:not(:disabled)')
-     var len = activeList.length;
-     var saveToke = localStorage.getItem('chaqz_token');
-     if (len) {
-         var countNum = 0;
-         var saveToke = localStorage.getItem('chaqz_token');
-         for (var i = 0; i < len; i++) {
-             var runShopId = $(activeList[i]).data('id')
-             chrome.runtime.sendMessage({
-                 key: 'getData',
-                 options: {
-                     url: BASE_URL + '/api/v1/plugin/shop',
-                     type: 'PATCH',
-                     headers: {
-                         Authorization: "Bearer " + saveToke
-                     },
-                     contentType: "application/json,charset=utf-8",
-                     data: JSON.stringify({
-                         run_as_shop_id: runShopId
-                     })
-                 }
-             }, function (res) {
-                 if (res.code == 200) {
-                     popTip('激活成功', 'top:10%;');
-                 } else {
-                     popTip('激活失败', 'top:10%;');
-                 }
-                 countNum++
-                 if (countNum > len - 1) {
-                     window.location.reload();
-                 }
-             })
-         }
-     }
- })
+//  $(document).on('click', '.chaqz-info-wrapper.pop #goBind', function () { //绑定店铺
+//      var curShop = dealShopInfo()
+//      var saveToke = localStorage.getItem('chaqz_token')
+//      chrome.runtime.sendMessage({
+//          key: 'getData',
+//          options: {
+//              url: BASE_URL + '/api/v1/plugin/shop',
+//              type: 'POST',
+//              headers: {
+//                  Authorization: "Bearer " + saveToke
+//              },
+//              contentType: "application/json,charset=utf-8",
+//              data: JSON.stringify({
+//                  "login_user_id": curShop.loginUserId,
+//                  "login_user_name": curShop.loginUserName,
+//                  "main_user_id": curShop.mainUserId,
+//                  "main_user_name": curShop.mainUserName,
+//                  "run_as_shop_id": curShop.runAsShopId,
+//                  "run_as_shop_title": curShop.runAsShopTitle,
+//                  "run_as_user_id": curShop.runAsUserId,
+//                  "run_as_shop_type": curShop.runAsShopType,
+//                  "run_as_user_name": curShop.runAsUserName
+//              })
+//          }
+//      }, function (res) {
+//          $('.chaqz-info-wrapper.pop').hide();
+//          if (res.code == 200) {
+//              popTip('已绑定成功')
+//              window.location.reload()
+//          } else if (res.code == 4005) {
+//              popTip('用户无绑定店铺权限')
+//          } else if (res.code == 4006) {
+//              popTip('超出绑定上限')
+//          } else if (res.code == 5005) {
+//              popTip('店铺已被其他账号绑定 ')
+//          } else if (res.code == 2030) {
+//              LogOut()
+//          } else {
+//              popTip('绑定失败')
+//          }
+//      })
+//      $('.chaqz-info-wrapper.pop').hide();
+//  })
+//  $(document).on('change', '.chaqz-info-wrapper.pop .table-wrap input', function () { //判断是否达到帮I定上限
+//      var checkNum = $('.chaqz-info-wrapper.pop input:checked').length;
+//      var totalBindNum = SAVE_BIND.count;
+//      if (checkNum > totalBindNum) {
+//          $(this).prop({
+//              'checked': false
+//          })
+//          popTip('绑定用户达上限', 'top:10%;')
+//      } else {
+//          var isTrue = $(this).prop('checked')
+//          if (isTrue) {
+//              $(this).siblings('label').addClass('chose')
+//          } else {
+//              $(this).siblings('label').removeClass('chose')
+//          }
+//      }
+//  })
+//  $(document).on('click', '.chaqz-info-wrapper.pop .activeShop', function () {
+//      var activeList = $('.chaqz-info-wrapper.pop input:checked:not(:disabled)')
+//      var len = activeList.length;
+//      var saveToke = localStorage.getItem('chaqz_token');
+//      if (len) {
+//          var countNum = 0;
+//          var saveToke = localStorage.getItem('chaqz_token');
+//          for (var i = 0; i < len; i++) {
+//              var runShopId = $(activeList[i]).data('id')
+//              chrome.runtime.sendMessage({
+//                  key: 'getData',
+//                  options: {
+//                      url: BASE_URL + '/api/v1/plugin/shop',
+//                      type: 'PATCH',
+//                      headers: {
+//                          Authorization: "Bearer " + saveToke
+//                      },
+//                      contentType: "application/json,charset=utf-8",
+//                      data: JSON.stringify({
+//                          run_as_shop_id: runShopId
+//                      })
+//                  }
+//              }, function (res) {
+//                  if (res.code == 200) {
+//                      popTip('激活成功', 'top:10%;');
+//                  } else {
+//                      popTip('激活失败', 'top:10%;');
+//                  }
+//                  countNum++
+//                  if (countNum > len - 1) {
+//                      window.location.reload();
+//                  }
+//              })
+//          }
+//      }
+//  })
 
 /**===========================市场竞争数字格式化方法以及页面信息======================================= */
 // 白名单-不需要进行解密处理的
