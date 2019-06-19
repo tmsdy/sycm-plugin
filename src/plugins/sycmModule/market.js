@@ -667,7 +667,7 @@ function dealTradeGrowth(data) {
                 }
                 var cateRnkId = finaData[i].cateRankId
                 obj.cate_cateRankId = cateRnkId ? cateRnkId.value : '-'
-                obj.tradeIndex = res.tradeIndex[i]
+                obj.tradeIndex = res.tradeIndex[i] == '超出范围,请使用插件最高支持7.8亿' ? '超出范围' : res.tradeIndex[i];
                 resData.push(obj)
             }
             if (pageType) {

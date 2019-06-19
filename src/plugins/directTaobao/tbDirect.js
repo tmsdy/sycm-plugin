@@ -67,16 +67,20 @@ function judgeGetData() {
 //         tenKeyWords: needSearAll,
 //         tenKeySearch: {},
 //   }
-function cycleData(baseData) {
+function cycleData(baseData,isEmpty) {
     var deviceData = dataWrapper.deviceData.data;
     var areaPers = dataWrapper.areaPers.data;
+    if (isEmpty == 'empty'){
+        deviceData = [];
+        areaPers = [];
+    }
     if (deviceData && areaPers) {
         // 获取数据的存储
         var areaUseful = areaPers[0];
-        var keyword = areaUseful.word;
-        var areaInfo = areaUseful.areaBaseDTOList;
-        var finalArea = filterAreaData(keyword, areaInfo, deviceData);
         var curStep = baseData.step;
+        var keyword = baseData.tenKeyWords[curStep];
+        var areaInfo = areaUseful ? areaUseful.areaBaseDTOList:[];
+        var finalArea = filterAreaData(keyword, areaInfo, deviceData);
         baseData.step = curStep + 1;
         if (curStep >= baseData.tenKeyWords.length - 1 && !baseData.tenKeyWords[curStep]) {
             var curStepPro = baseData.tenKeyWords.length + 1;
@@ -99,7 +103,7 @@ function cycleData(baseData) {
         
         var nextSearchKey = baseData.tenKeyWords[curStep + 1]; //下一个搜索词
         baseData.tenKeySearch[keyword] = finalArea;
-        console.log(nextSearchKey)
+        // console.log(nextSearchKey)
         var urlBase = 'https://subway.simba.taobao.com/#!/tools/insight/queryresult?kws=' + nextSearchKey + '&tab=tabs-region';
         window.open(urlBase, "_self")
         dataWrapper.deviceData.data = '';
@@ -116,19 +120,20 @@ function cycleData(baseData) {
         // })
     } else {
         setTimeout(function(){
-            if (ZTCCOUNT<40){
-                console.log(ZTCCOUNT)
+            if (ZTCCOUNT<20){
+                // console.log(ZTCCOUNT)
                  ZTCCOUNT++;
                  cycleData(baseData)
             }else{
-                ZTCCOUNT =0;
-                 chrome.runtime.sendMessage({
-                     type: 'chaqzRootWordEnd',
-                     cont: {
-                         hasZTCDone: false,
-                         type: 'ztcBreak'
-                     }
-                 }, function () {})
+                cycleData(baseData,'empty')
+                // ZTCCOUNT =0;
+                //  chrome.runtime.sendMessage({
+                //      type: 'chaqzRootWordEnd',
+                //      cont: {
+                //          hasZTCDone: false,
+                //          type: 'ztcBreak'
+                //      }
+                //  }, function () {})
             }
         },500)
     }
@@ -170,7 +175,7 @@ function bubbleSort(arr) { //排序
 function testPages(curStep){
     var href = window.location.href;
     var testRes = href.indexOf('https://subway.simba.taobao.com/#!/tools/insight');
-    console.log(href)
+    // console.log(href)
     if (testRes != -1 || curStep>0) {
         return false
     }

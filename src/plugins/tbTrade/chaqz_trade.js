@@ -1,6 +1,5 @@
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'http://www.chaquanzhong.com' :
     'http://118.25.153.205:8090';
-// $(function () {
     // 获取线上资源
     function loadCDNCss(cssUrl) {
         chrome.runtime.sendMessage({
@@ -35,7 +34,6 @@ var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH)
             eval(cdnJS);
         })
     }
-    setTimeout(function () {
         chrome.runtime.sendMessage({
             key: 'getData',
             options: {
@@ -44,11 +42,9 @@ var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH)
             }
         }, function (res) {
             if (res.code == 200) {
-                var cssurl = res.data.css.tradeStyle
-                var jsurl = res.data.js.tbbackTrade
+                var cssurl = res.data.css.style
+                var jsurl = res.data.js.tbTrade
                 jsurl ? loadCDNJs(jsurl) : '';
                 cssurl ? loadCDNCss(cssurl) : '';
             }
         });
-    // }, 500);
-})

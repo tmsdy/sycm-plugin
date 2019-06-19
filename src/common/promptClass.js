@@ -166,7 +166,7 @@ import {
     //   var bindInfo = window.SAVE_BIND2; //绑定信息
     //   var shopInfo = dealShopInfo(); //店铺信息
       //不是否为会员
-      if (!memInfo.level) {
+      if (!memInfo) {
           popUp.init('orderMem')
           return false;
       }
@@ -226,7 +226,7 @@ export function changeLoginStatus(type) {
         $('.chaqz-compete-wrap').remove();
     } else {
         $('.chaqz-btns').html('<button id="userBtn" class="serachBtn user">用户信息</button><button id="search" class="serachBtn">一键转化</button><button id="vesting" class="serachBtn vesting">一键加权</button>');
-        $('body').append('<div class="chaqz-compete-wrap"><div class="head"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content" id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div><div class="content"><a href="https://sycm.taobao.com/mc/mq/search_analyze"><img src="https://file.cdn.chaquanzhong.com/root-word.png" alt=""></a></div></div>')
+        $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><img class="" src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content"><div id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div><div class="footer" id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/root-word.png" alt=""></div></div></div>')
     }
 }
 // 退出登录

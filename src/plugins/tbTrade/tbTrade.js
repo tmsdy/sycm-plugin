@@ -1,6 +1,8 @@
 console.log("taobao 交易管理");
-var BASE_URL = 'http://118.25.153.205:8090';
+var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'http://www.chaquanzhong.com' :
+    'http://118.25.153.205:8090';
 var isLogin = false;
+var searchWang = '';
 
 chrome.storage.local.get('chaqz_token', function (valueArray) {
     var tok = valueArray.chaqz_token;
@@ -62,9 +64,10 @@ var anyDom = {
                 }, function () {});
                 isLogin = true;
                 $('.chaqz-info-wrapper.login').remove();
-                _that.searchHei(tbName);
+               tbName? _that.searchHei(tbName):'';
             } else {
-                $('.chaqz-info-wrapper.login .pwd .tips').text('账号或密码错误').show()
+                $('.chaqz-info-wrapper.login .pwd .tips').text('账号或密码错误').show();
+                logOut()
                 onLoading = false
             }
         })
@@ -92,7 +95,7 @@ var anyDom = {
             }
         })
         // 登录处理
-        $(document).on('click', '.chaqz-info-wrapper .login-btn', function () {
+        $('.chaqz-info-wrapper .login-btn').click(function () {
             _that.login(tbName)
         })
         //回车搜索
@@ -103,7 +106,7 @@ var anyDom = {
             }
         });
         // 关闭登录弹窗
-        $(document).on('click', '.chaqz-info-wrapper .hided', function () {
+        $('.chaqz-info-wrapper .hided').click( function () {
             $('.chaqz-info-wrapper.login').remove()
         })
     },
@@ -122,18 +125,24 @@ var anyDom = {
         }, function (val) {
             if (val.code == 200) {
                 domstrcut(val.data)
-                LoadingPop()
             } else if (val.code == -5500 || val.code == -5501 || val.code == -5502) {
                 popUp.init('renewal')
-                LoadingPop()
+            } else if (val.code == 2030) {
+                searchWang = tbName;
+               logOut()
+               popUp.init('hasLogout')
             } else {
-                LoadingPop()
                 popTip('未查询到结果')
             }
+            LoadingPop()
         })
     }
 }
-
+function logOut(){
+    isLogin = false;
+    chrome.storage.local.remove(['chaqz_token'], function () {});
+    localStorage.removeItem('chaqz_token');
+}
 function LoadingPop(status) {
     if (!status) {
         $('.load-pop').fadeOut(100)
@@ -173,6 +182,7 @@ $(document).on('click', '.chaqz-info-wrapper .hided', function () {
 })
 var popUp = {
     renewal: '<p class="tips"> 已达使用上限,请前往官网升级续费。</p><div class="cha-btns"><button class="cancel  mr_30 btn hided">取消</button><button class="btn buyBtn">前往</button></div>',
+    hasLogout: '<p class="tips">登录过期,去重新登录</p><div class="cha-btns"><button class="cancel  mr_30 btn hided">取消</button><button class="btn goLogin">确认</button></div>',
     orderSucc: '<p class="tips">若订购成功请刷新。</p><div class="cha-btns"><button id="pageRefresh" class="btn">确定</button></div>',
     weixin: '<p class="head">查权重客服很高兴为您服务</p><img src="https://file.cdn.chaquanzhong.com/wx_contact.jpg" alt="wx"><p class="foot">微信扫一扫 添加客服</p>',
     init: function (type, data) {
@@ -199,8 +209,8 @@ var popUp = {
         $('.chaqz-info-wrapper.pop').on('click', '#pageRefresh', function () { //刷新
             window.location.reload();
         })
-        $(document).on('click', '.chaqz-info-wrapper.pop .contactService', function () {
-            _that.init('weixin')
+        $('.chaqz-info-wrapper.pop .goLogin').click(function () {
+            anyDom.init(searchWang)
         })
     },
     changeDom: function (type, data) {
@@ -219,7 +229,7 @@ var popUp = {
 
 function popTip(text, options) {
     var st = '';
-    var tm = '';
+    var tm = 500;
     if (options) {
         st = options ? options.style : '';
         tm = options ? options.time : 500;

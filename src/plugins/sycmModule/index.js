@@ -83,7 +83,8 @@ var dataWrapper = {
         urlReg: '\/ipoll\/activity\/getCurrentTime\.json'
     },
     "publicInfo": {
-        urlReg: '\/mc\/mq\/monitor\/offline\/public\.json'
+        urlReg: '\/mc\/mq\/monitor\/offline\/public\.json',
+        data:''
     },
     "getShopCate": {
         urlReg: '\/mc\/common\/getShopCate\.json'
@@ -255,7 +256,7 @@ var anyDom = {
     init: function () {
         var _that = this
         $('#app').append(this.loginDom);
-        $(document).on('blur', '.chaqz-info-wrapper #phone', function () {
+        $('.chaqz-info-wrapper #phone').blur(function () {
             var phoneVal = $(this).val()
             var phoneReg = /^1[34578]\d{9}$/;
             if (!phoneVal) {
@@ -266,7 +267,7 @@ var anyDom = {
                 $(this).siblings('.tips').hide()
             }
         })
-        $(document).on('blur', '.chaqz-info-wrapper #pwd', function () {
+        $('.chaqz-info-wrapper #pwd').blur(function () {
             var pwdValue = $(this).val()
             if (!pwdValue) {
                 $(this).siblings('.tips').text('请输入密码').show()
@@ -275,7 +276,7 @@ var anyDom = {
             }
         })
         // 登录处理
-        $(document).on('click', '.chaqz-info-wrapper .login-btn', function () {
+        $('.chaqz-info-wrapper .login-btn').click(function () {
             _that.login()
         })
         //回车搜索
@@ -286,7 +287,7 @@ var anyDom = {
             }
         });
         // 关闭登录弹窗
-        $(document).on('click', '.chaqz-info-wrapper .hided', function () {
+        $('.chaqz-info-wrapper .hided').click(function () {
             $('.chaqz-info-wrapper.login').remove()
         })
     },
@@ -324,15 +325,15 @@ var anyDom = {
             } else {
                 popUp.init('noShopInfo')
             }
-            $(document).on('click', '.chaqz-info-wrapper .hided', function () {
+            $('.chaqz-info-wrapper .hided').click(function () {
                 $('.chaqz-info-wrapper.user').hide()
             })
-            $(document).on('click', '#logout', function () {
+            $('.chaqz-info-wrapper #logout').click(function () {
                 $('.chaqz-info-wrapper.user').hide();
                 LogOut()
 
             })
-            $(document).on('click', '.chaqz-info-wrapper.user .wxpop', function () {
+            $('.chaqz-info-wrapper.user .wxpop').click(function () {
                 $('.chaqz-info-wrapper.user').hide()
                 popUp.init('weixin')
             })
@@ -386,12 +387,15 @@ function userInfoRes() {
 // 判断版本
 function judgeCor() {
     var shopLevel = localStorage.getItem('chaqz_getShopCate');
+    var marketban = dataWrapper['publicInfo'].data;
     if (shopLevel) {
         var allLev = JSON.parse(shopLevel)[0];
         var isHig = allLev ? allLev[4] : '';
         if (isHig == 'std') {
             return false;
         }
+    } else if (marketban == 'std') {
+        return false;
     }
     return true;
 }
@@ -423,6 +427,7 @@ function competePop() {
     var url = window.location.href;
     if (url.indexOf('https://sycm.taobao.com/custom/login.htm') != -1) {
         localStorage.removeItem('shopCateId');
+        localStorage.removeItem('chaqz_getShopCate');
         $('.chaqz-compete-wrap').remove();
         return false;
     }
@@ -604,6 +609,7 @@ var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
                      var publicFont = JSON.parse(finaData);
                      var localId = publicFont ? publicFont[0] : '';
                      var saveId = localId.cateId.value;
+                     dataWrapper[k].data = localId.orderEdition.value;
                      localStorage.setItem('shopCateId', saveId)
                  } else {
                      var dataTypes = getParamsItem(baseUrl)
@@ -896,7 +902,9 @@ $(document).on('mousedown', '.popover-header', function (ev) {
         var oEvent1 = ev || event;
         var l = oEvent1.clientX - dragStatus.disX;
         var t = oEvent1.clientY - dragStatus.disY;
-        ele.css({
+        t= t<0?0:t;
+        console.log(l,t);
+        $(ele).css({
             'left': l,
             top: t,
             bottom:'unset'

@@ -932,6 +932,7 @@
     border-radius: 5px;
     background: #fff;
     overflow: hidden;
+    transition: all 0.01s;
 }
 
 .chaqz-compete-wrap .head {
@@ -939,6 +940,7 @@
     background: #2158F6;
     cursor: move;
     position: relative;
+    user-select: none;
 }
 .chaqz-compete-wrap .head::after{
     content: '';
