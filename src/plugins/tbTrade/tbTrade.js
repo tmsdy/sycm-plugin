@@ -123,7 +123,7 @@ var anyDom = {
                 }
             }
         }, function (val) {
-            if (val.code == 200) {
+            if (val.code == 200 || val.code == 202) {
                 domstrcut(val.data)
             } else if (val.code == -5500 || val.code == -5501 || val.code == -5502) {
                 popUp.init('renewal')
@@ -166,7 +166,7 @@ function domstrcut(data) {
 
     var sex = data.sex.indexOf('女') != -1 ? '女' : data.sex.indexOf('男') != -1 ? '男' : '';
     var sexImg = data.sex.indexOf('女') != -1 ? 'hSex-w.png' : data.sex.indexOf('男') != -1 ? 'hSex-m.png' : '';
-    var customerLabel = data.tag ? ('<div class="customer-label"><span class="customr">用户标签</span>' + data.tag + '</div>') : '';
+    var customerLabel = data.channel == 3 ? (data.tagInfo.tagCat ? ('<div class="customer-label"><span class="customr">用户标签</span>' + data.tagInfo.tagCat + '</div>'):'') : data.tag ? ('<div class="customer-label"><span class="customr">用户标签</span>' + data.tag + '</div>') : '';
     var isShop = data.isshoper ? data.isshoper : '~';
     var week = data.week !== '' ? data.week : '~'; //周率
     var prestige = heartShow(data.prestige); //星钻
@@ -174,7 +174,8 @@ function domstrcut(data) {
     var LastLoginTime = data.LastLoginTime ? data.LastLoginTime : data.last_visit ? data.last_visit : '~';; //最近登录
     var regArea = data.area ? data.area : data.Area ? data.Area : '~';
     var queryNum = data.QueryNum ? data.QueryNum : 0;
-    var dom = '<div class="chaqz-info-wrapper tbtrade"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><table class="trade-table"><tr><td><span class="label">旺旺号：</span>' + data.aliname + '<img src="https://file.cdn.chaquanzhong.com/hwangwnag.png"alt=""></td><td><span class="label">会员等级：</span>' + wLevel + levelImg + '</td><td><span class="label">是否商家：</span>' + isShop + '</td></tr><tr><td><span class="label">性别：</span>' + sex + '<img src="https://file.cdn.chaquanzhong.com/' + sexImg + '"alt=""></td><td><span class="label">好评率：</span><span class="hot">' + data.evaluate + '</span></td><td><span class="label">注册地区：</span>' + regArea + '</td></tr><tr><td><span class="label">注册时间：</span>' + data.register + '</td><td><span class="label">淘龄：</span><span class="hot">' + data.tbages + '</span></td><td><span class="label">周均单：</span>' + week + '</td></tr><tr><td><span class="label">是否实名：</span><span class="blue">' + data.realname + '</span></td><td><span class="label">是否超级会员：</span>' + isShoper + '<img src="https://file.cdn.chaquanzhong.com/' + isShoperImg + '"alt=""></td><td><span class="label">买家信誉：</span>' + prestige + '</td></tr><tr><td><span class="label">最近消费力度：</span><span>' + xfld + '</span></td><td><span class="label">最近登录时间：</span>' + LastLoginTime + '</td><td><span class="label">查询次数：</span>' + queryNum + '</td></tr></table>' + customerLabel + '<table class="report-table"><tr class="thead"><td>举报类型</td><td>跑单</td><td>敲诈</td><td>骗子</td><td>打假</td><td>差评</td><td>淘客</td><td>降权</td><td>黑名单</td></tr><tr><td>举报次数</td><td>' + data.pd + '</td><td>' + data.qz + '</td><td>' + data.pz + '</td><td>' + data.dj + '</td><td>' + data.cp + '</td><td>~</td><td>' + data.jq + '</td><td>' + data.hmd + '</td></tr></table></div></div>';
+    var isRealname = data.realname?'已实名认证':"未实名认证";
+    var dom = '<div class="chaqz-info-wrapper tbtrade"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><table class="trade-table"><tr><td><span class="label">旺旺号：</span>' + data.aliname + '<img src="https://file.cdn.chaquanzhong.com/hwangwnag.png"alt=""></td><td><span class="label">会员等级：</span>' + wLevel + levelImg + '</td><td><span class="label">是否商家：</span>' + isShop + '</td></tr><tr><td><span class="label">性别：</span>' + sex + '<img src="https://file.cdn.chaquanzhong.com/' + sexImg + '"alt=""></td><td><span class="label">好评率：</span><span class="hot">' + data.evaluate + '</span></td><td><span class="label">注册地区：</span>' + regArea + '</td></tr><tr><td><span class="label">注册时间：</span>' + data.register + '</td><td><span class="label">淘龄：</span><span class="hot">' + data.tbages + '</span></td><td><span class="label">周均单：</span>' + week + '</td></tr><tr><td><span class="label">是否实名：</span><span class="blue">' + isRealname + '</span></td><td><span class="label">是否超级会员：</span>' + isShoper + '<img src="https://file.cdn.chaquanzhong.com/' + isShoperImg + '"alt=""></td><td><span class="label">买家信誉：</span>' + prestige + '</td></tr><tr><td><span class="label">最近消费力度：</span><span>' + xfld + '</span></td><td><span class="label">最近登录时间：</span>' + LastLoginTime + '</td><td><span class="label">查询次数：</span>' + queryNum + '</td></tr></table>' + customerLabel + '<table class="report-table"><tr class="thead"><td>举报类型</td><td>跑单</td><td>敲诈</td><td>骗子</td><td>打假</td><td>差评</td><td>淘客</td><td>降权</td><td>黑名单</td></tr><tr><td>举报次数</td><td>' + data.pd + '</td><td>' + data.qz + '</td><td>' + data.pz + '</td><td>' + data.dj + '</td><td>' + data.cp + '</td><td>~</td><td>' + data.jq + '</td><td>' + data.hmd + '</td></tr></table></div></div>';
     $('#page').append(dom);
 }
 $(document).on('click', '.chaqz-info-wrapper .hided', function () {

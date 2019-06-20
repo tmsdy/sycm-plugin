@@ -900,8 +900,10 @@ $(document).on('mousedown', '.popover-header', function (ev) {
         //  }
         //  self._move = true;
         var oEvent1 = ev || event;
-        var l = oEvent1.clientX - dragStatus.disX;
-        var t = oEvent1.clientY - dragStatus.disY;
+        var scrollT = document.documentElement.scrollTop || document.body.scrollTop;
+        var scrollL = document.documentElement.scrollLeft || document.body.scrollLeft;
+        var l = oEvent1.clientX - dragStatus.disX - scrollL;
+        var t = oEvent1.clientY - dragStatus.disY - scrollT;
         t= t<0?0:t;
         console.log(l,t);
         $(ele).css({
