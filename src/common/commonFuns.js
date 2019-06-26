@@ -310,6 +310,9 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
      if (key == 'structSearchItem') { //搜索分析-struct
         return '/mc/searchword/getCategory.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=clickHits,clickHitsRatio,clickHot,clickCntRatio,clickRate&keyword=' + extra.keyword + '&level1Id='+extra.cateId+'&order=desc&orderBy=clickHits&page='+page+'&pageSize='+pagesize;
      }
+     if (key == 'searchPerson') { //搜索分析-struct
+        return '/mc/mkt/searchPortrait/popularity.json?attrType='+extra.attrType+'&cateId='+localCateId+'&dateRange='+finalTime+'&dateType='+dateType+'&device='+device+'&indexCode='+extra.indexCode+'&seKeyword='+extra.keyword;
+     }
 }
 // 市场cateid
 export function findcategory() {

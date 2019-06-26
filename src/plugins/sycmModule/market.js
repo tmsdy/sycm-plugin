@@ -2124,14 +2124,35 @@ function getstructshow(itemData, allItemInfo, extra) {
 }
 // 搜索分析-all
 function searchPersonAll(){
-    var searchword = $('.mc-searchCustomer #completeShop .sycm-common-select-wrapper .sycm-common-select-selected-title').html();
-    console.log(searchword)
+    var searchwordInfo = getSearchKeyword();
+    console.log(searchwordInfo)
+    $('#completeShopPortrait .mc-SearchCustomerPortrait .ant-radio-wrapper').eq(0).click();
+    cycleFindPerson(searchwordInfo.key, {step:0,res:{},keyArr:searchwordInfo.keyItems})
 }
-function cycleFindPerson(localKey, allItemInfo, extra) {
-    var localItemData = localStorage.getItem(localKey);
+function cycleFindPerson(localKey, extra) {
+    var typeItems = ['searchPopularity','searchRatio','clickPopularity','clickRatio','clickRate','payPopularity','payRate'];
+    var curStep = extra.step;
+    var keys = getSearchParams('searchPerson',1,10,'local',{
+        attrType:'all',
+        keyword:localKey,
+        indexCode: typeItems[curStep]
+    })
+    var localItemData = localStorage.getItem(keys);
     if (localItemData) {
         var reductData = JSON.parse(filterLocalData(localItemData));
-        getstructshow(reductData, allItemInfo, extra)
+        if(curStep>5){
+            extra.res[typeItems[curStep]] = reductData;
+            searPersonShow(extra.res,extra.keyArr)
+            console.log(extra.res);
+        }else{
+            var nextStep = curStep+1;
+            
+            extra.res[typeItems[curStep]] = reductData;
+            console.log(reductData);
+            $('#completeShopPortrait .mc-SearchCustomerPortrait .ant-radio-wrapper').eq(nextStep).click();
+            extra.step=nextStep;
+            cycleFindPerson(localKey, extra)
+        }
     } else {
         setTimeout(function () {
             if (COUNT > 20) {
@@ -2139,10 +2160,109 @@ function cycleFindPerson(localKey, allItemInfo, extra) {
                 return false;
             } else {
                 COUNT++
-                cycleFind(localKey, allItemInfo, extra)
+                cycleFindPerson(localKey, extra)
             }
         }, 200)
     }
+}
+function searPersonShow(indexData,wordsArr){
+    var resBox = {}
+    for (var k in indexData) {
+        var element = indexData[k];
+        resBox[k] = [];
+        var words1 = wordsArr[0];
+        var words2 = wordsArr[1]?wordsArr[1]:'';
+        var words3 = wordsArr[2]?wordsArr[2]:'';
+        resBox[k].push(element[words1].allValue?element[words1].allValue:'');
+        words2?resBox[k].push(element[words2].allValue?element[words2].allValue:''):'';
+        words3?resBox[k].push(element[words3].allValue?element[words3].allValue:''):'';
+    }
+    dealIndex({
+        type: 'dealTrend',
+        dataType:{
+            seIpvUvHits:resBox.searchPopularity,
+            clickHits:resBox.clickPopularity,
+            tradeIndex:resBox.payPopularity
+        }
+    }, function (val) {
+        var transIndex = val.value;
+        var tableData = [];
+        var len = wordsArr.length;
+        for (let i = 0; i < len; i++) {
+            var obj = {};
+            obj.keyword = wordsArr[i];
+            obj.seIpvUvHits = transIndex.seIpvUvHits[i];
+            obj.searchRate = resBox.searchRatio[i];
+            obj.clickHits = transIndex.clickHits[i];
+            obj.clickPerRate = resBox.clickRatio[i];
+            obj.clickRatio = resBox.clickRate[i];
+            obj.tradeIndex = transIndex.tradeIndex[i];
+            obj.payrate = resBox.payRate[i];
+            tableData.push(obj)
+        }
+        var cols = [
+            {
+                data: 'keyword',
+                title: '搜索词',
+            },
+            {
+                data: 'seIpvUvHits',
+                title: '搜索人数',
+            },
+            {
+                data: 'searchRate',
+                title: '搜索人数占比',
+            },
+            {
+                data: 'clickHits',
+                title: '点击人数',
+            },
+            {
+                data: 'clickPerRate',
+                title: '点击人数占比',
+            },
+             {
+                data: 'clickRatio',
+                title: '点击率',
+            }, 
+            {
+                data: 'tradeIndex',
+                title: '交易金额',
+            },
+            {
+                data: 'payrate',
+                title: '支付转化率',
+            }
+        ]   
+        domStructMark({
+            data: tableData,
+            cols: cols,
+            paging:{}
+        }, '搜索人群-总览')
+    })
+    console.log(resBox)
+    // var fliterData = filterSearPerson(resBox,wordsArr)
+}
+function searchProvce(type){
+    var searchwordInfo = getSearchKeyword();
+    var words = searchwordInfo.keyItems;
+    var slectItem = $('#completeShopPortrait .mc-SearchCustomerPortrait .ant-radio-wrapper-checked').index();
+    var tabsHtml = '';
+    for (let i = 0; i < words.length; i++) {
+        var isActive = i==0?'active':'';
+        tabsHtml += ('<button class="switchBtn '+isActive+' switchCity">' + words[i] + '</button>');
+    }
+    tabsHtml = '<div class="chaqz-top-tabs">' + tabsHtml + showHtml + '</div>';
+    var typeItems = ['searchPopularity','searchRatio','clickPopularity','clickRatio','clickRate','payPopularity','payRate'];
+    var testReg = 'searchPopularity,clickPopularity,payPopularity';
+    var isNeedTrans = testReg.indexOf(typeItems[slectItem])!=-1;
+    if(isNeedTrans){
+        
+    }else{
+
+    }
+    
+
 }
 /**=------方法类----------- */
 function trendKeyJoin(type, idNum) {
@@ -2274,6 +2394,21 @@ function filterSearchRank(data, filteWord) {
         res.push(element[filteWord])
     }
     return res;
+}
+// get select words
+function getSearchKeyword(){
+    var searchwordWrap = $('.mc-searchCustomer #completeShop .sycm-common-select-wrapper .alife-dt-card-sycm-common-select');
+    var searchKey1 = searchwordWrap.eq(0).find('.sycm-common-select-selected-title').length?searchwordWrap.eq(0).find('.sycm-common-select-selected-title').text():'';
+    var searchKey2 = searchwordWrap.eq(1).find('.sycm-common-select-selected-title').length?searchwordWrap.eq(1).find('.sycm-common-select-selected-title').text():'';
+    var searchKey3 = searchwordWrap.eq(2).find('.sycm-common-select-selected-title').length?searchwordWrap.eq(2).find('.sycm-common-select-selected-title').text():"";
+    var keyword = [];
+    keyword.push(searchKey1);
+    searchKey2?keyword.push(searchKey2):'';
+    searchKey3?keyword.push(searchKey3):'';
+    return {
+        keyItems: keyword,
+        key:searchKey1+'|'+searchKey2+'|'+searchKey3
+    }
 }
 /*------市场模块触发事件 ----------*/
 //市场店铺的按钮是否显示控制
