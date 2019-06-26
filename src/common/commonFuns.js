@@ -35,7 +35,7 @@ export function setDateRange(data, type) {
 //数据处理-竞品分析
 
 // 日期格式化
-function formate(fmt, date) {
+export function formate(fmt, date) {
     if (!date) {
         return ''
     }
@@ -176,17 +176,18 @@ export function getCurrentTime(dayType) {
 // 获取店铺信息的firstCateId
 export function getFirstCateId() {
      var deaultId = localStorage.getItem('shopCateId');
-     var cateIdF = JSON.parse(localStorage.getItem('tree_history_op-mc._cate_picker'));
+    //  var cateIdF = JSON.parse(localStorage.getItem('tree_history_op-mc._cate_picker'));
+     var cateIdF = dataWrapper2['getShopCate'].data.cateId;
      if (!cateIdF) {
          return deaultId;
      }
-     var cateIdS = cateIdF.split("|")[1];
-     var cateIdT = cateIdS ? JSON.parse(cateIdS).value : '';
-     if (!cateIdT) {
-         return deaultId;
-     }
-     var resData = cateIdT[0].treeId;
-     return resData;
+    //  var cateIdS = cateIdF.split("|")[1];
+    //  var cateIdT = cateIdS ? JSON.parse(cateIdS).value : '';
+    //  if (!cateIdT) {
+    //      return deaultId;
+    //  }
+    //  var resData = cateIdT[0].treeId;
+     return cateIdF;
 }
 // 竞品解析
 export function getDateRange(data, fm) {
@@ -217,12 +218,12 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
     }
     page = page ? page : 1;
     pagesize = pagesize ? pagesize : 10;
-    var localCateId = localStorage.getItem('shopCateId');
+    var localCateId =  getFirstCateId();
     if (key == 'hotsearch' || key == 'hotpurpose' || key == 'hotsale') {
-        localCateId = getFirstCateId();
+        localCateId = localStorage.getItem('shopCateId');
     }
     if (key == 'allTrend' && !dealType) {
-        localCateId = getFirstCateId();
+        localCateId = localStorage.getItem('shopCateId');
         finalTime = setDateRange(getCurrentTime(), 'day');
         return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=day' + '&device=' + device + '&sellerType=' + sellType;
     }
@@ -260,14 +261,14 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
         return '/mc/mq/monitor/cate/' + isMonitLive + '/' + itemShop + '.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=tradeIndex' + endIndex + '&order=desc&orderBy=tradeIndex&page=' + page + '&pageSize=' + pagesize + '&sellerType=-1';
     }
     if (key == "allTrend") {
-        localCateId = getFirstCateId();
+        localCateId = localStorage.getItem('shopCateId');
         return 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=day&device=' + device + '&indexCode=uvIndex,payRateIndex,tradeIndex,payByrCntIndex'
     }
     if (key == "getKeywords") {
         return '/mc/rivalItem/analysis/getKeywords.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=tradeIndex&itemId=itemNum&page=' + page + '&pageSize=' + pagesize + '&sellerType=0&topType=trade'
     }
-    if (key == 'relatedHotWord') { //相关热词
-        return '/mc/searchword/relatedHotWord.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=seIpvUvHits,relSeWordCnt,avgWordClickRate,clickHits,avgWordPayRate&keyword=' + extra.keyword + '&order=desc&orderBy=seIpvUvHits&page=' + page + '&pageSize=' + pagesize;
+    if (key == 'relatedHotWord' || key == 'relatedBrand' || key == 'relatedProperty') { //相关热词
+        return '/mc/searchword/' + key + '.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=seIpvUvHits,relSeWordCnt,avgWordClickRate,clickHits,avgWordPayRate&keyword=' + extra.keyword + '&order=desc&orderBy=seIpvUvHits&page=' + page + '&pageSize=' + pagesize;
     }
     if (key == 'relatedWord') { //相关搜索词
         return '/mc/searchword/relatedWord.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=seIpvUvHits,sePvIndex,clickRate,clickHits,clickHot&keyword=' + extra.keyword + '&order=desc&orderBy=seIpvUvHits&page=' + page + '&pageSize=' + pagesize;
@@ -275,6 +276,68 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
     if (key == 'popularity') { //搜索人群
         return '/mc/mkt/searchPortrait/popularity.json?attrType=' + extra.attrType + '&cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=clickPopularity&seKeyword=' + extra.keyword;
     }
+    if (key == 'industryTrend') { //市场大盘-all
+        localCateId = findcategory();
+        return '/mc/mq/supply/mkt/overview.json?cateId=' + localCateId.id + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&sellerType=' + sellType;
+    }
+    if (key == 'bigMarket') { //市场大盘-trend
+        localCateId = extra.localCateId;
+        return '/mc/mq/supply/mkt/trend/' + extra.compareType + '.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + extra.diffCate + '&indexCode=' + extra.selectIndex + '&sellerType=' + sellType;
+    }
+    if (key == 'SearchRanking') { //搜索排行
+        localCateId = findcategory();
+        var selType = extra.selType == 1 ? 'tailWord' : extra.selType == 2 ? 'brandWord' : extra.selType == 3 ? 'coreWord' : extra.selType == 4 ? 'attrWord' : 'searchWord';
+        var indCode = '';
+         var orderBy
+        if (extra.selType == 0 || extra.selType == 1) {
+            indCode = !extra.rank ? 'hotSearchRank,seIpvUvHits,clickHits,clickRate,payRate' : 'soarRank,seRiseRate,seIpvUvHits,clickHits,clickRate,payRate';
+            orderBy = !extra.rank ? 'seIpvUvHits' : 'seRiseRate';
+        }else{
+            indCode = !extra.rank ? 'hotSearchRank,relSeWordCnt,avgWordSeIpvUvHits,avgWordClickHits,avgWordClickRate,avgWordPayRate' : 'soarRank,avgWordSeRiseRate,relSeWordCnt,avgWordSeIpvUvHits,avgWordClickHits,avgWordPayRate';
+            orderBy = !extra.rank ? 'avgWordSeIpvUvHits' : 'avgWordSeRiseRate';
+        }
+        return '/mc/industry/' + selType + '.json?cateId=' + localCateId.id + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode='+indCode+'&order=desc&orderBy='+orderBy+'&page=1&pageSize=10';
+    }
+     if (key == 'searchOverview') { //搜索分析-overview
+         return '/mc/searchword/overview.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&keyword=' + extra.keyword;
+     }
+     if (key == 'analySearchTrend') { //搜索分析-alltrend
+         return '/mc/searchword/propertyTrend.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&diffKeyword=&indexCode=&keyword=' + extra.keyword;
+     }
+     if (key == 'structSearchAll') { //搜索分析-struct
+         return '/mc/searchword/getCategory.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&keyword='+extra.keyword;
+     }
+     if (key == 'structSearchItem') { //搜索分析-struct
+        return '/mc/searchword/getCategory.json?dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=clickHits,clickHitsRatio,clickHot,clickCntRatio,clickRate&keyword=' + extra.keyword + '&level1Id='+extra.cateId+'&order=desc&orderBy=clickHits&page='+page+'&pageSize='+pagesize;
+     }
+}
+// 市场cateid
+export function findcategory() {
+    var text = '';
+    text = $('.ebase-FaCommonFilter__top .ebase-FaCommonFilter__left .common-picker-header').attr('title');
+    var isRoot = text.indexOf('>');
+    if (isRoot == -1) {
+        return {
+            id: dataWrapper2['getShopCate'].data.cateId,
+            name: text
+        };
+    }
+    var deText = text.split('>');
+    var fianlText = deText[deText.length - 1].trim();
+    var allCate = dataWrapper2['getShopCate'].data.allInfo;
+    var len = allCate ? allCate.length : 0;
+    var res = '';
+    for (let i = 0; i < len; i++) {
+        const element = allCate[i];
+        if (element[2] == fianlText) {
+            res = element[1];
+            break;
+        }
+    }
+    return {
+        id: res,
+        name: fianlText
+    };
 }
  // 获取商品信息
 export function getProductInfo() {
@@ -385,4 +448,3 @@ export function filterLocalData(val) {
      let decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
      return decryptedStr.toString();
  }
-

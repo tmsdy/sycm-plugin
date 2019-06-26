@@ -21,6 +21,7 @@ module.exports = {
 
     'chaqz_trade.js': './src/plugins/tbTrade/chaqz_trade.js',
     'tbTrade.js': './src/plugins/tbTrade/tbTrade.js',
+    'popup.js': './src/plugins/sycmModule/popup.js',
 
     // 'interceptRquest.js': './src/utils/interceptRquest.js',
     // 'insertSha.js': './src/plugins/insertSha.js',

@@ -157,6 +157,10 @@ import {
                return false
            }
        }
+       if (!isLogin) {
+           anyDom.init();
+           return false
+       }
       var allInfo = window.SAVE_MEMBER2
       if (!allInfo) {
           popUp.init('noShopInfo');
@@ -225,8 +229,10 @@ export function changeLoginStatus(type) {
         $('.chaqz-btns').html('<button id="loginbtn" class="serachBtn user">登录</button>');
         $('.chaqz-compete-wrap').remove();
     } else {
-        $('.chaqz-btns').html('<button id="userBtn" class="serachBtn user">用户信息</button><button id="search" class="serachBtn">一键转化</button><button id="vesting" class="serachBtn vesting">一键加权</button>');
-        $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><img class="" src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt=""></div><div class="content"><div id="parsing"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-analy.png" alt=""></div><div class="footer" id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/weightPars.png" alt=""></div><div class="footer" id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/root-word.png" alt=""></div></div></div>')
+        $('.chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button>' );
+        $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header .chaqz-btns').html('<button id="search" class="serachBtn"></button><button id="vesting" class="serachBtn vesting">一键加权</button>');
+        $('.op-mc-search-analyze-container .ebase-Switch__root').html('<button id="search" class="serachBtn">一键分析</button>');
+        $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img  id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png" alt="" class="avator"></div><div class="content-wrap"><ul class="content"><li class="item"id="parsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></li><li class="item"id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></li><li class="item"id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/chaheihao"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/Kasp"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/infiniteRank"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a href=""target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘宝订单检测</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/toolIndex"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/home"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="http://www.chaquanzhong.com/home"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
     }
 }
 // 退出登录
@@ -237,4 +243,165 @@ export function LogOut() {
     $('.chaqz-compete-wrap').remove();
     LoadingPop();
     $('#caseBlanche').remove();//词根管理弹窗
+}
+// d登录
+ export var anyDom = {
+    loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + BASE_URL + '/reg" class="right" target="_blank">免费注册</a><a href="' + BASE_URL + '/findP" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
+    infoDom: function (memInfo, bindedInfo) {
+        var acct = memInfo.username;
+        var title = memInfo.member.title;
+        var expirTime = memInfo.member.expireAt;
+        var whetherOrder = '';
+        // var binded = '未绑定';
+        // var shopInfo = dealShopInfo();
+        if (title && expirTime) {
+            var formDate = new Date(expirTime)
+            var isExpire = formDate - memInfo.time * 1000
+            if (isExpire > 0) {
+                whetherOrder = '续费';
+            } else {
+                whetherOrder = '订购';
+            }
+            // bindedInfo.data.forEach(function (item) {
+            //     if (item['mainUid'] = shopInfo['mainUserId']) {
+            //         binded = "已绑定"
+            //     }
+            // })
+        } else {
+            title = '普通会员';
+            expirTime = '--';
+            whetherOrder = '订购'
+            // binded = '未绑定'
+        }
+        var wrap = '<div class="chaqz-info-wrapper user"><div class="c-cont"><span class="close2 hided">×</span><div class="help"><img src="https://file.cdn.chaquanzhong.com/wenhao.png" alt="?"><a href="' + BASE_URL + '/pluginIntro" target="_blank">帮助</a></div><div class="infoList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><ul class="user-list"><li><span class="name">账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span><span>' + acct + '</span><span class="fr" id="logout">退出登录</span></li><li><span class="name">会员信息:</span><span>' + title + '</span></li><li><span class="name">到期时间:</span><span>' + expirTime + '</span><a href="' + BASE_URL + '/vipInfo?from=plugin" target="_blank" class="fr">' + whetherOrder + '</a></li><li><span class="name">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span><span>' + LOCAL_VERSION + '</span></li><li><span class="name">联系客服:</span><span><a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><img class="mr_10" src="https://file.cdn.chaquanzhong.com/qq_icon.png" alt="qq"></a><img src="https://file.cdn.chaquanzhong.com/wx_icon.png" alt="wx" class="wxpop"></span></li></ul></div></div></div>';
+        // <li><span class="name">店铺绑定</span><span>' + binded + '</span></li>
+        $('#app').append(wrap);
+
+    },
+    login: function () {
+        var onLoading = false;
+        var _that = this
+        var user = $('.chaqz-info-wrapper #phone').val()
+        var pwd = $('.chaqz-info-wrapper #pwd').val()
+        if (!user || !pwd || onLoading) {
+            return false
+        }
+        chrome.runtime.sendMessage({
+            key: "getData",
+            options: {
+                url: BASE_URL + '/api/v1/user/login',
+                type: "POST",
+                data: JSON.stringify({
+                    phone: user,
+                    password: pwd
+                }),
+                contentType: "application/json,charset=utf-8",
+            }
+        }, function (val) {
+            if (val.code == 200) {
+                $('.chaqz-info-wrapper').remove();
+                var member = val.data;
+                var token = val.data.token;
+                localStorage.setItem('chaqz_token', token);
+                // SAVE_MEMBER = member;
+                window.SAVE_MEMBER2 = member;
+                chrome.storage.local.set({
+                    'chaqz_token': token
+                }, function () {});
+                isLogin = true;
+                // _that.getShopBind()
+                changeLoginStatus()
+                $('.chaqz-info-wrapper.login').remove();
+            } else {
+                $('.chaqz-info-wrapper.login .pwd .tips').text('账号或密码错误').show()
+                onLoading = false
+            }
+        })
+    },
+    init: function () {
+        var _that = this
+        $('#app').append(this.loginDom);
+        $('.chaqz-info-wrapper #phone').blur(function () {
+            var phoneVal = $(this).val()
+            var phoneReg = /^1[34578]\d{9}$/;
+            if (!phoneVal) {
+                $(this).siblings('.tips').text('请输入手机号码').show()
+            } else if (!phoneReg.test(phoneVal)) {
+                $(this).siblings('.tips').text('请输入正确号码').show()
+            } else {
+                $(this).siblings('.tips').hide()
+            }
+        })
+        $('.chaqz-info-wrapper #pwd').blur(function () {
+            var pwdValue = $(this).val()
+            if (!pwdValue) {
+                $(this).siblings('.tips').text('请输入密码').show()
+            } else {
+                $(this).siblings('.tips').hide()
+            }
+        })
+        // 登录处理
+        $('.chaqz-info-wrapper .login-btn').click(function () {
+            _that.login()
+        })
+        //回车搜索
+        $('.chaqz-info-wrapper #pwd').bind('keydown', function (event) {
+            var evt = window.event || event;
+            if (evt.keyCode == 13) {
+                _that.login()
+            }
+        });
+        // 关闭登录弹窗
+        $('.chaqz-info-wrapper .hided').click(function () {
+            $('.chaqz-info-wrapper.login').remove()
+        })
+    },
+    getShopBind: function () {
+        var saveToke = localStorage.getItem('chaqz_token')
+        chrome.runtime.sendMessage({
+            key: 'getData',
+            options: {
+                url: BASE_URL + '/api/v1/plugin/shop',
+                type: 'GET',
+                headers: {
+                    Authorization: "Bearer " + saveToke
+                }
+            }
+        }, function (val) {
+            if (val.code == 200) {
+                var bindInfo = val.data
+                SAVE_BIND = bindInfo
+                window.SAVE_BIND2 = bindInfo;
+            } else if (val.code == 2030) {
+                LogOut()
+            }
+        })
+    },
+    getInfo: function () {
+        var userWrap = $('.chaqz-info-wrapper.user')
+        if (userWrap.length) {
+            userWrap.show()
+        } else {
+            var memInfo = SAVE_MEMBER2;
+            // var bindInfo = SAVE_BIND;
+            if (memInfo.token) {
+                // this.infoDom(memInfo, bindInfo)
+                this.infoDom(memInfo)
+            } else {
+                popUp.init('noShopInfo')
+            }
+            $('.chaqz-info-wrapper .hided').click(function () {
+                $('.chaqz-info-wrapper.user').hide()
+            })
+            $('.chaqz-info-wrapper #logout').click(function () {
+                $('.chaqz-info-wrapper.user').hide();
+                LogOut()
+
+            })
+            $('.chaqz-info-wrapper.user .wxpop').click(function () {
+                $('.chaqz-info-wrapper.user').hide()
+                popUp.init('weixin')
+            })
+        }
+    }
 }

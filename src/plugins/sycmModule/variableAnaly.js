@@ -727,7 +727,7 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
          }
      }, function (val) {
          if (val.code == 200) {
-             var localCateId = localStorage.getItem('shopCateId');
+             var localCateId = getFirstCateId();
              var resCateId = val.data.rootCategoryId;
              if (localCateId != resCateId) {
                  tips.html('校验失败,仅支持同类目商品！<a class="contactService">请联系客服</a>')
@@ -776,7 +776,7 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
      curIndex == 1 ? rootWordPerson() : curIndex == 2 ? personRootWord() : rootWordAnaly();
  })
 // 词根搜索
-$(document).on('click', '.op-mc-search-analyze-container #search', function () {
+$(document).on('click', '.op-mc-search-analyze-container .ebase-FaCommonFilter__left #search', function () {
     textLoading();
      if (!isNewVersion()) {
          textLoading('', 'hide')
@@ -799,7 +799,7 @@ $(document).on('click', '.op-mc-search-analyze-container #search', function () {
 // 获取相关数据
 function relateWordDeal(searchWord, serDate) {
      // 防止没有cateID
-     getShopCateId()
+    //  getShopCateId()
     var relateData = getLocalItemData('relatedWord', searchWord, 0);
     if (relateData){
         COUNTER = 0;
@@ -1034,7 +1034,7 @@ function concantSearKey(arr1, arr2) {
 function keywordUrl(rivalId, device, type) {
     var nowTime = getCurrentTime();
     var dateRange = setDateRange(nowTime, 'day');
-    var localCateId = localStorage.getItem('shopCateId');
+    var localCateId = getFirstCateId();
     var defaultEnd = '&topType=trade&indexCode=tradeIndex';
     if (type) {
         defaultEnd = '&topType=flow&indexCode=uv'
@@ -1074,7 +1074,7 @@ function concatArr(decryData, decryDataTwo) {
      var dayRange = setDateRange(nowTime, 'day');
     var dateRange = setDateRange(nowTime);
     var titleDate = dateRange.replace('|', '~');
-    var localCateId = localStorage.getItem('shopCateId');
+    var localCateId = getFirstCateId();
     var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent30&dateRange=" + dateRange + "&device=" + device + "&cateId=" + localCateId + "&rivalItem1Id=" + rivalId;
     if(type=='cross'){
         finalUrl = 'https://sycm.taobao.com/mc/ci/item/trend.json?dateType=day&dateRange=' + dayRange + '&cateId=' + localCateId + '&itemId=' + rivalId + '&device=' + device + '&sellerType=-1&indexCode=uvIndex%2CpayRateIndex%2CtradeIndex%2CpayByrCntIndex'
@@ -1420,7 +1420,7 @@ function concatArr(decryData, decryDataTwo) {
     var nowTime = getCurrentTime();
     var dateRange = setDateRange(nowTime, 'day');
     var titleDate = dateRange.replace('|', '~');
-    var localCateId = localStorage.getItem('shopCateId');
+    var localCateId = getFirstCateId();
     var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getFlowSource.json?device=" + device + "&cateId=" + localCateId + "&selfItemId=" + rivalId + "&dateType=day&dateRange=" + dateRange + "&indexCode=uv&orderBy=uv&order=desc";
     var localData = localStorage.getItem(finalUrl);
     var hasWrap = $('.chaqz-wrapper').length
@@ -1853,7 +1853,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
            })
         } 
        
-    }
+    } else if (request.type == 'parsing'){
+        if (!isNewVersion()) {
+            return false
+        };
+        popUp.init('competingGoodsAnalysis')
+    } else if (request.type == 'weightParsing') {
+         if (!isNewVersion()) {
+             return false
+         };
+         popUp.init('competingTopAnalysis')
+    } 
     sendResponse();
     return true
 });
@@ -1861,6 +1871,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 function searchPeople() {
     var curUrl = window.location.href;
     var isSearchPeo = curUrl.indexOf('https://sycm.taobao.com/mc/mq/search_customer') > -1;
+    if (!(self.frameElement && self.frameElement.tagName == "IFRAME")) {
+        return false;
+    }
     if (!isSearchPeo) {
         return false;
     }
