@@ -333,8 +333,15 @@ export function findcategory() {
     for (let i = 0; i < len; i++) {
         const element = allCate[i];
         if (element[2] == fianlText) {
-            res = element[1];
-            break;
+            if (deText.length < 3) {
+                if (element[0] == element[6]){
+                    res = element[1];
+                    break;
+                }
+            }else{
+                res = element[1];
+                break;
+            }
         }
     }
     return {

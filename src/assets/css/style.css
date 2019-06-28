@@ -935,8 +935,8 @@
 /* 竞品解析 */
 .chaqz-compete-wrap {
     position: fixed;
-    bottom: 80px;
-    right: 90px;
+    bottom: 0;
+    right: 0;
     width: 203px;
     z-index: 9998;
     text-align: center;

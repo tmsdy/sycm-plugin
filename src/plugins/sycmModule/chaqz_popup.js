@@ -43,7 +43,7 @@ chrome.runtime.sendMessage({
 }, function (res) {
   if (res.code == 200) {
     var cssurl = res.data.css.popStyle;
-    var jsurl = res.data.js.popup;
+    var jsurl = res.data.js.chaqzPopup;
     jsurl ? loadCDNJs(jsurl) : '';
     cssurl ? loadCDNCss(cssurl) : '';
   }

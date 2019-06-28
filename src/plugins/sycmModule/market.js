@@ -494,7 +494,7 @@ var COUNT = 0;
             if (chooseItem == 0) {
                 //  obj.tradeIndex = res.tradeIndex[i] != '超出范围,请使用插件最高支持7.8亿' ? res.tradeIndex[i]:'超出范围'
                 obj.growth = dealTradeGrowth(marketData[i].tradeGrowthRange.value)
-                obj.payRate = res.payRate[i] + "%"
+                obj.payRate = res.payRate[i] ? (res.payRate[i]*100).toFixed(2) + "%":"-";
             } else if (chooseItem == 1) {
                 //  obj.tradeIndex = res.tradeIndex[i]
                 obj.uvIndex = res.uvIndex[i]
@@ -692,7 +692,7 @@ var COUNT = 0;
             obj.seIpv = Math.round(res.seIpv[j])
             obj.cltHit = Math.round(res.cltHit[j])
             obj.cartHit = Math.round(res.cartHit[j])
-            obj.payRate = res.payRate[j].toFixed(2) + '%'
+            obj.payRate = res.payRate[j]?(res.payRate[j] * 100).toFixed(2) + '%':'-';
             obj.payByr = computedNum.res1
             obj.kdPrice = computedNum.res2
             obj.uvPrice = formula(trandeOver, res.uvIndex[j], 1)
@@ -924,7 +924,7 @@ var COUNT = 0;
                  obj.tradeIndex = res.tradeIndex[i] == '超出范围,请使用插件最高支持7.8亿' ? '-' : res.tradeIndex[i]
                  obj.uvIndex = res.uvIndex[i]
                  obj.payByr = res.payByrCntIndex[i]
-                 obj.payRate = res.payRateIndex[i]
+                 obj.payRate = res.payRateIndex[i] ? (res.payRateIndex[i]*100).toFixed(2)+'%':'-';
                  obj.kdPrice = formula(obj.tradeIndex, res.payByrCntIndex[i], 1)
                  obj.uvPrice = formula(obj.tradeIndex, res.uvIndex[i], 1)
                 //  if (chooseList==1) {
@@ -1067,8 +1067,8 @@ function bigMarketTable(){
             obj.payByrCntIndex = indexs.payByr[0];
             obj.sePvIndex = indexs.sePvIndex[0];
             obj.tradeIndex = indexs.tradeIndex[0] == '超出范围,请使用插件最高支持7.8亿' ? '超出范围' : indexs.tradeIndex[0];
-            obj.uvPrice = obj.tradeIndex == '超出范围' ? '-' : (obj.tradeIndex / obj.uv);
-            obj.searchRate = indexs.sePvIndex[0] == '超出范围' ? '-' : (indexs.sePvIndex[0] / obj.uv*100).toFixed(2);
+            obj.uvPrice = obj.tradeIndex == '超出范围' ? '-' : (obj.tradeIndex / obj.uv).toFixed(2);
+            obj.searchRate = indexs.sePvIndex[0] == '超出范围' ? '-' : (indexs.sePvIndex[0] / obj.uv*100).toFixed(2)+'%';
             cols = [{
                     data: 'uv',
                     title: '访客数',
@@ -1272,16 +1272,16 @@ function searchRankTable(){
             obj.word = chooseData[i].searchWord;
             obj.seIpvUvHits = spIv[i];
             obj.hotrank = wordTabType ? chooseData[i].soarRank : chooseData[i].hotSearchRank;
-            obj.p4pRefPrice = chooseData[i].p4pRefPrice ? Math.ceil(chooseData[i].p4pRefPrice) : '-';
+            obj.p4pRefPrice = chooseData[i].p4pRefPrice ? (chooseData[i].p4pRefPrice*1).toFixed(2) : '-';
             if (wordType < 2) {
                 obj.clickCount = clcikHits[i];
-                obj.clickRate = (chooseData[i].clickRate * 100).toFixed(2);
-                obj.payRate = (chooseData[i].payRate * 100).toFixed(2);
+                obj.clickRate = chooseData[i].clickRate?(chooseData[i].clickRate * 100).toFixed(2) + '%':'-';
+                obj.payRate = chooseData[i].payRate?(chooseData[i].payRate * 100).toFixed(2) + '%':'-';
                 // obj.searchRate = chooseData[i].p4pRefPrice ? chooseData[i].p4pRefPrice : '-';
             } else {
                 obj.clickCount = clcikHits[i];
-                obj.clickRate = (chooseData[i].avgWordClickRate * 100).toFixed(2);
-                obj.payRate = (chooseData[i].avgWordPayRate * 100).toFixed(2);
+                obj.clickRate = chooseData[i].avgWordClickRate?(chooseData[i].avgWordClickRate * 100).toFixed(2)+'%':'-';
+                obj.payRate = chooseData[i].avgWordPayRate?(chooseData[i].avgWordPayRate * 100).toFixed(2)+'%':'-';
                 obj.relSeWordCnt = chooseData[i].relSeWordCnt;
                 // obj.searchRate = chooseData[i].p4pRefPrice ? chooseData[i].p4pRefPrice : '-';
             }
@@ -1307,7 +1307,7 @@ function searchRankTable(){
                 },
                 {
                     data: 'clickRate',
-                    title: '点击率(%)'
+                    title: '点击率'
                 },
                 {
                     data: 'payRate',
@@ -1345,7 +1345,7 @@ function searchRankTable(){
                 },
                 {
                     data: 'clickRate',
-                    title: '词均点击率(%)'
+                    title: '词均点击率'
                 },
                 {
                     data: 'payRate',
@@ -1529,11 +1529,11 @@ function analyOverviewTable(){//'ovewview
         var obj = {};
         obj.seIpvUvHits = fianlVal.seIpvUvHits[0];
         obj.trande = fianlVal.tradeIndex[0] == '超出范围,请使用插件最高支持7.8亿' ? '超出范围' : fianlVal.tradeIndex[0];
-        obj.payrate = reductData.payConvRate.value;
+        obj.payrate = reductData.payConvRate.value ? (reductData.payConvRate.value*100).toFixed(2)+'%':'-';
         obj.sePvIndex = fianlVal.sePvIndex[0];
         obj.clickHits = fianlVal.clickHits[0];
         obj.clickHot = fianlVal.clickHot[0];
-        obj.clickRate = reductData.clickRate.value;
+        obj.clickRate = reductData.clickRate.value ? (reductData.clickRate.value*100).toFixed(2)+'%':'-';
        var cols = [
              {
                  data: 'seIpvUvHits',
@@ -1677,7 +1677,7 @@ function analyRelatedTable(){//相关分析
             obj.keyword = reductData[i].keyword;
             obj.spev = indexVal.seIpvUvHits[i];
             obj.clickHits = indexVal.clickHits[i];
-            obj.p4pAmt = reductData[i].p4pAmt ? Math.floor(reductData[i].p4pAmt) : '-';
+            obj.p4pAmt = reductData[i].p4pAmt ? (reductData[i].p4pAmt*1).toFixed(2) : '-';
             if (!selectItem) {
                 obj.clickRate = (reductData[i].clickRate).toFixed(2) + '%';
                 obj.trade = indexVal.tradeIndex[i];
@@ -1685,13 +1685,13 @@ function analyRelatedTable(){//相关分析
                 obj.clickhot = indexVal.clickHot[i];
                 obj.payrate = (reductData[i].payConvRate * 100).toFixed(2) + '%';
                 obj.onlineFood = reductData[i].onlineGoodsCnt;
-                obj.shopClickRate = reductData[i].tmClickRatio;
+                obj.shopClickRate = reductData[i].tmClickRatio ? (reductData[i].tmClickRatio*100).toFixed(2)+'%':'-';
                 obj.uvPrice = (indexVal.tradeIndex[i] && indexVal.tradeIndex[i] != "超出范围") ? (indexVal.tradeIndex[i] / indexVal.seIpvUvHits[i]).toFixed(2) : '-';
                 obj.compare = (indexVal.seIpvUvHits[i] / reductData[i].onlineGoodsCnt).toFixed(2);
                 obj.shopper = (indexVal.tradeIndex[i] && indexVal.tradeIndex[i] != "超出范围") ? (indexVal.tradeIndex[i] / reductData[i].onlineGoodsCnt).toFixed(2) : '-';
             } else {
-                obj.clickRate = reductData[i].avgWordClickRate * 100 + '%';
-                obj.payrate = reductData[i].avgWordPayRate * 100 + '%';
+                obj.clickRate = reductData[i].avgWordClickRate?(reductData[i].avgWordClickRate * 100).toFixed(2) + '%':'-';
+                obj.payrate = reductData[i].avgWordPayRate?(reductData[i].avgWordPayRate * 100).toFixed(2) + '%':'-';
             }
             tableData.push(obj);
         }
@@ -2133,7 +2133,7 @@ function getstructshow(itemData, allItemInfo, extra) {
         }
     })
 }
-// 搜索分析-all
+// 搜索人群-all
 function searchPersonAll(){
     LoadingPop('show')
     var searchwordInfo = getSearchKeyword();
@@ -2205,9 +2205,9 @@ function searPersonShow(indexData,wordsArr){
             var obj = {};
             obj.keyword = wordsArr[i];
             obj.seIpvUvHits = transIndex.seIpvUvHits[i];
-            obj.searchRate = resBox.searchRatio[i]? resBox.searchRatio[i].toFixed(2) + '%':'';
+            obj.searchRate = resBox.searchRatio[i]? (resBox.searchRatio[i]*100).toFixed(2) + '%':'';
             obj.clickHits = transIndex.clickHits[i];
-            obj.clickPerRate = resBox.clickRatio[i] ?resBox.clickRatio[i].toFixed(2) + '%':'';
+            obj.clickPerRate = resBox.clickRatio[i] ?(resBox.clickRatio[i]*100).toFixed(2) + '%':'';
             obj.clickRatio = resBox.clickRate[i]?(resBox.clickRate[i] * 100).toFixed(2) + '%':'';
             obj.tradeIndex = transIndex.tradeIndex[i];
             obj.payrate = resBox.payRate[i]?(resBox.payRate[i] * 100).toFixed(2) + '%':'';
@@ -2253,8 +2253,6 @@ function searPersonShow(indexData,wordsArr){
             paging:{}
         }, '搜索人群-总览')
     })
-    console.log(resBox)
-    // var fliterData = filterSearPerson(resBox,wordsArr)
 }
 function searchProvce(type,selectItem){
     var searchwordInfo = getSearchKeyword();
@@ -2610,7 +2608,7 @@ $(document).on('click', '.op-mc-search-rank-container .oui-card-header-wrapper #
 })
 // 市场-搜索分析- overview
 $(document).on('click', '.op-mc-search-analyze-container #searchTrend .cardHeader #search', function (e) {
-    if ($('.op-mc-search-analyze-container #searchTrend .oui-card-header-wrapper .oui-card-title').text() == '趋势分析') {
+    if ($('.op-mc-search-analyze-container #searchTrend .oui-card-header-wrapper .oui-card-header #search').length) {
         analyOverviewTable();
     }
 })

@@ -309,7 +309,8 @@ export function LogOut() {
                 // SAVE_MEMBER = member;
                 window.SAVE_MEMBER2 = member;
                 chrome.storage.local.set({
-                    'chaqz_token': token
+                    'chaqz_token': token,
+                    'chaqzShopInfo': member
                 }, function () {});
                 isLogin = true;
                 // window.isLogin = true;

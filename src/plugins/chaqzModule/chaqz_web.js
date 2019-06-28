@@ -45,9 +45,8 @@ window.CHAQZ_VERSION = "";
             if (res.code == 200) {
                 CHAQZ_VERSION = res.data.version
                 // var cssurl = res.data.css.main
-                // var jsurl = res.data.js.chaqzContent
-                // loadCDNJs(jsurl);
-                // loadCDNJs(jsurl);
+                var jsurl = res.data.js.chaqzContent
+                loadCDNJs(jsurl);
                 // loadCDNCss(cssurl);
             }
         });
