@@ -1863,6 +1863,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
              return false
          };
          popUp.init('competingTopAnalysis')
+    } else if (request.type == 'gokeyRight') {
+        window.open('https://sycm.taobao.com/mc/ci/item/analysis','_self')
     } 
     sendResponse();
     return true

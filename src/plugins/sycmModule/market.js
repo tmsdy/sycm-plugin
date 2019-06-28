@@ -169,6 +169,7 @@ var COUNT = 0;
 
          }
      })
+     LoadingPop()
      $('.chaqz-wrapper').fadeIn(100);
  }
  // 趋势table
@@ -1129,6 +1130,7 @@ function bigMarketTable(){
 function bigMarketTrendTable(){
      var selectType = $('.op-mc-market-overview-container #cateTrend .oui-card-switch .oui-card-switch-item-container-active').index(); //0-对比行业，1-对比本店，2-对比周期
      var selectIndexType = $('.op-mc-market-overview-container #cateTrend .index-area-multiple-root-container .active .oui-index-cell').attr('value');
+     var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
      var compareType = selectType == 1 ? 'self' : selectType == 2 ? 'cycle' : "cate";
      var rootCateInfo = findcategory();//本店目录选择
      var comCateInfo = findComcategory(); //对比目录选择
@@ -1150,7 +1152,7 @@ function bigMarketTrendTable(){
       var selfData = selectType == 1 ? reductData.self[selectIndexType] : selectType == 2 ? reductData.cate[selectIndexType] : reductData.self[selectIndexType];
       var cateData = selectType == 1 ? reductData.cate[selectIndexType] : selectType == 2 ? reductData.cycle[selectIndexType] : reductData.cate ? reductData.cate[selectIndexType] : '';
      if (transList.indexOf(selectIndexType)==-1){
-       bigMarketShowData(selfData, cateData, selectIndexType, typeNames)
+       bigMarketShowData(selfData, cateData, dayIndex, typeNames)
      }else{
          var sendData = cateData ? selfData.concat(cateData) : selfData;
         dealIndex({
@@ -1160,18 +1162,27 @@ function bigMarketTrendTable(){
         }, function (val) {
             var selfData = val.value[selectIndexType].slice(0,30);
             var cateDataTran = cateData ? val.value[selectIndexType].slice(30) : '';
-            bigMarketShowData(selfData, cateDataTran, selectIndexType, typeNames)
+            bigMarketShowData(selfData, cateDataTran, dayIndex, typeNames)
         })
      }
 }
 function bigMarketShowData(selfData, cateData, selectIndexType, typeNames) {
-     var month30Days = monthDays();
+    var yearMonthDays = '';
+    if (selectIndexType=='周'){
+        yearMonthDays = weekMonthDate()
+    } else if (selectIndexType == '月'){
+        yearMonthDays = weekMonthDate('month')
+    }else{
+        yearMonthDays = monthDays()
+    }
+    //  var month30Days = monthDays();
+    var len = yearMonthDays.length;
      var resData = [];
-     for (let j = 0; j < 30; j++) {
+     for (let j = 0; j < len; j++) {
          var obj = {};
          obj.self = selfData[j];
          obj.cate = cateData ? cateData[j] : '';
-         obj.date = month30Days[j];
+         obj.date = yearMonthDays[j];
          resData.push(obj)
      }
      var cols =[];
@@ -1208,7 +1219,7 @@ function bigMarketShowData(selfData, cateData, selectIndexType, typeNames) {
      }, {
          name: typeNames.tabName,
          type: 'dapan'
-     }, month30Days, {
+     }, yearMonthDays, {
          self: selfData,
          cate: cateData,
          typeNames: typeNames
@@ -2124,8 +2135,8 @@ function getstructshow(itemData, allItemInfo, extra) {
 }
 // 搜索分析-all
 function searchPersonAll(){
+    LoadingPop('show')
     var searchwordInfo = getSearchKeyword();
-    console.log(searchwordInfo)
     $('#completeShopPortrait .mc-SearchCustomerPortrait .ant-radio-wrapper').eq(0).click();
     cycleFindPerson(searchwordInfo.key, {step:0,res:{},keyArr:searchwordInfo.keyItems})
 }
@@ -2146,23 +2157,25 @@ function cycleFindPerson(localKey, extra) {
             console.log(extra.res);
         }else{
             var nextStep = curStep+1;
-            
-            extra.res[typeItems[curStep]] = reductData;
-            console.log(reductData);
-            $('#completeShopPortrait .mc-SearchCustomerPortrait .ant-radio-wrapper').eq(nextStep).click();
-            extra.step=nextStep;
-            cycleFindPerson(localKey, extra)
+            setTimeout(function(){
+                 extra.res[typeItems[curStep]] = reductData;
+                 $('#completeShopPortrait .mc-SearchCustomerPortrait .ant-radio-wrapper').eq(nextStep).click();
+                 extra.step = nextStep;
+                 cycleFindPerson(localKey, extra)
+            },300)
+           
         }
     } else {
         setTimeout(function () {
             if (COUNT > 20) {
                 popTip('获取数据失败！')
+                LoadingPop()
                 return false;
             } else {
                 COUNT++
                 cycleFindPerson(localKey, extra)
             }
-        }, 200)
+        }, 350)
     }
 }
 function searPersonShow(indexData,wordsArr){
@@ -2192,12 +2205,12 @@ function searPersonShow(indexData,wordsArr){
             var obj = {};
             obj.keyword = wordsArr[i];
             obj.seIpvUvHits = transIndex.seIpvUvHits[i];
-            obj.searchRate = resBox.searchRatio[i];
+            obj.searchRate = resBox.searchRatio[i]? resBox.searchRatio[i].toFixed(2) + '%':'';
             obj.clickHits = transIndex.clickHits[i];
-            obj.clickPerRate = resBox.clickRatio[i];
-            obj.clickRatio = resBox.clickRate[i];
+            obj.clickPerRate = resBox.clickRatio[i] ?resBox.clickRatio[i].toFixed(2) + '%':'';
+            obj.clickRatio = resBox.clickRate[i]?(resBox.clickRate[i] * 100).toFixed(2) + '%':'';
             obj.tradeIndex = transIndex.tradeIndex[i];
-            obj.payrate = resBox.payRate[i];
+            obj.payrate = resBox.payRate[i]?(resBox.payRate[i] * 100).toFixed(2) + '%':'';
             tableData.push(obj)
         }
         var cols = [
@@ -2243,7 +2256,7 @@ function searPersonShow(indexData,wordsArr){
     console.log(resBox)
     // var fliterData = filterSearPerson(resBox,wordsArr)
 }
-function searchProvce(type){
+function searchProvce(type,selectItem){
     var searchwordInfo = getSearchKeyword();
     var words = searchwordInfo.keyItems;
     var slectItem = $('#completeShopPortrait .mc-SearchCustomerPortrait .ant-radio-wrapper-checked').index();
@@ -2252,17 +2265,105 @@ function searchProvce(type){
         var isActive = i==0?'active':'';
         tabsHtml += ('<button class="switchBtn '+isActive+' switchCity">' + words[i] + '</button>');
     }
-    tabsHtml = '<div class="chaqz-top-tabs">' + tabsHtml + showHtml + '</div>';
+    tabsHtml = '<div class="chaqz-top-tabs">' + tabsHtml  + '</div>';
+    remeSelectType = {
+        type: type
+    }
     var typeItems = ['searchPopularity','searchRatio','clickPopularity','clickRatio','clickRate','payPopularity','payRate'];
     var testReg = 'searchPopularity,clickPopularity,payPopularity';
-    var isNeedTrans = testReg.indexOf(typeItems[slectItem])!=-1;
-    if(isNeedTrans){
-        
-    }else{
-
+    var curAttrType = typeItems[slectItem];
+    var isNeedTrans = testReg.indexOf(curAttrType) != -1;
+    var localKey = getSearchParams('searchPerson',1,10,'local',{
+        keyword: searchwordInfo.key,
+        attrType: type,
+        indexCode: curAttrType
+    })
+    var localData = localStorage.getItem(localKey);
+    if(!localData){
+        popTip('数据获取失败！')
+        return false;
     }
-    
+    var reduceData = JSON.parse(filterLocalData(localData));
+    var selWord = selectItem ? words[selectItem] : words[0];
+    var filteDa = reduceData[selWord].dataList ? reduceData[selWord].dataList : [];
+    if(isNeedTrans){
+        var sendArr = filterSearchRank(filteDa, 'value');
+        var relateWord = {
+            searchPopularity:'seIpvUvHits',
+            clickPopularity: 'clickHits',
+            payPopularity:'tradeIndex'
+        }
+        var sendData = {};
+        sendData[relateWord[curAttrType]] = sendArr
+        dealIndex({
+            type: 'dealTrend',
+            dataType: sendData
+            }, function (val) {
+                showProvCity(type, {
+                            word:selWord,
+                            tabs: tabsHtml
+                        }, curAttrType, filteDa, {
+                    isTrans:true,
+                    data: val.value[relateWord[curAttrType]]
+                })
+            })
+    }else{
+        showProvCity(type, {
+                    word: selWord,
+                    tabs: tabsHtml
+                }, curAttrType, filteDa, {
+            isTrans: false,
+        })
+    }
+}
+function showProvCity(type,word,selType,oriData,transInfo){
+    var tableData = [];
+    var len = oriData.length;
+    for (let i = 0; i < len; i++) {
+        var obj = {};
+        obj.rank = i+1;
+        obj.type = oriData[i].key;
+        obj.count = transInfo.isTrans ? transInfo.data[i] : oriData[i].value?(oriData[i].value * 100).toFixed(2) + '%':'-';
+        tableData.push(obj)
+    }
+    var whre = type =='prov'?'省份':"城市";
+    var numWord = {
+        searchPopularity:'搜索人数',
+        searchRatio: '搜索人数占比',
+        clickPopularity: '点击人数',
+        clickRatio: '点击人数占比',
+        clickRate: '点击率',
+        payPopularity: '交易金额',
+        payRate: '支付转化率',
+    }
+    var cols=[
+        {
+            data: 'rank',
+            title:  '排名'
+        },
+        {
+            data: 'type',
+            title: whre
+        },
+        {
+            data: 'count',
+            title: numWord[selType]
+        },
+    ];
+     if ($('.chaqz-wrapper').length) {
+        tableInstance.clear();
+        tableInstance.rows.add(tableData).draw();
+        $('.chaqz-wrapper .chaqz-table-title').text('搜索词' + word.word);
+     }else{
+         domStructMark({
+             data: tableData,
+             cols: cols,
+             paging: {
 
+             },
+             tabs: word.tabs
+         }, '搜索词' + word.word)
+     }
 }
 /**=------方法类----------- */
 function trendKeyJoin(type, idNum) {
@@ -2402,13 +2503,54 @@ function getSearchKeyword(){
     var searchKey2 = searchwordWrap.eq(1).find('.sycm-common-select-selected-title').length?searchwordWrap.eq(1).find('.sycm-common-select-selected-title').text():'';
     var searchKey3 = searchwordWrap.eq(2).find('.sycm-common-select-selected-title').length?searchwordWrap.eq(2).find('.sycm-common-select-selected-title').text():"";
     var keyword = [];
-    keyword.push(searchKey1);
+    searchKey1?keyword.push(searchKey1):'';
     searchKey2?keyword.push(searchKey2):'';
     searchKey3?keyword.push(searchKey3):'';
     return {
         keyItems: keyword,
         key:searchKey1+'|'+searchKey2+'|'+searchKey3
     }
+}
+// 
+function  weekMonthDate(type){
+    var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text();
+    var spliteTime = timeRnage.split(' ');
+    var splitLen = spliteTime.length;
+    var finalTime = (splitLen == 3 || splitLen == 2) ? spliteTime[1] : splitLen == 4 ? spliteTime[3] : '';
+    var finalDate = new Date(finalTime);
+    var res = [];
+    var year = finalDate.getFullYear();
+    var month = finalDate.getMonth() + 1;
+     if(!type){
+        var date = finalDate.getDate();
+        var curWeek = getYearWeek(year, month, date);
+     }
+     
+     for (let i = 0; i < 12; i++) {
+         var text = ''
+         if(type){
+             var calMonth = month - i < 0 ? (12 + month - i) : (month - i);
+             var calYear = month - i < 0 ? (year - 1) : year;
+            text = calYear + '-' + calMonth;
+         }else{
+            text = year + ' 第' + (curWeek - i) + '周';
+         }
+         res.push(text)
+     }
+     return res
+}
+// 获取一年中的第几周
+function getYearWeek(year, month, date) {
+    /*
+    dateNow是当前日期
+    dateFirst是当年第一天
+    dataNumber是当前日期是今年第多少天
+    用dataNumber + 当前年的第一天的周差距的和在除以7就是本年第几周
+    */
+    let dateNow = new Date(year, parseInt(month) - 1, date);
+    let dateFirst = new Date(year, 0, 1);
+    let dataNumber = Math.round((dateNow.valueOf() - dateFirst.valueOf()) / 86400000);
+    return Math.ceil((dataNumber + ((dateFirst.getDay() + 1) - 1)) / 7);
 }
 /*------市场模块触发事件 ----------*/
 //市场店铺的按钮是否显示控制
@@ -2503,7 +2645,24 @@ $(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchStruct', functio
 $(document).on('click', '.mc-searchCustomer #completeShopPortrait  .oui-card-header-wrapper #search', function (e) {
    searchPersonAll()
 })
-
+// 市场-搜索人群- provce-city$('').eq(3).find('.portrait-title')
+$(document).on('click', '.mc-searchCustomer #completeShopPortrait .portrait-container #search', function (e) {
+   var parent = $(this).parents('.oui-col').index();
+   if(parent == 3){
+       searchProvce('prov')
+   }else if(parent == 4){
+       searchProvce('city')
+   }
+})
+// 市场-搜索人群- 切换
+$(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchCity', function (e) {
+    var index = $(this).index();
+    if ($(this).hasClass('active')) {
+        return false;
+    }
+    $(this).addClass('active').siblings().removeClass('active');
+    searchProvce(remeSelectType.type, index)
+})
 
 // 选择对比
 $(document).on('click', '.op-mc-market-overview-compare-area .common-picker-menu', function () {

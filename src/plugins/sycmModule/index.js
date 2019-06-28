@@ -11,7 +11,7 @@ import {
     LogOut,
     isNewVersion
 } from '../../common/promptClass'
-var isLogin = false; //是否登录
+// var isLogin = false; //是否登录
 var SAVE_MEMBER = {};
 // var SAVE_BIND = {};
 // var SET_WAIT_TIME = 600000
@@ -99,7 +99,7 @@ var dataWrapper = {
 }
 window.dataWrapper2 = dataWrapper;
 window.SAVE_MEMBER2 = SAVE_MEMBER;
-window.isLogin = isLogin;
+// window.isLogin = isLogin;
 // window.SAVE_BIND2 = SAVE_BIND;
 
 
@@ -113,11 +113,10 @@ chrome.storage.local.get('chaqz_token', function (valueArray) {
     if (tok) {
         localStorage.setItem('chaqz_token', tok);
         isLogin = true;
-        window.isLogin = true;
+        // window.isLogin = true;
     } else {
         LogOut()
-        isLogin = false;
-        window.isLogin = false;
+        // isLogin = false;
     }
 });
 $(function () {
@@ -128,6 +127,9 @@ $(function () {
     });
      // 个人信息
      $(document).on('click', '#userBtn', function () {
+         if(!isNewVersion()){
+             return false
+         }
          anyDom.getInfo();
          return false
      });
@@ -142,7 +144,7 @@ $(function () {
     }, SET_WAIT_TIME)
     /**竞争模块添加事件 */
     $('#app').on('DOMNodeInserted', function (e) {
-        // console.log(e.target.id, ',', e.target.className)
+        console.log(e.target.id, ',', e.target.className)
         if (e.target.className == 'oui-index-picker') { //竞争-监控店铺
             $('.mc-shopMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
         } else if (e.target.className == 'oui-index-picker-group') { //竞争-监控商品
@@ -187,11 +189,12 @@ $(function () {
         } else if (e.target.id == 'categoryConstitute') { //market-analy-struct
             $('.op-mc-search-analyze-container  .oui-card-header-wrapper').eq(0).append(showBtn())
         } else if (e.target.id == 'completeShopPortrait') { //搜索人群-all
-            $('.mc-searchCustomer #completeShopPortrait  .oui-card-header-wrapper').append(showBtn())
-        } else if (e.target.id == 'completeShopPurchase') { //搜索人群-provice
-            $('.mc-searchCustomer #completeShopPurchase .oui-card-header-wrapper').append(showBtn())
-        } else if (e.target.id == 'completeShopPayment') { //搜索人群-city
-            $('.mc-searchCustomer #completeShopPayment .oui-card-header-wrapper').append(showBtn())
+            $('.mc-searchCustomer #completeShopPortrait  .oui-card-header-wrapper').append(showBtn());
+        } else if (e.target.className  == 'portrait-content-table'){
+            if (!$('.mc-searchCustomer #completeShopPortrait .portrait-container').eq(3).find('#search').length){
+                $('.mc-searchCustomer #completeShopPortrait .portrait-container').eq(3).find('.portrait-title').append(showBtn())
+                $('.mc-searchCustomer #completeShopPortrait .portrait-container').eq(4).find('.portrait-title').append(showBtn())
+            }
         }
     });
 })
@@ -396,6 +399,9 @@ function userInfoRes() {
             res.member.expireAt = res.member.expire_at;
             SAVE_MEMBER = res;
             window.SAVE_MEMBER2 = res;
+            // window.isLogin = true;
+            isLogin = true;
+            changeLoginStatus()
         } else {
             LogOut()
         }
@@ -451,12 +457,15 @@ function competePop() {
     }
     var reg = /https:\/\/sycm\.taobao\.com\/mc\/(mq|ci)/
     var monitorPart = reg.test(url) ;
-    if (isLogin && monitorPart) {
-       $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img id="userBtn" src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png" alt="" class="avator"></div><div class="content-wrap"><ul class="content"><li class="item"id="parsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></li><li class="item"id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></li><li class="item"id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/chaheihao"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/Kasp"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/infiniteRank"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a href=""target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘宝订单检测</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/toolIndex"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/home"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="http://www.chaquanzhong.com/home"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
+    if (monitorPart) {
+       $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img id="userBtn" src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png" alt="" class="avator"></div><div class="content-wrap"><ul class="content"><li class="item"id="parsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></li><li class="item"id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></li><li class="item"id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="'+BASE_URL+'/chaheihao?from=plugin" target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="'+BASE_URL+'/Kasp?from=plugin" target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="'+BASE_URL+'/infiniteRank?from=plugin" target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a class="developing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘宝订单检测</p></a></li><li class="item"><a href="'+BASE_URL+'/toolIndex?from=plugin" target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="'+BASE_URL+'/home?from=plugin" target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="'+BASE_URL+'/home?from=plugin" target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
     } else {
         $('.chaqz-compete-wrap').remove();
     }
 }
+$(document).on('click', '.developing',function(){
+    popTip('开发中，敬请期待...');
+})
 /**===========================市场竞争数字格式化方法以及页面信息======================================= */
 // 白名单-不需要进行解密处理的
 var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
@@ -752,7 +761,6 @@ var dragStatus = {
     disX: 0,
     disY: 0,
     _start: false,
-    hasSet: false,
     time: false
 }
 $(document).on('mousedown', '.popover-header .left', function (ev) {
@@ -763,25 +771,17 @@ $(document).on('mousedown', '.popover-header .left', function (ev) {
     var oEvent = ev || event;
     dragStatus.disX = oEvent.clientX - ele.offset().left;
     dragStatus.disY = oEvent.clientY - ele.offset().top;
-    if (dragStatus.hasSet) {
-        return;
-    }
-    dragStatus.hasSet = true;
     $(document).on("mousemove", function (ev) {
         if (dragStatus._start != true) {
             return false
         }
-        //  if (obj != self.moved) {
-        //      return false
-        //  }
-        //  self._move = true;
         var oEvent1 = ev || event;
         var scrollT = document.documentElement.scrollTop || document.body.scrollTop;
         var scrollL = document.documentElement.scrollLeft || document.body.scrollLeft;
         var l = oEvent1.clientX - dragStatus.disX - scrollL;
         var t = oEvent1.clientY - dragStatus.disY - scrollT;
         t= t<0?0:t;
-        $(ele).css({
+        $('.chaqz-compete-wrap').css({
             'left': l,
             top: t,
             bottom:'unset'
@@ -791,8 +791,8 @@ $(document).on('mousedown', '.popover-header .left', function (ev) {
         if (dragStatus._start != true) {
             return false
         }
-        //  ele.unbind("onmousemove");
-        //  ele.unbind("onmouseup");
+        $(document).off("mousemove");
+        $(document).off("mouseup");
         dragStatus._start = false;
     });
 })

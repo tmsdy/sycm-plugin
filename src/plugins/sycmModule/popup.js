@@ -10,6 +10,12 @@ $(document).on('click', '#weightParsing', function () {
 $(document).on('click', '#goRootWord', function () {
   messageSends('goRootWord')
 })
+$(document).on('click', '#gokeyRight', function () {
+  messageSends('gokeyRight')
+})
+$(document).on('click', '.developing', function () {
+  alert('开发中，敬请期待...')
+})
 function messageSends(type){
   // var testReg = 'sycm.taobao.com/custom/login.htm';
   var testLogin = 'sycm.taobao.com';

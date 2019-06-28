@@ -2,6 +2,7 @@ var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH)
     'http://118.25.153.205:8090';
 window.CHAQZ_VERSION = "1.0.8";
 window.SET_WAIT_TIME = 300000;
+window.isLogin = false;
 // $(function () {
     // 获取线上资源
     // function loadCDNCss(cssUrl) {

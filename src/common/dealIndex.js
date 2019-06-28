@@ -165,26 +165,25 @@
             return indexTrans.rang5(num)
         } else if (num >= 200000 && num < 300000) {
             return indexTrans.rang6(num)
-        } else{
+        }  else if (num >= 300000 && num < 500000) {
+            return indexTrans.rang7(num)
+        } else if (num >= 500000 && num < 800000) {
+            return indexTrans.rang8(num)
+        } else if (num >= 800000 && num < 1000000) {
+            return indexTrans.rang9(num)
+        } else if (num >= 1000000 && num < 2000000) {
+            return indexTrans.rang10(num)
+        } else if (num >= 2000000 && num < 5000000) {
+            return indexTrans.rang11(num)
+        } else if (num >= 50000000 && num < 80000000) {
+            return indexTrans.rang12(num)
+        } else if (num >= 80000000 && num < 120000000) {
+            return indexTrans.rang13(num)
+        } else if (num >= 120000000 && num < 17000000) {
+            return indexTrans.rang14(num)
+        } else {
             return '超出范围'
         }
-        // else if (num >= 300000 && num < 500000) {
-        //     return indexTrans.rang7(num)
-        // } else if (num >= 500000 && num < 800000) {
-        //     return indexTrans.rang8(num)
-        // } else if (num >= 800000 && num < 1000000) {
-        //     return indexTrans.rang9(num)
-        // } else if (num >= 1000000 && num < 2000000) {
-        //     return indexTrans.rang10(num)
-        // } else if (num >= 2000000 && num < 5000000) {
-        //     return indexTrans.rang11(num)
-        // } else if (num >= 50000000 && num < 80000000) {
-        //     return indexTrans.rang12(num)
-        // } else if (num >= 80000000 && num < 120000000) {
-        //     return indexTrans.rang13(num)
-        // } else if (num >= 120000000 && num < 17000000) {
-        //     return indexTrans.rang14(num)
-        // }
      },
      findRateType:function(num){
          if (num >= 0 && num < 23) {

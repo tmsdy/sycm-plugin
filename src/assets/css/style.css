@@ -385,7 +385,7 @@
     color: #fff;
     font-size: 16px;
 }
-.chaqz-wrapper .chaqz-top-tabs .switchStruct {
+.chaqz-wrapper .chaqz-top-tabs .switchStruct,.chaqz-wrapper .chaqz-top-tabs .switchCity {
     width: auto;
     min-width: 80px;
     padding: 5px;
@@ -1078,6 +1078,12 @@
     white-space: nowrap;
     padding-left: 3px;
     padding-right: 3px;
+}
+/* 市场分析 */
+.op-mc-search-analyze-container .alife-one-design-sycm-indexes-trend-addition-middle .chaqz-btns{
+    margin-left: 153px;
+    position: relative;
+    z-index: 1000;
 }
 /* loading */
 .load-pop {

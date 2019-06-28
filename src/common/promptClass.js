@@ -171,7 +171,7 @@ import {
     //   var shopInfo = dealShopInfo(); //店铺信息
       //不是否为会员
       if (!memInfo) {
-          popUp.init('orderMem')
+          LogOut()
           return false;
       }
       return true
@@ -227,20 +227,23 @@ import {
 export function changeLoginStatus(type) {
     if (type == 'out') {
         $('.chaqz-btns').html('<button id="loginbtn" class="serachBtn user">登录</button>');
-        $('.chaqz-compete-wrap').remove();
+        // $('.chaqz-compete-wrap').remove();
     } else {
         $('.chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button>' );
         $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header .chaqz-btns').html('<button id="search" class="serachBtn"></button><button id="vesting" class="serachBtn vesting">一键加权</button>');
-        $('.op-mc-search-analyze-container .ebase-Switch__root').html('<button id="search" class="serachBtn">一键分析</button>');
-        $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img  id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png" alt="" class="avator"></div><div class="content-wrap"><ul class="content"><li class="item"id="parsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></li><li class="item"id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></li><li class="item"id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/chaheihao"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/Kasp"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/infiniteRank"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a href=""target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘宝订单检测</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/toolIndex"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/home"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="http://www.chaquanzhong.com/home"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
+        $('.op-mc-search-analyze-container .ebase-Switch__root .chaqz-btns').html('<button id="search" class="serachBtn">一键分析</button>');
+        if ($('.chaqz-compete-wrap').length){
+            return false;
+        }
+        // $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img  id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png" alt="" class="avator"></div><div class="content-wrap"><ul class="content"><li class="item"id="parsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></li><li class="item"id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></li><li class="item"id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/chaheihao"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/Kasp"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/infiniteRank"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a href=""target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘宝订单检测</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/toolIndex"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/home"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="http://www.chaquanzhong.com/home"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
     }
 }
 // 退出登录
 export function LogOut() {
+    isLogin = false;
     changeLoginStatus('out');
     chrome.storage.local.remove(['chaqz_token', 'compareProduceData'], function () {});
     localStorage.removeItem('chaqz_token');
-    $('.chaqz-compete-wrap').remove();
     LoadingPop();
     $('#caseBlanche').remove();//词根管理弹窗
 }
@@ -309,6 +312,7 @@ export function LogOut() {
                     'chaqz_token': token
                 }, function () {});
                 isLogin = true;
+                // window.isLogin = true;
                 // _that.getShopBind()
                 changeLoginStatus()
                 $('.chaqz-info-wrapper.login').remove();

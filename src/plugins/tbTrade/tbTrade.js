@@ -326,7 +326,7 @@ function heartShow(star) {
     if (!prestigeIcon.num) {
         return '~'
     }
-    var imgfont = '<img class="no-margin" src="https://file.cdn.chaquanzhong.com/heartShow';
+    var imgfont = '<img class="no-margin" src="https://file.cdn.chaquanzhong.com/heartShow-';
     var imgend = '.png"alt="">';
     var html = '';
     for (let i = 0; i < prestigeIcon.num; i++) {

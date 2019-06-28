@@ -3,16 +3,18 @@ var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH)
 chrome.storage.local.get(['chaqz_token', 'compareProduceData'], function (valueArray) {
     var local = localStorage.getItem('token');
     var newLoacal = valueArray.chaqz_token;
-    var hasSetToken = localStorage.getItem('pluginHasSetToken')
+    // var hasSetToken = localStorage.getItem('pluginHasSetToken')
     if (newLoacal) {
         // if (local != newLoacal ) {
-            console.log(BASE_URL)
-        if (local != newLoacal && hasSetToken != newLoacal) {
+            console.log(window.location.href)
+        // if (local != newLoacal && hasSetToken != newLoacal) {
+        if (local != newLoacal ) {
             localStorage.setItem('token', valueArray.chaqz_token);
-            localStorage.setItem('pluginHasSetToken', valueArray.chaqz_token);
+            // localStorage.setItem('pluginHasSetToken', valueArray.chaqz_token);
             var url = window.location.href
             if (url.indexOf('plugin') != -1) {
-                window.location.href = BASE_URL + "/vipInfo?from=plugin"
+                // window.location.href = BASE_URL + "/vipInfo?from=plugin"
+                window.location.reload();
             }
             if (url.indexOf('privilgeEscala') != -1) {
                 window.location.href = BASE_URL + "/privilgeEscala"
