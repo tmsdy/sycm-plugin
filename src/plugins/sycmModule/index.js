@@ -1,17 +1,14 @@
 import {
     BASE_URL,
-    LOCAL_VERSION
 } from '../../common/constState'
 import {
     popTip,
-    popUp,
     dealShopInfo,
     changeLoginStatus,
     anyDom,
     LogOut,
     isNewVersion
 } from '../../common/promptClass'
-// var isLogin = false; //是否登录
 var SAVE_MEMBER = {};
 // var SAVE_BIND = {};
 // var SET_WAIT_TIME = 600000
