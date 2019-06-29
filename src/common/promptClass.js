@@ -1,7 +1,7 @@
 //  弹窗，吐司呀，loading
 import {
     BASE_URL,
-    LOCAL_VERSION
+    // LOCAL_VERSION
 } from './constState'
  // 弹窗模块
  export var popUp = {
@@ -158,7 +158,7 @@ import {
         //    }
     //    }
       try {
-          if (CHAQZ_VERSION != CHECK_VERSION) {
+          if (CHAQZ_VERSION != LOCAL_VERSION) {
               popUp.init('version')
               return false
           }
