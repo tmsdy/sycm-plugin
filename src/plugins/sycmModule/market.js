@@ -1020,6 +1020,9 @@ var COUNT = 0;
 }
 // 市场大盘
 function bigMarketTable(){
+    if (!isNewVersion()) {
+        return false
+    }
     var overviewKey = getSearchParams('industryTrend', 0, 0, 'local');
     dealIndex({
         type: 'industryTrend',
@@ -1128,6 +1131,9 @@ function bigMarketTable(){
 }
 // 市场大盘-行业趋势
 function bigMarketTrendTable(){
+    if (!isNewVersion()) {
+        return false
+    }
      var selectType = $('.op-mc-market-overview-container #cateTrend .oui-card-switch .oui-card-switch-item-container-active').index(); //0-对比行业，1-对比本店，2-对比周期
      var selectIndexType = $('.op-mc-market-overview-container #cateTrend .index-area-multiple-root-container .active .oui-index-cell').attr('value');
      var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
@@ -1227,6 +1233,9 @@ function bigMarketShowData(selfData, cateData, selectIndexType, typeNames) {
 }
 // 搜索排行
 function searchRankTable(){
+    if (!isNewVersion()) {
+        return false
+    }
     var wordType = $('.op-mc-search-rank-container .ebase-FaCommonFilter__left .op-ebase-switch .ebase-Switch__activeItem').index();//哪种词
     var wordTabType = $('.op-mc-search-rank-container .oui-card-header .oui-tab-switch .oui-tab-switch-item-active').index(); //词的种类
     var loaclKey = getSearchParams('SearchRanking', 1, 10, 'local', {
@@ -1504,6 +1513,9 @@ function searchRankTable(){
 
 // 搜索分析
 function analyOverviewTable(){//'ovewview
+    if (!isNewVersion()) {
+        return false
+    }
     var searchWord = $('.op-mc-search-analyze-container .op-cc-item-info .item-keyword').text().toLocaleLowerCase();
     var overviewKey = getSearchParams('searchOverview', 0, 0, 'local',{
         keyword: searchWord
@@ -1572,6 +1584,9 @@ function analyOverviewTable(){//'ovewview
     })
 }
 function analyTrendTable(){
+    if (!isNewVersion()) {
+        return false
+    }
      var searchWord = $('.op-mc-search-analyze-container .op-cc-item-info .item-keyword').text().toLocaleLowerCase();
     var selectIndexType = $('.op-mc-search-analyze-container #searchTrend .index-area-multiple-root-container .active .oui-index-cell').attr('value');
     var trendKey = getSearchParams('analySearchTrend', 0, 0, 'local', {
@@ -1641,6 +1656,9 @@ function analytTrendShowData(selfData,selectIndexType) {
     })
 }
 function analyRelatedTable(){//相关分析
+    if (!isNewVersion()) {
+        return false
+    }
      var searchWord = $('.op-mc-search-analyze-container .op-cc-item-info .item-keyword').text().toLocaleLowerCase();
      var selectItem = $('.op-mc-search-analyze-container .oui-tab-switch .oui-tab-switch-item-active').index();
      var keyType = selectItem == 1 ? 'relatedBrand' : selectItem == 2 ? 'relatedProperty' : selectItem == 3 ? 'relatedHotWord' : 'relatedWord';
@@ -1984,6 +2002,9 @@ function analyRelatedTable(){//相关分析
 // }
 // 搜索分析-结构
 function astructRelatedTable(pagetype){
+    if (!isNewVersion()) {
+        return false
+    }
     var selItem = $('.op-mc-search-analyze-container .oui-card .op-mc-search-analyze-cate-menu .oui-tab-switch-item-custom-active').index();//选择项
     var searchWord = $('.op-mc-search-analyze-container .op-cc-item-info .item-keyword').text().toLocaleLowerCase();//搜索词
     var curPage = $('.op-mc-search-analyze-container .ant-pagination .ant-pagination-item-active').attr('title')
@@ -2135,6 +2156,9 @@ function getstructshow(itemData, allItemInfo, extra) {
 }
 // 搜索人群-all
 function searchPersonAll(){
+    if (!isNewVersion()) {
+        return false
+    }
     LoadingPop('show')
     var searchwordInfo = getSearchKeyword();
     $('#completeShopPortrait .mc-SearchCustomerPortrait .ant-radio-wrapper').eq(0).click();
@@ -2255,6 +2279,9 @@ function searPersonShow(indexData,wordsArr){
     })
 }
 function searchProvce(type,selectItem){
+    if (!isNewVersion()) {
+        return false
+    }
     var searchwordInfo = getSearchKeyword();
     var words = searchwordInfo.keyItems;
     var slectItem = $('#completeShopPortrait .mc-SearchCustomerPortrait .ant-radio-wrapper-checked').index();

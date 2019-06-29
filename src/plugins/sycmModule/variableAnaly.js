@@ -2430,12 +2430,12 @@ function getRelateIndex(data) {
     }
 }
 // 防止catedid 获取失败
- function getShopCateId() {
-     var shopCateId = localStorage.getItem('chaqz_getShopCate');
-     var cateArr = shopCateId ? JSON.parse(shopCateId)[0] : '';
-     var resId = cateArr ? cateArr[6] : '';
-     resId ? localStorage.setItem('shopCateId', resId) : ''
- }
+//  function getShopCateId() {
+//      var shopCateId = localStorage.getItem('chaqz_getShopCate');
+//      var cateArr = shopCateId ? JSON.parse(shopCateId)[0] : '';
+//      var resId = cateArr ? cateArr[6] : '';
+//      resId ? localStorage.setItem('shopCateId', resId) : ''
+//  }
 // loading
 function textLoading(text, statu) {
     if (statu) {

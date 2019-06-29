@@ -151,12 +151,21 @@ import {
   }
   //check is pass
   export function isNewVersion() {
-       if (process.env.NODE_ENV == 'production') {
-           if (CHAQZ_VERSION != LOCAL_VERSION) {
-               popUp.init('version')
-               return false
-           }
-       }
+    //    if (process.env.NODE_ENV == 'production') {
+        //    if (CHAQZ_VERSION != LOCAL_VERSION) {
+        //        popUp.init('version')
+        //        return false
+        //    }
+    //    }
+      try {
+          if (CHAQZ_VERSION != CHECK_VERSION) {
+              popUp.init('version')
+              return false
+          }
+      } catch (err) {
+          popUp.init('version')
+          return false
+      }
        if (!isLogin) {
            anyDom.init();
            return false
@@ -235,7 +244,7 @@ export function changeLoginStatus(type) {
         if ($('.chaqz-compete-wrap').length){
             return false;
         }
-        // $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img  id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png" alt="" class="avator"></div><div class="content-wrap"><ul class="content"><li class="item"id="parsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></li><li class="item"id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></li><li class="item"id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/chaheihao"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/Kasp"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/infiniteRank"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a href=""target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘宝订单检测</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/toolIndex"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="http://www.chaquanzhong.com/home"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="http://www.chaquanzhong.com/home"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
+        // $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img  id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png" alt="" class="avator"></div><div class="content-wrap"><ul class="content"><li class="item"id="parsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></li><li class="item"id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></li><li class="item"id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/chaheihao"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/Kasp"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/infiniteRank"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a href=""target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘宝订单检测</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/toolIndex"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/home"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="https://www.chaquanzhong.com/home"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
     }
 }
 // 退出登录

@@ -1,4 +1,4 @@
-var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'http://www.chaquanzhong.com' :
+var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
   'http://118.25.153.205:8090';
 // 获取线上资源
 function loadCDNCss(cssUrl) {
