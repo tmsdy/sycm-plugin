@@ -2843,13 +2843,13 @@ function productHotRank() {
             domStructMark({
                 data: tableData,
                 cols: cols
-            }, typyName)
+            }, '产品排行')
     })
 }
 function getProdSelectId(){
     var brandText = $('.op-mc-product-insight-container .oui-card-header-item-pull-right .sycm-common-select-simple-text').attr('title');
     var cateId = findcategory();
-    var localKey = '/mc/mq/product/getBrands.json?cateId=' + cateId + '&keyword=';
+    var localKey = '/mc/mq/product/getBrands.json?cateId=' + cateId.id + '&keyword=';
     var reduceData = JSON.parse(filterLocalData(localStorage.getItem(localKey)));
     var resId = '';
     if(brandText!='所有品牌'){
@@ -3153,9 +3153,9 @@ $(document).on('click', '.op-mc-property-insight-container .oui-card-header-wrap
     }
 })
 //属性洞察-属性分析
-// $(document).on('click', '.op-mc-property-insight-container  .oui-card-header-wrapper #search', function () {
-//    listPropTable();
-// })
+$(document).on('click', '.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-title #search', function () {
+   productHotRank();
+})
 
 
 // 市场-搜索人群- 切换

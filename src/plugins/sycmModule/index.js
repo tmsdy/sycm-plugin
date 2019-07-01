@@ -95,6 +95,9 @@ var dataWrapper = {
     },
     "listProp": {
         urlReg: '\/mc\/mq/prop\/listProp(Shop|Item)\.json',
+    },
+    "listProduct": {
+        urlReg: '\/mc\/mq\/product\/listProdItemRank\.json',
     }
 }
 window.dataWrapper2 = dataWrapper;
@@ -207,7 +210,11 @@ $(function () {
             if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length){
                 $('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
             }
-        } 
+        } else if (e.target.className == 'sycm-common-select-simple-text') { //属性洞察-人们属性
+            // if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length) {
+                $('.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-title').append(showBtn());
+            // }
+        }
     });
 })
 /**-----用户信息登录模块方法-------------------*/
@@ -686,6 +693,10 @@ function getParamsItem(para, com, trend) {
     } else if (com == 'trend') {
         var choosId = trend == 'item' ? 'itemId' : trend == 'shop' ? 'userId' : 'brandId'
         key += 'cateId=' + keyObj['cateId'] + '&dateRange=' + keyObj['dateRange'] + '&dateType=' + keyObj['dateType'] + '&device=' + keyObj['device'] + '&sellerType=' + keyObj['sellerType'] + '&userId=' + keyObj[choosId]
+    } else if (com == 'product') {
+        var orderBy = keyObj['orderBy'] ? keyObj['orderBy'] : 'tradeIndex';
+       var device = keyObj['device'] ? keyObj['device'] : 0;
+       key += 'cateId=' + keyObj['cateId'] + '&dateRange=' + keyObj['dateRange'] + '&dateType=' + keyObj['dateType'] + '&device=' + device + '&page=' + keyObj['page'] + '&pageSize=' + keyObj['pageSize'] + '&sellerType=' + keyObj['sellerType'] + '&orderBy=' + orderBy
     } else {
         var device = keyObj['device'] ? keyObj['device']:0;
         key += 'cateId=' + keyObj['cateId'] + '&dateRange=' + keyObj['dateRange'] + '&dateType=' + keyObj['dateType'] + '&device=' + device + '&page=' + keyObj['page'] + '&pageSize=' + keyObj['pageSize'] + '&sellerType=' + keyObj['sellerType']
