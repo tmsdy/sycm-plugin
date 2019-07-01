@@ -18,10 +18,10 @@ var dataWrapper = {
         urlReg: '\/mc(\/live\/|\/)ci\/shop\/monitor\/listShop\.json',
         data: []
     },
-    'monitFood': {
-        urlReg: '\/mc(\/live\/|\/)ci\/item\/monitor\/list\.json',
-        data: {}
-    },
+    // 'monitFood': {
+    //     urlReg: '\/mc(\/live\/|\/)ci\/item\/monitor\/list\.json',
+    //     data: {}
+    // },
     'monitCompareFood': {
         urlReg: '\/mc\/rivalItem\/analysis\/get(LiveCore|Core)Indexes.json',
         data: []
@@ -30,18 +30,18 @@ var dataWrapper = {
         urlReg: '\/mc\/rivalItem\/analysis\/get(LiveFlow|Flow)Source.json',
         data: []
     },
-    'marketShop': {
-        urlReg: '\/mc(\/live\/|\/)ci\/shop\/monitor\/list\.json',
+    'ShopItemBrand': {
+        urlReg: '\/mc(\/live\/|\/)ci(.*?)monitor\/list\.json',
         data: []
     },
-    'marketHotShop': {
-        urlReg: '\/mc\/mq\/monitor\/cate(.*?)\/showTopShops\.json',
+    'marketHot': {
+        urlReg: '\/mc\/mq\/monitor\/cate(.*?)\/showTop(Shops|Items|Brands)\.json',
         data: []
     },
-    'marketHotFood': {
-        urlReg: '\/mc\/mq\/monitor\/cate(.*?)\/showTopItems\.json',
-        data: []
-    },
+    // 'marketHotFood': {
+    //     urlReg: '\/mc\/mq\/monitor\/cate(.*?)\/showTopItems\.json',
+    //     data: []
+    // },
     'shopInfo': {
         urlReg: '\/custom\/menu\/getPersonalView\.json',
         data: []
@@ -92,6 +92,9 @@ var dataWrapper = {
             version:'',
             allInfo:''
         }
+    },
+    "listProp": {
+        urlReg: '\/mc\/mq/prop\/listProp(Shop|Item)\.json',
     }
 }
 window.dataWrapper2 = dataWrapper;
@@ -141,7 +144,7 @@ $(function () {
     }, SET_WAIT_TIME)
     /**竞争模块添加事件 */
     $('#app').on('DOMNodeInserted', function (e) {
-        // console.log(e.target.id, ',', e.target.className)
+        console.log(e.target.id, ',', e.target.className)
         if (e.target.className == 'oui-index-picker') { //竞争-监控店铺
             $('.mc-shopMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
         } else if (e.target.className == 'oui-index-picker-group') { //竞争-监控商品
@@ -183,18 +186,28 @@ $(function () {
             if (!$('.op-mc-market-overview-container #cateTrend .op-mc-market-overview-compare-area .chaqz-btns').length) {
                 $('.op-mc-market-overview-container #cateTrend .op-mc-market-overview-compare-area').append(showBtn('download'))
             }
+             if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length) { //属性洞察-hotlOIST
+                 $('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
+             }
         } else if (e.target.id == 'categoryConstitute') { //market-analy-struct
             if (!$('.op-mc-search-analyze-container  .oui-card-header-wrapper #search').length) {
                 $('.op-mc-search-analyze-container  .oui-card-header-wrapper').eq(0).append(showBtn())
             }
         } else if (e.target.id == 'completeShopPortrait') { //搜索人群-all
             $('.mc-searchCustomer #completeShopPortrait  .oui-card-header-wrapper').append(showBtn());
-        } else if (e.target.className  == 'portrait-content-table'){
+        } else if (e.target.className == 'portrait-content-table') { //搜索人群-prov/city
             if (!$('.mc-searchCustomer #completeShopPortrait .portrait-container').eq(3).find('#search').length){
                 $('.mc-searchCustomer #completeShopPortrait .portrait-container').eq(3).find('.portrait-title').append(showBtn())
                 $('.mc-searchCustomer #completeShopPortrait .portrait-container').eq(4).find('.portrait-title').append(showBtn())
             }
-        }
+        } else if (e.target.id == 'sycmMqIndustryCunstomer') { //行业客群-客群趋势
+           $('#sycmMqIndustryCunstomer .oui-card-header-wrapper .oui-card-header-item-pull-left').append(showBtn());
+           $('#completeShopPurchase .mc-Purchase .sycm-trade-rank-table-title').append(showBtn());
+        } else if (e.target.id == 'propsRank') { //属性洞察-人们属性
+            if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length){
+                $('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
+            }
+        } 
     });
 })
 /**-----用户信息登录模块方法-------------------*/
@@ -545,7 +558,20 @@ var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
                      dataWrapper[k].data.cateId = cateInfo[6];
                      dataWrapper[k].data.version = cateInfo[4];
                      dataWrapper[k].data.allInfo = shopCateFont;
+                 } else if (k == 'ShopItemBrand') {
+                    var kind = searchWhatType(baseUrl);
+                    var kindtyps = getParamsItem(baseUrl)
+                    localStorage.setItem('monit'+kind + kindtyps, finaData)
+                 } else if (k == 'marketHot') {
+                     var kind = searchWhatType(baseUrl);
+                     var kindtyps = getParamsItem(baseUrl)
+                     localStorage.setItem(k + kind + kindtyps, finaData)
+                 } else if (k == 'listProp') {
+                     var kind = searchWhatType(baseUrl);
+                     var kindtyps = getParamsItem(baseUrl)
+                     localStorage.setItem(k + kind + kindtyps, finaData)
                  } else {
+                     
                      var dataTypes = getParamsItem(baseUrl)
                      localStorage.setItem(k + dataTypes, finaData)
                  }
@@ -571,6 +597,20 @@ function bubbleSort(data) {
         }
     }
     return JSON.stringify(arr);
+}
+// shop item brand who
+function searchWhatType(url){
+    var typeArr = ['shop','item','brand'];
+    var res = '';
+    url = url.toLowerCase();
+    for (let i = 0; i < typeArr.length; i++) {
+        const element = typeArr[i];
+        if (url.indexOf(element) != -1){
+            res = element;
+            break;
+        }
+    }
+    return res;
 }
 function Decrypt(word) {
     var key = CryptoJS.enc.Utf8.parse("w28Cz694s63kBYk4");
@@ -647,7 +687,8 @@ function getParamsItem(para, com, trend) {
         var choosId = trend == 'item' ? 'itemId' : trend == 'shop' ? 'userId' : 'brandId'
         key += 'cateId=' + keyObj['cateId'] + '&dateRange=' + keyObj['dateRange'] + '&dateType=' + keyObj['dateType'] + '&device=' + keyObj['device'] + '&sellerType=' + keyObj['sellerType'] + '&userId=' + keyObj[choosId]
     } else {
-        key += 'cateId=' + keyObj['cateId'] + '&dateRange=' + keyObj['dateRange'] + '&dateType=' + keyObj['dateType'] + '&device=' + keyObj['device'] + '&page=' + keyObj['page'] + '&pageSize=' + keyObj['pageSize'] + '&sellerType=' + keyObj['sellerType']
+        var device = keyObj['device'] ? keyObj['device']:0;
+        key += 'cateId=' + keyObj['cateId'] + '&dateRange=' + keyObj['dateRange'] + '&dateType=' + keyObj['dateType'] + '&device=' + device + '&page=' + keyObj['page'] + '&pageSize=' + keyObj['pageSize'] + '&sellerType=' + keyObj['sellerType']
     }
     return key
 }  

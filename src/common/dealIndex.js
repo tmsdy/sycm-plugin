@@ -115,7 +115,7 @@
                  } : fType == 'marketShop' ? {
                      value: responseData,
                      final: lastData
-                 } : fType == 'marketHotShop' ? {
+                 } : fType == 'marketHot' ? {
                      value: responseData,
                      final: lastData
                  }: fType == 'inclueOrgin' ? {
@@ -619,7 +619,7 @@ export function dealIndex(request, sendResponse, dataWrapper) {
             for (var key in responseData) {
                 getAjax(responseData[key], key, sendResponse, Object.keys(responseData).length, 'monitShop', moniShopData)
             }
-        } else if (request.type == 'monitFood') {
+        } else if (request.type == 'monititem') {
             var saveData1 = localStorage.getItem(request.dataType);
             if (!saveData1) {
                 popTip('获取数据失败！')
@@ -665,7 +665,7 @@ export function dealIndex(request, sendResponse, dataWrapper) {
                 }
             }
 
-        } else if (request.type == 'marketShop' || request.type == 'marketFood') {
+        } else if (request.type == 'monitshop' || request.type == 'monititem' || request.type == 'monitbrand') {
              var saveData4 = localStorage.getItem(request.dataType);
              if (!saveData4) {
                  popTip('获取数据失败！')
@@ -678,7 +678,7 @@ export function dealIndex(request, sendResponse, dataWrapper) {
             for (var key in responseData) {
                 getAjax(responseData[key], key, sendResponse, Object.keys(responseData).length, 'marketShop', sendPageData1)
             }
-        } else if (request.type == 'marketHotShop' || request.type == 'marketHotFood') {
+        } else if (request.type == 'marketHot') {
            var saveData5 = localStorage.getItem(request.dataType);
            if (!saveData5) {
                popTip('获取数据失败！')
@@ -688,7 +688,7 @@ export function dealIndex(request, sendResponse, dataWrapper) {
             var marketHot2 = pageData2.data
             var markHotIndex2 = filterMarketHot(marketHot2)
             for (var key in markHotIndex2) {
-                getAjax(markHotIndex2[key], key, sendResponse, Object.keys(markHotIndex2).length, 'marketHotShop', pageData2)
+                getAjax(markHotIndex2[key], key, sendResponse, Object.keys(markHotIndex2).length, 'marketHot', pageData2)
             }
         } else if (request.type == 'hotsearch' || request.type == 'hotpurpose' || request.type == 'hotsale') {
             var hotsearch = request.type == 'hotsearch' ? filterMarketHotsearch(request.dataType) : request.type == 'hotpurpose' ? filterMarketHotpurpose(request.dataType) : filterMarketHotsale(request.dataType);

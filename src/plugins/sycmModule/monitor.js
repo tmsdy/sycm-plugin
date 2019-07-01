@@ -108,7 +108,7 @@ var PLAN_LIST = [];
               if (type == 1) {
                   $('.chaqz-wrapper .chaqz-mask').show(100)
                   $('.mc-marketMonitor .ant-pagination .ant-pagination-item-' + (info.page + 1)).click()
-                  var titleType = title == '监控店铺' ? 'marketShop' : 'monitFood'
+                  var titleType = title == '监控店铺' ? 'marketShop' : 'monititem'
                   var localKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize)
                   var localCacheKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize, 'local');
                   var hasSave = localStorage.getItem(localKey);
@@ -167,8 +167,8 @@ var PLAN_LIST = [];
               } else if (type == 3) {
                   $('.chaqz-wrapper .chaqz-mask').show(100)
                   $('#mqItemMonitor .ant-pagination .ant-pagination-item-' + (info.page + 1)).click()
-                  var localKey = getSearchParams('monitFood', (info.page + 1), data.paging.pageSize)
-                  var localCacheKey = getSearchParams('monitFood', (info.page + 1), data.paging.pageSize,'local')
+                  var localKey = getSearchParams('monititem', (info.page + 1), data.paging.pageSize)
+                  var localCacheKey = getSearchParams('monititem', (info.page + 1), data.paging.pageSize, 'local')
                   var hasSave = localStorage.getItem(localKey);
                   var localSave = localStorage.getItem(localCacheKey);
                  if (!(hasSave || localSave)) {
@@ -614,8 +614,8 @@ var PLAN_LIST = [];
        curPageSize = Number(curPageSize);
        var localCache = false;
        var finalKey = '';
-       var itemKey = getSearchParams('monitFood', curPage, curPageSize);
-       var localKey = getSearchParams('monitFood', curPage, curPageSize, 'local')
+       var itemKey = getSearchParams('monititem', curPage, curPageSize);
+       var localKey = getSearchParams('monititem', curPage, curPageSize, 'local')
 
        if (localStorage.getItem(itemKey)) {
            finalKey = itemKey;
@@ -625,7 +625,7 @@ var PLAN_LIST = [];
        }
        // var itemKey = getLocalKey('monitFood', curPage, curPageSize)
        dealIndex({
-                   type: 'monitFood',
+                   type: 'monititem',
                    dataType: finalKey,
                    localCache: localCache
       }, function (val) {

@@ -322,6 +322,11 @@
     padding-left: 105px;
     background: url("https://img.chaquanzhong.com/cqz.png") no-repeat 0 center;
 }
+/* market 行业排行 */
+.mc-industryCustomer #completeShopPurchase .chaqz-btns {
+    float: none;
+    display: inline-block;
+}
 
 .chaqz-btns .serachBtn {
     width: 81px;

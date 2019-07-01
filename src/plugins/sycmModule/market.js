@@ -21,6 +21,7 @@ var tableInstance = null; //table实例对象
 var echartsInstance = null; //echarts实例对象
 var remeSelectType = {};
 var COUNT = 0;
+var rememberPropId = '';
 /**=------展现弹窗----------- */
  //市场模块table
  function domStructMark(data, title, type) {
@@ -29,6 +30,7 @@ var COUNT = 0;
      var switchType = data.tabs ? data.tabs: '';
      var wrapper = '<div class="chaqz-wrapper"><div class="content ' + isSmall + '">' + switchType + '<div class="cha-box"><div class="head"><div class="title"><span class="chaqz-table-title">' + title + '</span><span class="time">' + curTime + '</span></div></div><div class="table-box"><table id="chaqz-table" style="width:100%"></table></div></div><span class="chaqz-close">×</span><div class="chaqz-mask"><span class="loader"></span></div></div></div>'
      $('#app').append(wrapper)
+     var paramsPage = data.paging ? data.paging:{};
      tableInstance = $('#chaqz-table').DataTable({
          data: data.data,
          destroy: true,
@@ -40,7 +42,7 @@ var COUNT = 0;
              },
              "sEmptyTable": '获取数据失败，请刷新界面'
          },
-         pageLength: data.paging.pageSize,
+         pageLength: paramsPage.pageSize,
          searching: false,
          ordering: false,
          info: false,
@@ -65,8 +67,8 @@ var COUNT = 0;
              }
          ]
      });
-     if (data.paging.page) {
-         tableInstance.page(Number(data.paging.page) - 1).draw(false)
+     if (paramsPage.page) {
+         tableInstance.page(Number(paramsPage.page) - 1).draw(false)
      };
      tableInstance.on('page.dt', function (e, x, y) {
          var info = tableInstance.page.info();
@@ -75,9 +77,9 @@ var COUNT = 0;
          if (type == 1) {
             $('.chaqz-wrapper .chaqz-mask').show(100);
             $('.mc-marketMonitor .ant-pagination .ant-pagination-item-' + (info.page + 1)).click();
-            var titleType = title == '监控店铺' ? 'marketShop' : 'monitFood';
-            var localKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize);
-            var localCacheKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize, 'local');
+            var titleType = title == '监控店铺' ? 'monitshop' : 'monititem';
+            var localKey = getSearchParams(titleType, (info.page + 1), paramsPage.pageSize);
+            var localCacheKey = getSearchParams(titleType, (info.page + 1), paramsPage.pageSize, 'local');
             var hasSave = localStorage.getItem(localKey);
             var localSave = localStorage.getItem(localCacheKey);
            if (!(hasSave || localSave)) {
@@ -105,9 +107,9 @@ var COUNT = 0;
          } else if (type == 2) {
             $('.chaqz-wrapper .chaqz-mask').show(100);
             $('.op-mc-market-monitor-industryCard .ant-pagination .ant-pagination-item-' + (info.page + 1)).click();
-            var titleType = title == '热门店铺' ? 'marketHotShop' : 'marketHotFood';
-            var localKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize);
-            var localCacheKey = getSearchParams(titleType, (info.page + 1), data.paging.pageSize, 'local');
+            var titleType = title == '热门店铺' ? 'marketHotshop' : title == '热门品牌' ? 'marketHotbrand' : 'marketHotitem';
+            var localKey = getSearchParams(titleType, (info.page + 1), paramsPage.pageSize);
+            var localCacheKey = getSearchParams(titleType, (info.page + 1), paramsPage.pageSize, 'local');
             var hasSave = localStorage.getItem(localKey);
             var localSave = localStorage.getItem(localCacheKey);
            if (!(hasSave || localSave)) {
@@ -141,7 +143,7 @@ var COUNT = 0;
          } else if (type == 5) {
              $('.chaqz-wrapper .chaqz-mask').show(100);
              $('.op-mc-search-analyze-container .ant-pagination .ant-pagination-item-' + (info.page + 1)).click();
-             var localKey = getSearchParams('structSearchItem', (info.page + 1), data.paging.pageSize);
+             var localKey = getSearchParams('structSearchItem', (info.page + 1), paramsPage.pageSize);
              var hasSave = localStorage.getItem(localKey);
              astructRelatedTable()
             //  if (!hasSave) {
@@ -167,6 +169,61 @@ var COUNT = 0;
             //      astructRelatedTable()
             //  }
 
+         } else if (type == 6) {
+             $('.chaqz-wrapper .chaqz-mask').show(100);
+             $('.op-mc-property-insight-container .ant-pagination .ant-pagination-item-' + (info.page + 1)).click();
+             var localKey = getHotRankSelct().resLocalKey;
+             var hasSave = localStorage.getItem(localKey);
+              if (!hasSave) {
+                  timer = setInterval(function () {
+                      hasSave = localStorage.getItem(localKey);
+                      if (hasSave) {
+                          propHotRank(true);
+                          clearInterval(timer);
+                          timer = null;
+                          hasCount = 0;
+                      } else if (hasCount > 10) {
+                          clearInterval(timer);
+                          timer = null;
+                          hasCount = 0;
+                          popTip('获取数据失败！');
+                          LoadingPop();
+                      } else {
+                          hasCount++
+                      }
+
+                  }, 200);
+              } else {
+                  propHotRank(true);
+              }
+         } else if (type == 7) {
+             $('.chaqz-wrapper .chaqz-mask').show(100);
+             $('.op-mc-property-insight-container .ant-pagination .ant-pagination-item-' + (info.page + 1)).click();
+            var backT = title == '商品' ? 'listPropitem' : 'listPropshop';
+            var localKey = getSearchParams(backT, (info.page + 1), paramsPage.pageSize);
+             var hasSave = localStorage.getItem(localKey);
+             if (!hasSave) {
+                 timer = setInterval(function () {
+                     hasSave = localStorage.getItem(localKey);
+                     if (hasSave) {
+                         listPropTable();
+                         clearInterval(timer);
+                         timer = null;
+                         hasCount = 0;
+                     } else if (hasCount > 10) {
+                         clearInterval(timer);
+                         timer = null;
+                         hasCount = 0;
+                         popTip('获取数据失败！');
+                         LoadingPop();
+                     } else {
+                         hasCount++
+                     }
+
+                 }, 200);
+             } else {
+                 listPropTable();
+             }
          }
      })
      LoadingPop()
@@ -254,6 +311,45 @@ var COUNT = 0;
                     symbol: 'circle',
                     data: edata.cate
                 },
+            ]
+        };
+     } else if (title.type == 'only') {
+        option = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            grid: {
+                right: '5%',
+                left: '5%'
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: eDate
+            },
+            yAxis: [{
+                type: 'value',
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    show: false
+                },
+                splitLine: {
+                    show: true
+                }
+            }],
+            series: [{
+                    name: title.name,
+                    type: 'line',
+                    smooth: true,
+                    showSymbol: false,
+                    symbol: 'circle',
+                    data: edata
+                }
             ]
         };
      }else{
@@ -413,50 +509,6 @@ var COUNT = 0;
      });
      $('.chaqz-wrapper').fadeIn(100);
  }
-  function domStructHeader(data, title) {
-      var curTime = $('.ebase-FaCommonFilter__top .oui-date-picker-current-date').text();
-      var switchType = '';
-      var wrapper = '<div class="chaqz-wrapper"><div class="content"><div class="chaqz-top-tabs">' + switchType + '</div><div class="cha-box"><div class="head"><div class="title"><span class="chaqz-table-title">' + title + '</span><span class="time">' + curTime + '</span></div></div><div class="table-box"><table id="chaqz-table" style="width:100%"></table></div></div><span class="chaqz-close">×</span><div class="chaqz-mask"><span class="loader"></span></div></div></div>'
-      $('#app').append(wrapper);
-      var pageSize = data.paging ? data.paging.pageSize : 10;
-      tableInstance = $('#chaqz-table').DataTable({
-          data: data.data,
-          destroy: true,
-          columns: data.cols,
-          language: {
-              "paginate": {
-                  "next": "&gt;",
-                  "previous": "&lt;"
-              },
-              "sEmptyTable": '获取数据失败，请刷新界面'
-          },
-          pageLength: pageSize,
-          //  searching: false,
-          ordering: false,
-          info: false,
-          dom: 'Bfrtip',
-          buttons: [{
-                  extend: 'csv',
-                  title: title,
-                  'bom': true,
-                  exportOptions: {
-                      modifier: {
-                          page: 'current'
-                      }
-                  }
-              },
-              {
-                  extend: 'copy',
-                  exportOptions: {
-                      modifier: {
-                          page: 'current'
-                      }
-                  }
-              }
-          ]
-      });
-      $('.chaqz-wrapper').fadeIn(100);
-  }
  function marketRank(pageType) {
     var chooseItem = $('.op-mc-market-rank-container .oui-card-header-wrapper .oui-tab-switch .oui-tab-switch-item-active').index() //0高交易，1高流量，2高意向
     var chooseList = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index() //0店铺，1商品，2品牌
@@ -641,19 +693,16 @@ var COUNT = 0;
     var curPage = $('.mc-marketMonitor .ant-pagination .ant-pagination-item-active').attr('title')
     var curPageSize = $('.mc-marketMonitor .oui-page-size .ant-select-selection-selected-value').text()
     curPageSize = Number(curPageSize)
-    var backT = chooseTop ? 'monitFood' : 'marketShop';
-   // var itemKey = getSearchParams(backT, curPage, curPageSize)
-
+    var backT = chooseTop == 1 ? 'monititem' : chooseTop == 2?'monitbrand': 'monitshop';
    var localCache = false;
    var finalKey = '';
    var itemKey = getSearchParams(backT, curPage, curPageSize);
    var localKey = getSearchParams(backT, curPage, curPageSize, 'local')
-
    if (localStorage.getItem(itemKey)) {
        finalKey = itemKey;
-       if (chooseTop) {
-           itemKey = itemKey.replace('marketFood', 'monitFood')
-       }
+    //    if (chooseTop) {
+    //        itemKey = itemKey.replace('marketFood', 'monitFood')
+    //    }
    } else {
        finalKey = localKey;
        localCache = true;
@@ -675,12 +724,17 @@ var COUNT = 0;
                 shop: {}
             }
             var cateRnkId = finaData[j].cateRankId
-            if (chooseTop) {
+            if (chooseTop==1) {
                 obj.shop = {
                     title: finaData[j].item.title,
                     url: finaData[j].item.pictUrl
                 }
-            } else {
+            } else if (chooseTop == 2) {
+                 obj.shop = {
+                     title: finaData[j].brandModel.brandName,
+                     url: '//img.alicdn.com/tps/'+ finaData[j].brandModel.logo
+                 }
+            }else {
                 obj.shop = {
                     title: finaData[j].shop.title,
                     url: finaData[j].shop.pictureUrl
@@ -688,17 +742,19 @@ var COUNT = 0;
             }
             obj.cate_cateRankId = cateRnkId ? cateRnkId.value ? cateRnkId.value : '-' : '-'
             obj.tradeIndex = trandeOver
-            obj.uvIndex = Math.round(res.uvIndex[j])
-            obj.seIpv = Math.round(res.seIpv[j])
-            obj.cltHit = Math.round(res.cltHit[j])
-            obj.cartHit = Math.round(res.cartHit[j])
-            obj.payRate = res.payRate[j]?(res.payRate[j] * 100).toFixed(2) + '%':'-';
-            obj.payByr = computedNum.res1
-            obj.kdPrice = computedNum.res2
-            obj.uvPrice = formula(trandeOver, res.uvIndex[j], 1)
-            obj.searRate = formula(res.seIpv[j], res.uvIndex[j], 2)
-            obj.scRate = formula(res.cltHit[j], res.uvIndex[j], 2)
-            obj.jgRate = formula(res.cartHit[j], res.uvIndex[j], 2)
+           if(chooseTop!=2){
+                obj.uvIndex = Math.round(res.uvIndex[j])
+                obj.seIpv = Math.round(res.seIpv[j])
+                obj.cltHit = Math.round(res.cltHit[j])
+                obj.cartHit = Math.round(res.cartHit[j])
+                obj.payRate = res.payRate[j] ? (res.payRate[j] * 100).toFixed(2) + '%' : '-';
+                obj.payByr = computedNum.res1
+                obj.kdPrice = computedNum.res2
+                obj.uvPrice = formula(trandeOver, res.uvIndex[j], 1)
+                obj.searRate = formula(res.seIpv[j], res.uvIndex[j], 2)
+                obj.scRate = formula(res.cltHit[j], res.uvIndex[j], 2)
+                obj.jgRate = formula(res.cartHit[j], res.uvIndex[j], 2)
+           }
             resData.push(obj)
         }
         if (pageType) {
@@ -712,61 +768,81 @@ var COUNT = 0;
                 var vEnd = vEndIndex < totalCont ? visualData.slice(vEndIndex) : []
                 resData = vStart.concat(resData, vEnd)
             }
-             var choseItem = !chooseTop ? '监控店铺' : "监控商品";
-             var tableTie = !chooseTop ? '店铺信息' : "商品信息";
-            var cols = [{
-                    data: 'shop',
-                    title: tableTie,
-                    class: 'info',
-                    render: function (data, type, row, meta) {
-                        return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+             var choseItem = chooseTop == 1 ? '监控商品' : chooseTop == 2 ? '监控品牌' : "监控店铺";
+             var tableTie = chooseTop == 1 ? '商品信息' : chooseTop == 2 ? "店铺信息" : "品牌信息";
+            var cols = []
+            if(chooseTop ==2){
+                 cols = [{
+                             data: 'shop',
+                             title: tableTie,
+                             class: 'info',
+                             render: function (data, type, row, meta) {
+                                 return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                             }
+                         },
+                         {
+                             data: 'cate_cateRankId',
+                             title: '行业排名',
+                         },
+                         {
+                             data: 'tradeIndex',
+                             title: '交易金额',
+                         }]
+            }else{
+                cols = [{
+                        data: 'shop',
+                        title: tableTie,
+                        class: 'info',
+                        render: function (data, type, row, meta) {
+                            return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                        }
+                    },
+                    {
+                        data: 'cate_cateRankId',
+                        title: '行业排名',
+                    },
+                    {
+                        data: 'tradeIndex',
+                        title: '交易金额',
+                    },
+                    {
+                        data: 'uvIndex',
+                        title: '访客人数',
+                    },
+                    {
+                        data: 'seIpv',
+                        title: '搜索人数',
+                    },
+                    {
+                        data: 'cltHit',
+                        title: '收藏人数',
+                    }, {
+                        data: 'cartHit',
+                        title: '加购人数',
+                    }, {
+                        data: 'payRate',
+                        title: '支付转化率',
+                    }, {
+                        data: 'payByr',
+                        title: '支付人数',
+                    }, {
+                        data: 'kdPrice',
+                        title: '客单价',
+                    }, {
+                        data: 'uvPrice',
+                        title: 'UV价值',
+                    }, {
+                        data: 'searRate',
+                        title: '搜索占比',
+                    }, {
+                        data: 'scRate',
+                        title: '收藏率',
+                    }, {
+                        data: 'jgRate',
+                        title: '加购率',
                     }
-                },
-                {
-                    data: 'cate_cateRankId',
-                    title: '行业排名',
-                },
-                {
-                    data: 'tradeIndex',
-                    title: '交易金额',
-                },
-                {
-                    data: 'uvIndex',
-                    title: '访客人数',
-                },
-                {
-                    data: 'seIpv',
-                    title: '搜索人数',
-                },
-                {
-                    data: 'cltHit',
-                    title: '收藏人数',
-                }, {
-                    data: 'cartHit',
-                    title: '加购人数',
-                }, {
-                    data: 'payRate',
-                    title: '支付转化率',
-                }, {
-                    data: 'payByr',
-                    title: '支付人数',
-                }, {
-                    data: 'kdPrice',
-                    title: '客单价',
-                }, {
-                    data: 'uvPrice',
-                    title: 'UV价值',
-                }, {
-                    data: 'searRate',
-                    title: '搜索占比',
-                }, {
-                    data: 'scRate',
-                    title: '收藏率',
-                }, {
-                    data: 'jgRate',
-                    title: '加购率',
-                }
-            ]
+                ]
+            }
             domStructMark({
                 data: resData,
                 cols: cols,
@@ -789,7 +865,7 @@ var COUNT = 0;
     var curPage = $('.op-mc-market-monitor-industryCard .ant-pagination .ant-pagination-item-active').attr('title')
     var curPageSize = $('.op-mc-market-monitor-industryCard .oui-page-size .ant-select-selection-selected-value').text()
     curPageSize = Number(curPageSize)
-    var backT = hotType ? 'marketHotFood' : 'marketHotShop'
+    var backT = hotType == 1 ? 'marketHotitem' : hotType == 2 ? 'marketHotbrand' : 'marketHotshop'
      // var itemKey = getSearchParams(backT, curPage, curPageSize)
      var localCache = false;
      var finalKey = '';
@@ -803,7 +879,7 @@ var COUNT = 0;
          localCache = true;
      }
      dealIndex({
-                 type: backT,
+                 type: 'marketHot',
                  dataType: finalKey,
                  localCache: localCache
         },
@@ -822,11 +898,16 @@ var COUNT = 0;
                         title: finaData[i].shop.title,
                         url: finaData[i].shop.pictureUrl
                     }
-                } else {
+                } else if (hotType == 1) {
                     obj.shop = {
                         title: finaData[i].item.title,
                         url: finaData[i].item.pictUrl
                     }
+                }else{
+                     obj.shop = {
+                         title: finaData[i].brandModel.brandName,
+                         url: '//img.alicdn.com/tps/' + finaData[i].brandModel.logo
+                     }
                 }
                 var cateRnkId = finaData[i].cateRankId
                 obj.cate_cateRankId = cateRnkId ? cateRnkId.value : '-'
@@ -851,10 +932,10 @@ var COUNT = 0;
                     var vEnd = vEndIndex < totalCont ? visualData.slice(vEndIndex) : []
                     resData = vStart.concat(resData, vEnd)
                 }
-                var headTitle = hotType ? '热门商品' : '热门店铺'
+                var headTitle = hotType == 1 ? '商品' : hotType == 2 ? '品牌' : '店铺';
                 var cols = [{
                         data: 'shop',
-                        title: '店铺信息',
+                        title: headTitle +'信息',
                         class: 'info',
                         render: function (data, type, row, meta) {
                             return '<img src="' + data.url + '"><span>' + data.title + '</span>';
@@ -876,7 +957,7 @@ var COUNT = 0;
                         page: curPage,
                         pageSize: curPageSize
                     }
-                }, headTitle, 2)
+                }, '热门'+headTitle, 2)
             } else {
                 for (var j = 0; j < curPageSize; j++) {
                     tableInstance.row((curPage - 1) * curPageSize + j).data(resData[j])
@@ -2390,6 +2471,397 @@ function showProvCity(type,word,selType,oriData,transInfo){
          }, '搜索词' + word.word)
      }
 }
+// 行业客群
+function customerTrend() { // 行业客群-客群趋势
+    if (!isNewVersion()) {
+        return false
+    }
+    var canSelect = $('#sycmMqIndustryCunstomer .index-picker-container');
+    var selectItem = canSelect.length ? $('#sycmMqIndustryCunstomer .index-picker-container .ant-radio-wrapper-checked').parent().index():0;
+    var itemList = ['payRateIndex', 'payByrCntIndex', 'tradeIndex'];
+    var selType = itemList[selectItem];//展示指数类型
+    var localKey = getSearchParams('customerTrend', 1, 10, 'local')
+    var localData = localStorage.getItem(localKey);
+    if (!localData){
+        popTip('获取数据失败');
+        return false;
+    }
+    var reduceData = JSON.parse(filterLocalData(localData));
+    var sendData = {};
+    sendData[selType] = reduceData[selType];
+    dealIndex({
+        type:'dealTrend',
+        dataType: sendData
+    },function(val){
+        var tableData = [];
+        var transData = val.value[selType];
+        var len = transData.length;
+        var month30Days = monthDays();
+        for (let i = 0; i < len; i++) {
+            var obj = {};
+            obj.value = selType == 'payRateIndex' ? (transData[i] * 100).toFixed(2)+'%' : transData[i];
+            obj.date = month30Days[i];
+            tableData.push(obj);
+        }
+        var relaNames = {
+            payRateIndex:'支付转化率',
+            payByrCntIndex:'支付人数',
+            tradeIndex: '交易金额'
+        }
+        var cols = [
+            {
+                data: 'date',
+                title: '日期'
+            },
+            {
+                data: 'value',
+                title: relaNames[selType]
+            }
+            
+        ]
+        domStructTrend({
+            data:tableData,
+            cols: cols,
+        }, {
+            name:relaNames[selType],
+            type:'only'
+        }, month30Days, transData)
+    })
+
+}
+function buyerPortraitFuns(type) { // 行业客群-偏好
+     if (!isNewVersion()) {
+         return false
+     }
+    var selType = type ? 'Cates' : 'Brands';
+    var localKey = getSearchParams('buyerPortrait', 1, 10, 'lcoal', {
+        type: selType
+    })
+    var localData = localStorage.getItem(localKey);
+    if(!localData){
+        popTip('获取数据失败');
+        return false;
+    }
+    var reduceData = JSON.parse(filterLocalData(localData));
+    var sendData = filterSearchRank(reduceData, 'tradeIndex');
+    dealIndex({
+        type:'dealTrend',
+        dataType:{tradeIndex:sendData}
+    },function(val){
+        var transData = val.value.tradeIndex;
+        var len  = transData.length;
+        var tableData = [];
+        var names = filterSearchRank(reduceData, 'name');
+        for (let i = 0; i < len; i++) {
+            var obj = {};
+            obj.rank = i+1;
+            obj.name = names[i];
+            obj.transIndex = transData[i];
+            tableData.push(obj);
+        }
+        var cols = [
+            {
+                data:'rank',
+                title:'排名'
+            },
+            {
+                data: 'name',
+                title: '品牌名称'
+            },
+            {
+                data: 'transIndex',
+                title: '交易金额'
+            }
+        ];
+        var typyName = type?'类目偏好':'品牌偏好' ;
+        domStructMark({
+            data: tableData,
+            cols: cols
+        }, typyName)
+    })
+}
+// 属性洞察
+function propHotRank(isTurnPage){
+     if (!isNewVersion()) {
+         return false
+     }
+    var allInfo = getHotRankSelct();
+    var localKey = allInfo.resLocalKey;
+    var localData = localStorage.getItem(localKey);
+    if (!localData){
+         popTip('获取数据失败');
+         return false;
+    }
+    var reduceData = JSON.parse(filterLocalData(localData));
+    var sendData = filterSearchRank(reduceData.data, 'tradeIndex');
+    dealIndex({
+        type: 'dealTrend',
+        dataType: {
+            tradeIndex: sendData
+        }
+    }, function (val) {
+        var transData = val.value.tradeIndex;
+        var len = transData.length;
+        var tableData = [];
+        var totalCont = reduceData.recordCount;//总数据数
+        var curPage = allInfo.page;
+        var curPageSize = Number(allInfo.pageSize);
+        for (let i = 0; i < len; i++) {
+            var obj = {};
+            obj.payItmCnt = reduceData.data[i].payItmCnt;
+            obj.name = reduceData.data[i].properties[0].value.name;
+            obj.transIndex = transData[i];
+            tableData.push(obj);
+        }
+        if (!isTurnPage) {
+            if (totalCont > tableData.length) {
+                var visualData = []
+                for (let i = 0; i < totalCont; i++) {
+                    visualData.push(tableData[0])
+                }
+                var vStart = visualData.slice(0, (curPage - 1) * curPageSize)
+                var vEndIndex = (curPage - 1) * curPageSize + curPageSize
+                var vEnd = vEndIndex < totalCont ? visualData.slice(vEndIndex) : []
+                tableData = vStart.concat(tableData, vEnd)
+            }
+            var cols = [{
+                    data: 'name',
+                    title: '属性值'
+                },
+                {
+                    data: 'transIndex',
+                    title: '交易金额'
+                },
+                {
+                    data: 'payItmCnt',
+                    title: '支付件数'
+                }
+            ];
+            if ($('.chaqz-wrapper').length) {
+                tableInstance.clear();
+                tableInstance.rows.add(tableData).draw();
+            } else {
+                var typyName = allInfo.hotType ? '热销属性组合' : '热销属性';
+                domStructMark({
+                    data: tableData,
+                    cols: cols,
+                    paging: {
+                        page: curPage,
+                        pageSize: curPageSize
+                    },
+                }, typyName, 6)
+            }
+        } else {
+            for (var j = 0; j < curPageSize; j++) {
+                tableInstance.row((curPage - 1) * curPageSize + j).data(tableData[j])
+            }
+            $('.chaqz-wrapper .chaqz-mask').hide(100)
+        }
+    })
+}
+function getHotRankSelct() {
+    // 获取页面选择项；
+    var pageSizeDom = $('.op-mc-property-insight-container .alife-dt-card-common-table-page-size-wrapper .ant-select-selection-selected-value')
+    var pageDom = $('.op-mc-property-insight-container .alife-dt-card-common-table-pagination-wrapper .ant-pagination-item-active')
+    var page = pageDom.length?pageDom.text():1;
+    var pageSize = pageSizeDom.length ? pageSizeDom.text() : 10;
+    var tabSel = $('.op-mc-property-insight-container .oui-card-header .oui-tab-switch-item-active').index();//属性排行tab
+    var firItemSel = $('.op-mc-property-insight-container .oui-card-content .op-mc-property-insight-filter-area .ant-select-selection-selected-value').attr('title'); //属性排行子类型选择
+    var sortType = $('.op-mc-property-insight-container .contentContainer .ant-table-thead .alife-dt-card-common-table-sortable-icon-wrapper .active');
+    var sortArrow = sortType.index()?'desc':'asc';
+    var orderByText = sortType.parent().prev().text();
+    var orderBy = orderByText == '支付件数' ? 'payItmCnt' : 'tradeIndex';//排序类型
+    var propId = '';
+    if (firItemSel){
+         var cateId = findcategory();
+         var localKey = '/mc/mq/prop/props.json?cateId=' + cateId.id;
+         var reduceData = JSON.parse(filterLocalData(localStorage.getItem(localKey)));
+        for (let i = 0; i < reduceData.length; i++) {
+            if (reduceData[i].name == firItemSel){
+                propId = reduceData[i].id;
+                break;
+            }
+        }
+        rememberPropId = propId;
+    }else{
+        propId = rememberPropId;
+    }
+     var resLocalKey = getSearchParams('hotRank', page, pageSize, 'local', {
+         hotType: tabSel,
+         propId: propId,
+         orderBy: orderBy,
+         sort: sortArrow,
+     });
+    return {
+        page:page,
+        pageSize:pageSize,
+        hotType: tabSel,
+        resLocalKey: resLocalKey
+    }
+}
+function listPropTable(pageType) {
+    // 热销榜单
+     var chooseTop = $('.op-mc-property-insight-container .oui-tab-switch .oui-tab-switch-item-active').index()
+     var curPage = $('.op-mc-property-insight-container .ant-pagination .ant-pagination-item-active').attr('title')
+     var curPageSize = $('.op-mc-property-insight-container .oui-page-size .ant-select-selection-selected-value').text()
+     curPageSize = Number(curPageSize)
+     var backT = chooseTop == 1 ? 'listPropitem' : 'listPropshop';
+     var loaclKey = getSearchParams(backT, curPage, curPageSize);
+    var localData = localStorage.getItem(loaclKey);
+    if (!localData) {
+        popTip('获取数据失败！')
+        return false;
+    }
+    var reductData = JSON.parse(localData);
+    var sendData = {};
+      sendData.tradeIndex = filterSearchRank(reductData.data, 'tradeIndex');
+      sendData.payRateIndex = filterSearchRank(reductData.data, 'payRateIndex');
+     dealIndex({
+         type: 'dealTrend',
+         dataType: sendData
+     }, function (vals) {
+         var transData = vals.value;
+         var totalCont = reductData.recordCount;
+         var finaData = reductData.data;
+         var resData = []
+         var length = finaData.length
+         for (var j = 0; j < length; j++) {
+             var obj = {
+                 shop: {}
+             }
+             if (chooseTop == 1) {
+                 obj.shop = {
+                     title: finaData[j].title,
+                     url: finaData[j].picUrl
+                 }
+             }  else {
+                 obj.shop = {
+                     title: finaData[j].title,
+                     url: finaData[j].pictureUrl
+                 }
+             }
+             obj.tradeIndex = transData.tradeIndex[j];
+             obj.payRate = transData.payRateIndex[j] ? (transData.payRateIndex[j]*100).toFixed(2):'-';
+             obj.payByCut = finaData[j].payItmCnt;
+             resData.push(obj)
+         }
+         if (pageType) {
+             if (totalCont > resData.length) {
+                 var visualData = []
+                 for (let i = 0; i < totalCont; i++) {
+                     visualData.push(resData[0])
+                 }
+                 var vStart = visualData.slice(0, (curPage - 1) * curPageSize)
+                 var vEndIndex = (curPage - 1) * curPageSize + curPageSize
+                 var vEnd = vEndIndex < totalCont ? visualData.slice(vEndIndex) : []
+                 resData = vStart.concat(resData, vEnd)
+             }
+             var tableTie = chooseTop == 1 ? '商品' : "店铺";
+             var cols = [{
+                         data: 'shop',
+                         title: tableTie +'信息',
+                         class: 'info',
+                         render: function (data, type, row, meta) {
+                             return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                         }
+                     },
+                     {
+                         data: 'tradeIndex',
+                         title: '交易金额',
+                     },
+                      {
+                          data: 'payByCut',
+                          title: '支付件数',
+                      },
+                       {
+                           data: 'payRate',
+                           title: '支付转化率',
+                       },
+                 ]
+             domStructMark({
+                 data: resData,
+                 cols: cols,
+                 paging: {
+                     page: curPage,
+                     pageSize: curPageSize
+                 }
+             }, tableTie, 7)
+         } else {
+             for (var j = 0; j < curPageSize; j++) {
+                 tableInstance.row((curPage - 1) * curPageSize + j).data(resData[j])
+             }
+             $('.chaqz-wrapper .chaqz-mask').hide(100)
+         }
+     })
+
+}
+// 产品洞察
+function productHotRank() {
+    if (!isNewVersion()) {
+        return false
+    }
+    var brandId = getProdSelectId();
+    var localKey = getSearchParams('prodHotRank', 1, 10, 'local', {
+        brandId: brandId
+    });
+    var localData = localStorage.getItem(localKey);
+    if (!localData) {
+        popTip('获取数据失败');
+        return false;
+    }
+    var reduceData = JSON.parse(filterLocalData(localData));
+    var sendData = filterSearchRank(reduceData, 'tradeIndex');
+    dealIndex({
+        type: 'dealTrend',
+        dataType: {
+            tradeIndex: sendData
+        }
+    }, function (val) {
+        var transData = val.value.tradeIndex;
+        var len = transData.length;
+        var tableData = [];
+        for (let i = 0; i < len; i++) {
+            var obj = {};
+            obj.payItmCnt = reduceData[i].payItmCnt;
+            obj.name = reduceData[i].brandName;
+            obj.transIndex = transData[i];
+            tableData.push(obj);
+        }
+        var cols = [{
+                data: 'name',
+                title: '产品名称'
+            },
+            {
+                data: 'transIndex',
+                title: '交易金额'
+            },
+            {
+                data: 'payItmCnt',
+                title: '支付件数'
+            }
+        ];
+            domStructMark({
+                data: tableData,
+                cols: cols
+            }, typyName)
+    })
+}
+function getProdSelectId(){
+    var brandText = $('.op-mc-product-insight-container .oui-card-header-item-pull-right .sycm-common-select-simple-text').attr('title');
+    var cateId = findcategory();
+    var localKey = '/mc/mq/product/getBrands.json?cateId=' + cateId + '&keyword=';
+    var reduceData = JSON.parse(filterLocalData(localStorage.getItem(localKey)));
+    var resId = '';
+    if(brandText!='所有品牌'){
+        for (let i = 0; i < reduceData.length; i++) {
+            if (reduceData[i].brandName == brandText) {
+                resId = reduceData[i].brandId;
+                break;
+            }
+        }
+    }
+    return resId;
+}
 /**=------方法类----------- */
 function trendKeyJoin(type, idNum) {
     var trendFont = getSearchParams("allTrend", null, null, 'type');
@@ -2578,22 +3050,6 @@ function getYearWeek(year, month, date) {
     return Math.ceil((dataNumber + ((dateFirst.getDay() + 1) - 1)) / 7);
 }
 /*------市场模块触发事件 ----------*/
-//市场店铺的按钮是否显示控制
-$(document).on('click', '.mc-marketMonitor .oui-tab-switch .oui-tab-switch-item', function () {
-    if ($(this).index() == 2) {
-        $('.mc-marketMonitor #search').hide()
-    } else {
-        $('.mc-marketMonitor #search').show()
-    }
-})
-//市场行业监控品牌不需要转换
-$(document).on('click', '.op-mc-market-monitor-industryCard .oui-tab-switch .oui-tab-switch-item', function () {
-    if ($(this).index() == 2) {
-        $('.op-mc-market-monitor-industryCard #search').hide()
-    } else {
-        $('.op-mc-market-monitor-industryCard #search').show()
-    }
-})
 //市场-我的监控-店铺 商品
 $(document).on('click', '.mc-marketMonitor #search', function () {
     if (!isNewVersion()) {
@@ -2616,48 +3072,48 @@ $(document).on('click', '.op-mc-market-rank-container #search', function () {
     marketRank('pagetype')
 })
 // 市场-市场排行- 趋势分析
-$(document).on('click', '.op-mc-market-rank-container .alife-dt-card-common-table-right-column', function (e) { //趋势分析
+$(document).on('click', '.op-mc-market-rank-container .alife-dt-card-common-table-right-column', function () { //趋势分析
     setTimeout(() => {
         trendTable()
     }, 500);
 })
 // 市场-市场排行- 市场大盘
-$(document).on('click', '.op-mc-market-overview-container #cateTrend .cardHeader #search', function (e) {
+$(document).on('click', '.op-mc-market-overview-container #cateTrend .cardHeader #search', function () {
     bigMarketTable()
 })
 // 市场-市场排行- 市场大盘-hangye
-$(document).on('click', '.op-mc-market-overview-container #cateTrend .op-mc-market-overview-compare-area #search', function (e) {
+$(document).on('click', '.op-mc-market-overview-container #cateTrend .op-mc-market-overview-compare-area #search', function () {
     bigMarketTrendTable()
 })
 // 市场-市场排行- 市场大盘-hangye
-$(document).on('click', '.op-mc-search-rank-container .oui-card-header-wrapper #search', function (e) {
+$(document).on('click', '.op-mc-search-rank-container .oui-card-header-wrapper #search', function () {
     searchRankTable()
 })
 // 市场-搜索分析- overview
-$(document).on('click', '.op-mc-search-analyze-container #searchTrend .cardHeader #search', function (e) {
+$(document).on('click', '.op-mc-search-analyze-container #searchTrend .cardHeader #search', function () {
     if ($('.op-mc-search-analyze-container #searchTrend .oui-card-header-wrapper .oui-card-header #search').length) {
         analyOverviewTable();
     }
 })
 // 市场-搜索分析- trend
-$(document).on('click', '.op-mc-search-analyze-container #searchTrend .alife-one-design-sycm-indexes-trend-addition-middle #search', function (e) {
+$(document).on('click', '.op-mc-search-analyze-container #searchTrend .alife-one-design-sycm-indexes-trend-addition-middle #search', function () {
     analyTrendTable()
 })
 // 市场-搜索分析- related
-$(document).on('click', '.op-mc-search-analyze-container .oui-card-header-wrapper .oui-card-header #search', function (e) {
+$(document).on('click', '.op-mc-search-analyze-container .oui-card-header-wrapper .oui-card-header #search', function () {
    if ($('.op-mc-search-analyze-container .oui-card-header-wrapper .oui-card-title').eq(0).text() == '相关词分析') {
         analyRelatedTable()
     }
 })
 // 市场-搜索分析- struct
-$(document).on('click', '.op-mc-search-analyze-container  .oui-card-header-wrapper  #search', function (e) {
+$(document).on('click', '.op-mc-search-analyze-container  .oui-card-header-wrapper  #search', function () {
      if ($('.op-mc-search-analyze-container .oui-card-header-wrapper .oui-card-title').eq(0).text() == '类目构成') {
          astructRelatedTable('type')
      }
     
 })
 // 市场-搜索分析- 切换
-$(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchStruct', function (e) {
+$(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchStruct', function () {
     var index = $(this).index();
       if ($(this).hasClass('active')) {
           return false;
@@ -2667,11 +3123,11 @@ $(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchStruct', functio
     astructRelatedTable('type')
 })
 // 市场-搜索人群- all 
-$(document).on('click', '.mc-searchCustomer #completeShopPortrait  .oui-card-header-wrapper #search', function (e) {
+$(document).on('click', '.mc-searchCustomer #completeShopPortrait  .oui-card-header-wrapper #search', function () {
    searchPersonAll()
 })
 // 市场-搜索人群- provce-city$('').eq(3).find('.portrait-title')
-$(document).on('click', '.mc-searchCustomer #completeShopPortrait .portrait-container #search', function (e) {
+$(document).on('click', '.mc-searchCustomer #completeShopPortrait .portrait-container #search', function () {
    var parent = $(this).parents('.oui-col').index();
    if(parent == 3){
        searchProvce('prov')
@@ -2679,8 +3135,31 @@ $(document).on('click', '.mc-searchCustomer #completeShopPortrait .portrait-cont
        searchProvce('city')
    }
 })
+//行业客群-客群趋势
+$(document).on('click', '#sycmMqIndustryCunstomer .oui-card-header-wrapper #search', function () {
+  customerTrend()
+})
+//行业客群-类目偏好
+$(document).on('click', '#completeShopPurchase .mc-Purchase #search', function () {
+    var selecItem = $(this).parents('.sycm-trade-rank-portrait-card').index();
+    selecItem ? buyerPortraitFuns(1) : buyerPortraitFuns();
+})
+//属性洞察-热门属性
+$(document).on('click', '.op-mc-property-insight-container .oui-card-header-wrapper #search', function () {
+    if ($(this).parents('.oui-card-header').prev().text() == '热销榜单') {
+        listPropTable('pageType');
+    }else{
+        propHotRank();
+    }
+})
+//属性洞察-属性分析
+// $(document).on('click', '.op-mc-property-insight-container  .oui-card-header-wrapper #search', function () {
+//    listPropTable();
+// })
+
+
 // 市场-搜索人群- 切换
-$(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchCity', function (e) {
+$(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchCity', function () {
     var index = $(this).index();
     if ($(this).hasClass('active')) {
         return false;
