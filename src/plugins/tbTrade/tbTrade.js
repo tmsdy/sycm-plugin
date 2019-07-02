@@ -1,7 +1,7 @@
 console.log("taobao 交易管理");
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
     'http://118.25.153.205:8090';
-var LOCAL_VERSION = '1.0.12';
+var LOCAL_VERSION = '1.0.13';
 var isLogin = false;
 var searchWang = '';
 var SAVE_MEMBER = {};
@@ -16,11 +16,11 @@ chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray)
         isLogin = false;
     }
 });
-$(function () {
+// $(function () {
     var haset = true;
-    $('#page').on('DOMNodeInserted', function (e) {
-        // console.log(e.target.id, ',', e.target.className)
-        if (e.target.className == 'ww-inline ww-online') {
+    $(document).on('DOMNodeInserted', '.ww-light.ww-large', function (e) {
+        console.log(e.target.id, ',', e.target.className)
+        if (e.target.className.indexOf('ww-inline')!=-1) {
             if (haset) {
                 $('.item-mod__trade-order___2LnGB .buyer-mod__buyer___3NRwJ').parent().append('<button id="chaqzSearch" class="tbtrade-btn">点击查黑号</button>');
                 haset = false
@@ -33,7 +33,7 @@ $(function () {
     })
       // 右下角
       rightConcer()
-})
+// })
 $(document).on('click', '#chaqzSearch', function () {
     var tbName = $(this).siblings().find('.buyer-mod__name___S9vit').text();
     isLogin ? anyDom.searchHei(tbName) : anyDom.init(tbName);
@@ -401,7 +401,7 @@ function heartShow(star) {
 
 function rightConcer(){
     if ($('.chaqz-compete-wrap').length){return false;}
-    $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png"alt=""class="avator"id="userBtn"></div><div class="content-wrap"><ul class="content"><li class="item"><a href="https://sycm.taobao.com/mc/ci/shop/monitor"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></a></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/shop/monitor"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></a></li><li class="item"><a href="https://sycm.taobao.com/mc/mq/search_analyze"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></a></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/chaheihao?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/Kasp?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/infiniteRank?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a class="https://trade.taobao.com/trade/itemlist/list_sold_items.htm"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘客订单检测</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/toolIndex?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="https://subway.simba.taobao.com/#!/home?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup10.png"alt=""><p class="name">直通车官网</p></a></li><li class="item"><a href="https://trade.taobao.com/trade/itemlist/list_sold_items.htm"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup11.png"alt=""><p class="name">卖家中心</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/home?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="https://www.chaquanzhong.com/home?from=plugin"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
+    $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png"alt=""class="avator"id="userBtn"></div><div class="content-wrap"><ul class="content"><li class="item"><a href="https://sycm.taobao.com/mc/ci/shop/monitor"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></a></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/shop/monitor"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></a></li><li class="item"><a href="https://sycm.taobao.com/mc/mq/search_analyze"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></a></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/chaheihao?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/Kasp?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/infiniteRank?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a class="https://trade.taobao.com/trade/itemlist/list_sold_items.htm"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘客订单检测</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/toolIndex?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/home?from=plugin"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="https://www.chaquanzhong.com/home?from=plugin"target="_blank">www.chaquanzhong.com</a><br/><span>' + LOCAL_VERSION + '</span></div></div></div>')
 }
 //拖拽事件
 var dragStatus = {
