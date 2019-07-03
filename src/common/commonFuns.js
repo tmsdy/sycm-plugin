@@ -177,7 +177,7 @@ export function getCurrentTime(dayType) {
 export function getFirstCateId() {
      var deaultId = localStorage.getItem('shopCateId');
     //  var cateIdF = JSON.parse(localStorage.getItem('tree_history_op-mc._cate_picker'));
-     var cateIdF = dataWrapper2['getShopCate'].data.cateId;
+     var cateIdF = dataWrapper['getShopCate'].data.cateId;
      if (!cateIdF) {
          return deaultId;
      }
@@ -203,7 +203,7 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
     // 获取时间范围
     var dayIndex = $('.oui-date-picker .ant-btn-primary').text()
     var dateType = dayIndex == '实 时' ? 'today' : dayIndex == '7天' ? 'recent7' : dayIndex == '30天' ? 'recent30' : dayIndex == '日' ? 'day' : dayIndex == '周' ? 'week' : dayIndex == '月' ? 'month' : 'today';
-    var endpointTyep = key == 'monitCompareFood' ? $('#itemAnalysisTrend .ant-select-selection-selected-value').attr('title') : key == 'monitResource' ? $('#sycm-mc-flow-analysis .ant-select-selection-selected-value').attr('title') : key == 'getKeywords' ? $('#itemAnalysisKeyword .ant-select-selection-selected-value').attr('title') : $('.ebase-FaCommonFilter__root .fa-common-filter-device-select .oui-select-container-value').html(); //终端类型
+    var endpointTyep = key == 'getTopItems' ? $('#shopAnalysisItems .oui-card-header-wrapper .ant-select-selection-selected-value').attr('title') : (key == 'getShopFlowSource' || key == 'getSourceTrend') ? $('#sycm-mc-flow-analysis .oui-card-header-wrapper .ant-select-selection-selected-value').attr('title') : key == 'compareShopAnaly' ? $('.op-mc-shop-analysis .op-mc-shop-analysis-trend .ant-select-selection-selected-value').attr('title') : (key == 'monitCompareFood' || key == 'compareItemTrend') ? $('#itemAnalysisTrend .ant-select-selection-selected-value').attr('title') : key == 'monitResource' ? $('#sycm-mc-flow-analysis .ant-select-selection-selected-value').attr('title') : key == 'getKeywords' ? $('#itemAnalysisKeyword .ant-select-selection-selected-value').attr('title') : $('.ebase-FaCommonFilter__root .fa-common-filter-device-select .oui-select-container-value').html(); //终端类型
     var shopType = $('.ebase-FaCommonFilter__root .sellerType-select .ant-select-selection-selected-value').attr('title'); //店铺  天猫淘宝
     var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text(); //时间区间
     var device = endpointTyep == '所有终端' ? '0' : endpointTyep == 'PC端' ? '1' : endpointTyep == '无线端' ? '2' : '';
@@ -221,11 +221,12 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
     var localCateId =  getFirstCateId();
     if (key == 'hotsearch' || key == 'hotpurpose' || key == 'hotsale' ) {
         localCateId = localStorage.getItem('shopCateId');
-    } else if (key == 'listPropitem' || key == 'listPropshop'){
+    } else if (key == 'listPropitem' || key == 'listPropshop' ) {
         localCateId = findcategory().id;
     }
     if (key == 'allTrend' && !dealType) {
         localCateId = localStorage.getItem('shopCateId');
+        localCateId = localCateId ? localCateId : getFirstCateId();
         finalTime = setDateRange(getCurrentTime(), 'day');
         return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=day' + '&device=' + device + '&sellerType=' + sellType;
     }
@@ -235,6 +236,10 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
     if (key == 'popularity' && !dealType) { //搜索人群
         return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&seKeyword=' + extra.keyword + '&attrType=' + extra.attrType;
     } 
+    if (key == 'listProduct') { //产品洞察-热门榜单
+         localCateId = findcategory().id;
+        return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&page=' + page + '&pageSize=' + pagesize + '&sellerType=' + sellType + '&rankType=' + extra.rankType
+    } 
     if (!dealType) {
         return key += 'cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&page=' + page + '&pageSize=' + pagesize + '&sellerType=' + sellType
     }
@@ -242,7 +247,9 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
         var isMonitLive = dateType == 'today' ? 'live/' : '';
         var isMonitAll = dateType == 'today' ? '' : '&type=all';
         return '/mc/' + isMonitLive + 'ci/item/monitor/list.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=cateRankId,tradeIndex&order=desc&orderBy=tradeIndex&page=' + page + '&pageSize=' + pagesize + '&sellerType=' + sellType + isMonitAll
-    }else if (key == "monitCompareFood") {
+    } else if (key == "topDrainList") {
+         return '/mc/ci/shop/recognition/getTopDrainList.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=lostIndex,lostHits,uvIndex,seIpvUvHits,tradeIndex&order=desc&orderBy=seIpvUvHits&page=' + page + '&pageSize=' + pagesize + '&sellerType=' + sellType;
+    }else if(key == "monitCompareFood") {
         var isMonitLive = dateType == 'today' ? 'Live' : '';
         return '/mc/rivalItem/analysis/get' + isMonitLive + 'CoreIndexes.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device
     }else if (key == "monitResource") {
@@ -309,7 +316,30 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
     } else if (key == 'prodHotRank') { //产品洞察
         localCateId = findcategory();
         return '/mc/mq/product/prodHotRank.json?brandId=' + extra.brandId + '&cateId=' + localCateId.id + '&dateRange=' + finalTime + '&dateType=' + dateType + '&deviceType=' + device + '&indexCode=tradeIndex,payItmCnt&order=desc&orderBy=tradeIndex&page=1&pageSize=10&sellerType=' + sellType
+    } else if (key == 'compareShopAnaly') { //竞店识别
+        var isMonitLive = dateType == 'today' ? 'Live' : '';
+        var shopType = extra.shopType ? ('&shopType=-1'):'';
+        var CoreOrCate = extra.shopType?'Cate':'Core';
+        var seleKind = extra.type ? 'Trend' : 'Indexes';
+        var indexCode = extra.type ? '&indexCode=' : '';
+        return '/mc/rivalShop/analysis/get' + isMonitLive + CoreOrCate + seleKind + '.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + indexCode + extra.usrId + shopType;
+    } else if (key == 'getShopFlowSource') {
+        var isMonitLive = dateType == 'today' ? 'Live' : '';
+        return '/mc/rivalShop/analysis/get' + isMonitLive + 'FlowSource.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=' + extra.orderIndex + '&order=desc&orderBy=' + extra.orderIndex + extra.usrId
+    } else if (key == 'getTopItems') {
+        var isMonitLive = dateType == 'today' ? 'Live' : '';
+        var indexCode = extra.topType == 'flow' ? 'uvIndex' : 'tradeIndex';
+        return '/mc/rivalShop/analysis/getTopItems.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=' + indexCode + '&page=1&pageSize=20&topType=' + extra.topType + '&userId=' + extra.usrId
+    } else if (key == 'getSourceTrend') {
+        var isMonitLive = dateType == 'today' ? 'Live' : '';
+        var shopItem = extra.type ? 'Item' : 'Shop';
+        var pageIdF = extra.type ? (extra.pageId+'').split('.')[0] : 0;
+         return '/mc/rival' + shopItem + '/analysis/getSourceTrend.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=' + extra.indexCode + '&pPageId=' + pageIdF + '&pageId=' + extra.pageId + extra.usrId;
+    } else if (key == 'compareItemTrend') {
+        var isMonitLive = dateType == 'today' ? 'Live' : '';
+        return '/mc/rivalItem/analysis/get' + isMonitLive + 'CoreTrend.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=' + extra.useId
     }
+   
      
 }
 // 市场cateid
@@ -319,13 +349,13 @@ export function findcategory() {
     var isRoot = text.indexOf('>');
     if (isRoot == -1) {
         return {
-            id: dataWrapper2['getShopCate'].data.cateId,
+            id: dataWrapper['getShopCate'].data.cateId,
             name: text
         };
     }
     var deText = text.split('>');
     var fianlText = deText[deText.length - 1].trim();
-    var allCate = dataWrapper2['getShopCate'].data.allInfo;
+    var allCate = dataWrapper['getShopCate'].data.allInfo;
     var len = allCate ? allCate.length : 0;
     var res = '';
     for (let i = 0; i < len; i++) {
@@ -392,7 +422,7 @@ export function getProductInfo() {
  export function getproduceIds(product, dataWrapper, type) {
 
      var selfListJson = localStorage.getItem('chaqz_compareSelfList') || getLocalSelfList();
-     var mointListJson = dataWrapper.getMonitoredList.data;
+     var mointListJson = dataWrapper.getMonitoredList.data.item;
      if (!selfListJson || !mointListJson.length) {
          popTip('获取竞品数据失败，请刷新重试！');
          LoadingPop()

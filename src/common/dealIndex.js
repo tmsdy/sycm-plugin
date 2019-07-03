@@ -19,7 +19,11 @@
      cltHit: [],
      sePvIndex:[],
      clickHits: [],
-     clickHot: []
+     clickHots: [],
+     lostIndex: [],
+     lostHits: [],
+     prePayAmtIndex: [],
+     cartByrCntIndex: []
  };
 
 // //  指数转化请求
@@ -598,16 +602,20 @@ function filterMarkterBidpan(data){
 
 export function dealIndex(request, sendResponse, dataWrapper) {
           responseData = {
-             payRate: [],
-             tradeIndex: [],
-             payByr: [],
-             uvIndex: [],
-             seIpv: [],
-             cartHit: [],
-             cltHit: [],
-             sePvIndex: [],
-             clickHits:[],
-             clickHot:[]
+            payRate: [],
+            tradeIndex: [],
+            payByr: [],
+            uvIndex: [],
+            seIpv: [],
+            cartHit: [],
+            cltHit: [],
+            sePvIndex: [],
+            clickHits:[],
+            clickHot:[],
+            lostIndex: [],
+            lostHits: [],
+            prePayAmtIndex: [],
+            cartByrCntIndex: []
          };
        if (request.type == 'monitShop') {
             var moniShopData = jsonParse(dataWrapper[request.type].data)

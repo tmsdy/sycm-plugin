@@ -13,7 +13,8 @@ var SAVE_MEMBER = {};
 // var SAVE_BIND = {};
 // var SET_WAIT_TIME = 600000
 // 对应模块数据存储
-var dataWrapper = {
+window.dataWrapper = '';
+ dataWrapper = {
     'monitShop': {
         urlReg: '\/mc(\/live\/|\/)ci\/shop\/monitor\/listShop\.json',
         data: []
@@ -51,8 +52,8 @@ var dataWrapper = {
         data: []
     },
     'getMonitoredList': {
-        urlReg: '\/mc\/ci\/config\/rival\/item\/getMonitoredList\.json',
-        data: []
+        urlReg: '\/mc\/ci\/config\/rival\/(item|shop|brand)\/getMonitoredList\.json',
+        data: {}
     },
     'getKeywords': {
         urlReg: '\/mc\/rivalItem\/analysis\/getKeywords\.json',
@@ -98,9 +99,12 @@ var dataWrapper = {
     },
     "listProduct": {
         urlReg: '\/mc\/mq\/product\/listProdItemRank\.json',
+    },
+    "topDrainList": {
+        urlReg: '\/mc\/ci\/shop\/recognition\/getTopDrainList\.json',
     }
 }
-window.dataWrapper2 = dataWrapper;
+// window.dataWrapper2 = dataWrapper;
 window.SAVE_MEMBER2 = SAVE_MEMBER;
 window.isLogin = false;
 // window.SAVE_BIND2 = SAVE_BIND;
@@ -165,6 +169,7 @@ $(function () {
             $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header').append(showBtn('keyRight'))
         } else if (e.target.id == 'sycm-mc-flow-analysis') { //竞争-分析竞品-入口来源
             $('.op-mc-item-analysis .sycm-mc-flow-analysis .oui-card-header').append(showBtn());
+            $('.op-mc-shop-analysis .sycm-mc-flow-analysis .oui-card-header ').append(showBtn());
         } else if (e.target.className == 'mc-marketMonitor') {
             $('.mc-marketMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
             // $('#app').off('DOMNodeInserted')
@@ -192,6 +197,9 @@ $(function () {
              if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length) { //属性洞察-hotlOIST
                  $('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
              }
+             if (!$('.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-header #search').length) { //产品洞察-hotlOIST
+                 $('.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
+             }
         } else if (e.target.id == 'categoryConstitute') { //market-analy-struct
             if (!$('.op-mc-search-analyze-container  .oui-card-header-wrapper #search').length) {
                 $('.op-mc-search-analyze-container  .oui-card-header-wrapper').eq(0).append(showBtn())
@@ -214,6 +222,19 @@ $(function () {
             // if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length) {
                 $('.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-title').append(showBtn());
             // }
+        } else if (e.target.className == 'op-mc-rival-trend-analysis op-mc-shop-recognition-trend-analysis oui-card') { //竞争-竞店识别
+            $('.op-mc-shop-recognition .op-mc-rival-trend-analysis-chart-container-title').append(showBtn());
+            $('.op-mc-shop-recognition #shopRecognitionDrainShopList .oui-card-header-wrapper .oui-card-header-item-pull-left').html(showBtn());
+        } else if (e.target.className == 'alife-one-design-sycm-indexes-trend op-mc-shop-analysis-trend oui-card') { //竞争-竞店分析
+            $('.op-mc-shop-analysis .op-mc-shop-analysis-trend .oui-card-header .oui-card-header-item-pull-left').append(showBtn());
+        } else if (e.target.id == 'shopAnalysisItems') { //竞争-竞店分析-top榜单
+            $('.op-mc-shop-analysis #shopAnalysisItems .oui-card-header .oui-card-header-item-pull-left').append(showBtn());
+            $('.op-mc-shop-analysis #shopAnalysisItems .oui-card-header .oui-card-header-item-pull-left').append(showBtn());
+        } else if (e.target.className == 'recharts-wrapper') {
+           $('.op-mc-shop-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
+           $('.op-mc-item-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
+        } else if (e.target.id == 'mqBrandMonitor') {
+            $('.mc-brandMonitor .oui-card-header-wrapper .oui-card-title').append(showBtn());
         }
     });
 })
@@ -517,9 +538,11 @@ var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
                 //  finaData=JSON.stringify(finaData);
                 //  var hasEncryp = resData.data ? resData.data : resData;
                 //  var finaData = (typeof hasEncryp == 'object') ? resData : Decrypt(hasEncryp);
-                 if (k == 'monitShop' || k == 'getMonitoredList') {
+                 if (k == 'monitShop') {
                      dataWrapper[k].data = finaData;
-                     getParamsItem(baseUrl);
+                 } else if ( k == 'getMonitoredList') {
+                    var kind = searchWhatType(baseUrl);
+                     dataWrapper[k].data[kind] = finaData;
                  } else if (k == 'shopInfo') {
                      dataWrapper[k].data = finaData;
                      localStorage.setItem('chaqz_' + k, finaData);
@@ -569,14 +592,13 @@ var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
                     var kind = searchWhatType(baseUrl);
                     var kindtyps = getParamsItem(baseUrl)
                     localStorage.setItem('monit'+kind + kindtyps, finaData)
-                 } else if (k == 'marketHot') {
+                 } else if (k == 'marketHot' || k == 'listProp') {
                      var kind = searchWhatType(baseUrl);
                      var kindtyps = getParamsItem(baseUrl)
                      localStorage.setItem(k + kind + kindtyps, finaData)
-                 } else if (k == 'listProp') {
-                     var kind = searchWhatType(baseUrl);
-                     var kindtyps = getParamsItem(baseUrl)
-                     localStorage.setItem(k + kind + kindtyps, finaData)
+                 } else if (k == 'listProduct') {
+                     var kindtyps = getParamsItem(baseUrl,'listProd');
+                     localStorage.setItem(k + kindtyps, finaData)
                  } else {
                      
                      var dataTypes = getParamsItem(baseUrl)
@@ -697,6 +719,9 @@ function getParamsItem(para, com, trend) {
         var orderBy = keyObj['orderBy'] ? keyObj['orderBy'] : 'tradeIndex';
        var device = keyObj['device'] ? keyObj['device'] : 0;
        key += 'cateId=' + keyObj['cateId'] + '&dateRange=' + keyObj['dateRange'] + '&dateType=' + keyObj['dateType'] + '&device=' + device + '&page=' + keyObj['page'] + '&pageSize=' + keyObj['pageSize'] + '&sellerType=' + keyObj['sellerType'] + '&orderBy=' + orderBy
+    } else if (com == 'listProd') {
+        var rankType = keyObj['rankType'] ? keyObj['rankType'] : 0;
+        key += 'cateId=' + keyObj['cateId'] + '&dateRange=' + keyObj['dateRange'] + '&dateType=' + keyObj['dateType'] + '&device=' + keyObj['deviceType'] + '&page=' + keyObj['page'] + '&pageSize=' + keyObj['pageSize'] + '&sellerType=' + keyObj['sellerType'] + '&rankType=' + rankType
     } else {
         var device = keyObj['device'] ? keyObj['device']:0;
         key += 'cateId=' + keyObj['cateId'] + '&dateRange=' + keyObj['dateRange'] + '&dateType=' + keyObj['dateType'] + '&device=' + device + '&page=' + keyObj['page'] + '&pageSize=' + keyObj['pageSize'] + '&sellerType=' + keyObj['sellerType']
