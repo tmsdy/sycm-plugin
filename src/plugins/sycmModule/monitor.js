@@ -13,6 +13,7 @@ import {
      getFirstCateId,
      getDateRange,
      formate,
+     formulaRate,
      getCurrentTime,
      filterLocalData
  } from '../../common/commonFuns'
@@ -26,6 +27,8 @@ import {
 var tableInstance = null; //table实例对象
 var echartsInstance = null; //echarts实例对象   
 var PLAN_LIST = [];
+var COMP_ITEM_INFO = '';
+var COUNT=0;
  //竞争模块table
 function domStruct(data, title) {
     var curTime = $('.ebase-FaCommonFilter__top .oui-date-picker-current-date').text();
@@ -40,7 +43,7 @@ function domStruct(data, title) {
                 "next": "&gt;",
                 "previous": "&lt;"
             },
-            "sEmptyTable": '获取数据失败，请刷新界面'
+            "sEmptyTable": '数据为空...'
         },
         searching: false,
         ordering: false,
@@ -234,6 +237,7 @@ function domStructMark(data, title, type) {
             }
         }
     })
+    LoadingPop();
     $('.chaqz-wrapper').fadeIn(100);
 }
  // 趋势table
@@ -957,7 +961,7 @@ function getCompareShops() {
     //  var getLocal = localSelf ? JSON.parse(localSelf.split("|")[1]).value._d : '';
      return JSON.parse(filterLocalData(localSelf))
  }
-// 获取对比选项
+// 获取竞品对比选项
 function getCompareItems() {
     var searchItemWrap = $('.op-mc-item-analysis .sycm-common-select-wrapper .alife-dt-card-sycm-common-select');
     var searchKey1 = searchItemWrap.eq(0).find('.sycm-common-select-selected-title').length ? searchItemWrap.eq(0).find('.sycm-common-select-selected-title').text() : '';
@@ -1008,6 +1012,46 @@ function getCompareItems() {
             enkey: indexKey
         },
         keys: comPara+selfPara
+    }
+}
+// 获取品牌对比选项
+function getCompareBrands(type) {
+    var searchItemWrap = type ? $('.mc-brandCustomer #completeShop .alife-dt-card-sycm-common-select') : $('.op-mc-brand-analysis .sycm-common-select-wrapper .alife-dt-card-sycm-common-select');
+    var searchKey1 = searchItemWrap.eq(0).find('.sycm-common-select-selected-title').length ? searchItemWrap.eq(0).find('.sycm-common-select-selected-title').text() : '';
+    var searchKey2 = searchItemWrap.eq(1).find('.sycm-common-select-selected-title').length ? searchItemWrap.eq(1).find('.sycm-common-select-selected-title').text() : '';
+    var searchKey3 = searchItemWrap.eq(2).find('.sycm-common-select-selected-title').length ? searchItemWrap.eq(2).find('.sycm-common-select-selected-title').text() : '';
+    var mointBrandList = JSON.parse(dataWrapper.getMonitoredList.data.brand); //竞品商品列表
+    var keyword = [];
+    var selectList = [];
+    var indexName = []
+    var selecIdList = []
+    var comPara = '';
+     if (!mointBrandList) {
+         popTip('获取品牌列表为空，请重试！');
+         return false
+     }
+    for (let i = 0; i < 3; i++) {
+        var compareKey = i == 0 ? searchKey1 : i == 1 ? searchKey2 : searchKey3;
+        if (!compareKey) {
+            continue;
+        }
+        for (var k = 0; k < mointBrandList.length; k++) {
+            if (mointBrandList[k].name == compareKey) {
+                keyword.push('品牌' + (i + 1));
+                indexName.push('rivalBrand' + (i+1));
+                selecIdList.push(mointBrandList[k].brandId);
+                selectList.push(mointBrandList[k]);
+                comPara += '&rivalBrand' + (i + 1) + 'Id=' + mointBrandList[k].brandId
+                break;
+            }
+        }
+    }
+    return {
+        resData: selectList,
+        keyword: keyword,
+        indexName: indexName,
+        keys: comPara,
+        selectIds: selecIdList
     }
 }
 // 获取本店信息
@@ -1299,6 +1343,18 @@ $(document).on('click', '.op-mc-item-analysis #sycm-mc-flow-analysis .oui-card-h
     }
     compareResource()
 })
+$(document).on('click', '.op-mc-item-analysis #itemAnalysisKeyword .oui-card-header-wrapper #search', function () {
+    compareItemKeywords()
+})
+$(document).on('click', '.chaqz-wrapper .chaqz-top-tabs .switchItemKey', function () { //   入店搜索词tab 切换
+    if ($(this).hasClass('active')) {
+        return false;
+    }
+    $(this).addClass('active').siblings().removeClass('active');
+    var curId = $(this).data('id');
+    var name = $(this).text();
+    compareItemKeywords(curId,name)
+});
 $(document).on('click', '.op-mc-item-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content #search', function () { // 趋势分析
     compareItemTrend()
 });
@@ -1310,8 +1366,61 @@ $(document).on('click', '.chaqz-close', function () {
 })
 // 监控品牌-品牌列表
 $(document).on('click', '.mc-brandMonitor .oui-card-header-wrapper .oui-card-title #search', function () {
-    brandList()
+    getBrandList('pageType')
 })
+$(document).on('click', '.op-mc-brand-recognition .op-mc-rival-trend-analysis-chart-container #search', function () { //品牌识别
+     if (!isNewVersion()) {
+         return false
+     }
+     shopIndentify('brand')
+});
+$(document).on('click', '.op-mc-brand-analysis #brandAnalysisTrend .oui-card-header #search', function () { //品牌分析-关键指标对比
+     compBrandIndex()
+});
+$(document).on('click', '.op-mc-brand-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content #search', function () { // 品牌-关键指标趋势分析
+    compareBrandTrend()
+});
+$(document).on('click', '.op-mc-brand-analysis #brandAnalysisItems .oui-card-title #search', function () { //品牌分析 top10 榜单
+    compBrandTop10()
+});
+$(document).on('click', '.chaqz-wrapper .chaqz-top-tabs .switchBrandTop', function () { //品牌分析 top10 榜单tab 切换
+    if ($(this).hasClass('active')) {
+        return false;
+    }
+    var cateType = $(this).hasClass('shops');
+    var idex = $(this).index();
+    $(this).addClass('active').siblings().removeClass('active');
+    var curId = $(this).data('id');
+    cateType ? compBrandTop10(curId, idex,'shops') : compBrandTop10(curId, idex)
+});
+$(document).on('click', '.op-mc-brand-analysis #brandAnalysisShops .oui-card-title #search', function () { //品牌分析 商品top10 榜单
+    compBrandTop10(0,0,'shops')
+});
+$(document).on('click', '.mc-brandCustomer #sycmMqBrandCunstomer .oui-card-header-item-pull-left #search', function () { //品牌客群-趋势
+    brandCustomer()
+});
+$(document).on('click', '.mc-brandCustomer #completeShopPortrait .oui-card-title #search', function () { //品牌客群-属性分析
+    brandPersonAll()
+});
+// 品牌客群-属性-
+$(document).on('click', '.mc-brandCustomer #completeShopPortrait .portrait-container #search', function () {
+    var parent = $(this).parents('.oui-col').index();
+    if (parent == 3) {
+        brandProvce('prov')
+    } else if (parent == 4) {
+        brandProvce('city')
+    }
+})
+// 品牌客群-属性- 切换
+$(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchBrandCity', function () {
+    var index = $(this).index();
+    if ($(this).hasClass('active')) {
+        return false;
+    }
+    $(this).addClass('active').siblings().removeClass('active');
+    brandProvce(COMP_ITEM_INFO.type, index)
+})
+
 //竞争-分析竞品一键加权
 $(document).on('click', '#vesting', function () {
     var reg = /https:\/\/sycm\.taobao\.com\/mc\/ci\/item\/analysis/;
@@ -1637,15 +1746,14 @@ function recognitDrainShop(pageType) {
         }
     })
 }
-function shopIndentify() {//流失列表
+function shopIndentify(type) {//流失列表
     if (!isNewVersion()) {
         return false
     }
-    var switchType = 'shop';
-    var useIdDom = $('.op-mc-shop-recognition #drainRecognition .op-mc-rival-trend-analysis').attr('id')
+    var switchType = type ? type :'shop';
+    var useIdDom = $(' #drainRecognition .op-mc-rival-trend-analysis').attr('id')
     var useArr = useIdDom ? useIdDom.split('-') : ''
     var useId = useArr[useArr.length - 1]
-    trendTableShow(switchType, useId)
     trendTableShow(switchType, useId)
 }
 //竞店分析
@@ -1895,12 +2003,11 @@ function compareShopTrend() { // 趋势
         var tableData = [];
         // var length = transData.tradeIndex.length ;
         var comItmeArr = selectInfo.resData;
+        var length = reductData.selfShop.tradeIndex.length;
+        length = length ? length:30;
         var month30Days = monthDays();
         // var saveSelfData = '';
-        for (let i = 0; i < 30; i++) {
-            var obj = {
-                shop: {}
-            };
+        for (let i = 0; i < length; i++) {
             var itemNums = selectInfo.locat.length + 1;
             // var saveSelfData = '';
             for (let j = 0; j< itemNums; j++) {
@@ -2203,7 +2310,7 @@ function getShopTopTen(curItem, tabsHtml) { //top10
      reductData = dayIndex == '实 时' ? reductData.data : reductData;
      var sendData = {};
      if (tabsSelect){
-        sendData.unIndex = filterSearchRank(reductData, 'uvIndex', 'value')
+        sendData.uvIndex = filterSearchRank(reductData, 'uvIndex', 'value')
      }else{
         sendData.tradeIndex = filterSearchRank(reductData, 'tradeIndex','value')
      }
@@ -2211,7 +2318,7 @@ function getShopTopTen(curItem, tabsHtml) { //top10
           type: 'dealTrend',
           dataType: sendData
       }, function (val) {
-          var transData = tabsSelect ? val.value.unIndex : val.value.tradeIndex;
+          var transData = tabsSelect ? val.value.uvIndex : val.value.tradeIndex;
           var tableData = [];
           var len = reductData.length;
           for (let i = 0; i < len; i++) {
@@ -2431,7 +2538,7 @@ function MonitorItem(pageType) {
                   }
                   obj.name = {}
                   obj.name = j == 0 ? {
-                      name: '本店竞品',
+                      name: '本店商品',
                       class: ''
                   } : itemAcct == 3 ? {
                       name: ('竞品' + j),
@@ -2543,7 +2650,7 @@ function MonitorItem(pageType) {
                   }
                   obj.name = {}
                   obj.name = i == 0 ? {
-                          name: '本店竞品',
+                          name: '本店商品',
                           class: ''
                       } :
                       prodctItem["rivalItem" + (i)].title ? {
@@ -2666,8 +2773,8 @@ function compareItemTrend(){
                 obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
                 obj.carRate = transData.uvIndex[cot] ? (transData.cartHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
                 obj.categroy = chainName[j];
-                obj.shop.title = !j ? comItmeArr[chainName[j]].title : comItmeArr[chainName[j]].name;
-                obj.shop.url = !j ? comItmeArr[chainName[j]].pictUrl:comItmeArr[chainName[j]].picUrl;
+                obj.shop.title = comItmeArr[chainName[j]].title ? comItmeArr[chainName[j]].title : comItmeArr[chainName[j]].name;
+                obj.shop.url = comItmeArr[chainName[j]].pictUrl ? comItmeArr[chainName[j]].pictUrl : comItmeArr[chainName[j]].picUrl;
                 obj.shopId = comItmeArr[chainName[j]].itemId;
                 tableData.push(obj);
             }
@@ -2748,9 +2855,1020 @@ function compareItemTrend(){
         }, '趋势图')
     })
 }
+function compareItemKeywords(userId,choseIndex){
+     if (!isNewVersion()) {
+         return false
+     }
+     var curId = userId;
+     if(!userId){
+        var selectInfo = getCompareItems();
+        var tabsHtml = '';
+        var seleItems = selectInfo.resData;
+        COMP_ITEM_INFO = seleItems;
+        var chinaName = selectInfo.keyword.name;
+        choseIndex = chinaName[0];
+        for (let i = 0; i < chinaName.length; i++) {
+            var isActive = i==0?'active':'';
+            curId = i == 0 ? seleItems[chinaName[i]].itemId : curId;
+            tabsHtml += '<button class="switchBtn ' + isActive + ' switchItemKey" data-id=' + seleItems[chinaName[i]].itemId + '>' + chinaName[i] + '</button>';
+        }
+        tabsHtml = '<div class="chaqz-top-tabs">' + tabsHtml + '</div>';
+     }
+     var tabsSelect = $('.op-mc-item-analysis #itemAnalysisKeyword .oui-tab-switch-item-active').index();
+     var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
+     var topType = tabsSelect ? 'trade' : 'flow';
+     var localKey = getSearchParams('compItemKeyword', 1, 20, 'local', {
+         useId: curId,
+         hotType: topType
+     })
+     var localData = localStorage.getItem(localKey);
+     if (!localData) {
+         popTip('获取数据失败')
+         return false;
+     }
+     var reductData = JSON.parse(filterLocalData(localData));
+     reductData = dayIndex == '实 时' ? reductData.data : reductData;
+      var sendData = {};
+      if (!tabsSelect) {
+          sendData.uv = filterSearchRank(reductData, 'uv', 'value')
+          compItemShow({
+              value: sendData
+          }, tabsSelect, reductData, tabsHtml, curId, choseIndex)
+      } else {
+          sendData.tradeIndex = filterSearchRank(reductData, 'tradeIndex', 'value')
+          dealIndex({
+              type: 'dealTrend',
+              dataType: sendData
+          }, function (val) {
+             compItemShow(val, tabsSelect, reductData, tabsHtml, curId, choseIndex)
+          })
+      }
+}
+function compItemShow(val, tabsSelect, reductData, tabsHtml, userId, choseIndex) {
+     var transData = !tabsSelect ? val.value.uv : val.value.tradeIndex;
+     var tableData = [];
+     var len = reductData.length;
+     var selInfo = COMP_ITEM_INFO[choseIndex]
+     for (let i = 0; i < len; i++) {
+         var obj = {
+             shop: {}
+         };
+         obj.tradeIndex = transData[i];
+         obj.keyword = reductData[i].keyword.value;
+         obj.shop.title = selInfo.title ? selInfo.title : selInfo.name;
+         obj.shop.url = selInfo.pictUrl ? selInfo.pictUrl : selInfo.picUrl;
+         obj.shopId = userId;
+         tableData.push(obj);
+     }
+     var titleName = !tabsSelect ? '访客人数' : '交易金额';
+     var topName = !tabsSelect ? '引流关键词' : '成交关键词';
+     var cols = [
+         {
+             data: 'shop',
+             title: '商品信息',
+             class: 'info',
+             render: function (data, type, row, meta) {
+                 return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+             }
+         }, 
+         {
+             data: 'shopId',
+             title: '商品ID'
+         },
+         {
+             data: 'keyword',
+             title: '关键词'
+         },
+         {
+             data: 'tradeIndex',
+             title: titleName
+         },
+     ];
+     if (tabsHtml) {
+         domStruct({
+             data: tableData,
+             cols: cols,
+             tabs: tabsHtml
+         }, '入店搜索词-' + topName)
+     } else {
+         tableInstance.clear();
+         tableInstance.rows.add(tableData).draw();
+     }
+
+}
 // 品牌列表
-function brandList(){
+function getBrandList(pageType) {
     if(!isNewVersion()){
         popTip('获取数据失败')
+    }
+    var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
+    var chooseTop = dayIndex =='实 时' ? 0 : 1;
+     var curPage = $('.mc-brandMonitorr .ant-pagination .ant-pagination-item-active').attr('title');
+     var curPageSize = $('.mc-brandMonitor .oui-page-size .ant-select-selection-selected-value').text();
+     curPage = curPage ? curPage:1;
+     curPageSize = curPageSize?Number(curPageSize):10;
+     var localCache = false;
+     var finalKey = '';
+     var itemKey = getSearchParams('monitbrand', curPage, curPageSize);
+     var localKey = getSearchParams('monitbrand', curPage, curPageSize, 'local')
+     if (localStorage.getItem(itemKey)) {
+         finalKey = itemKey;
+     } else {
+         finalKey = localKey;
+         localCache = true;
+     }
+     dealIndex({
+         type: 'monitbrand',
+         dataType: finalKey,
+         localCache: localCache
+     }, function (vals) {
+         var res = vals.value
+         var finaData = vals.final.data
+         var totalCont = vals.final.recordCount
+         var resData = []
+         var length = res.payRate.length
+         for (var j = 0; j < length; j++) {
+            var obj = {
+                shop: {}
+            }
+            obj.shop = {
+                title: finaData[j].brandModel.brandName,
+                url: '//img.alicdn.com/tps/' + finaData[j].brandModel.logo
+            }
+            var cateRnkId = finaData[j].cateRankId
+            obj.cate_cateRankId = cateRnkId ? cateRnkId.value : '-';
+            obj.tradeIndex = res.tradeIndex[j];
+            if (chooseTop) {
+                obj.uvIndex =res.uvIndex[j];
+                obj.seIpv = res.seIpv[j];
+                obj.cltHit = res.cltHit[j];
+                obj.cartHit = res.cartHit[j];
+                obj.payRate = res.payRate[j] ? (res.payRate[j] * 100).toFixed(2) + '%' : '-';
+                obj.payByr = Math.floor(res.uvIndex[j] * res.payRate[j]);
+                obj.kdPrice = formulaRate(res.tradeIndex[j], obj.payByr);
+                obj.uvPrice = formulaRate(res.tradeIndex[j], res.uvIndex[j], 1)
+                obj.searRate = formulaRate(res.seIpv[j], res.uvIndex[j], 1)
+                obj.scRate = formulaRate(res.cltHit[j], res.uvIndex[j], 1)
+                obj.jgRate = formulaRate(res.cartHit[j], res.uvIndex[j], 1)
+            }
+            resData.push(obj)
+         }
+         if (pageType) {
+             if (totalCont > resData.length) {
+                 var visualData = []
+                 for (let i = 0; i < totalCont; i++) {
+                     visualData.push(resData[0])
+                 }
+                 var vStart = visualData.slice(0, (curPage - 1) * curPageSize)
+                 var vEndIndex = (curPage - 1) * curPageSize + curPageSize
+                 var vEnd = vEndIndex < totalCont ? visualData.slice(vEndIndex) : []
+                 resData = vStart.concat(resData, vEnd)
+             }
+             var cols = []
+             if (!chooseTop) {
+                 cols = [{
+                         data: 'shop',
+                         title: '品牌信息',
+                         class: 'info',
+                         render: function (data, type, row, meta) {
+                             return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                         }
+                     },
+                     {
+                         data: 'cate_cateRankId',
+                         title: '行业排名',
+                     },
+                     {
+                         data: 'tradeIndex',
+                         title: '交易金额',
+                     }
+                 ]
+             } else {
+                 cols = [{
+                         data: 'shop',
+                         title: '品牌信息',
+                         class: 'info',
+                         render: function (data, type, row, meta) {
+                             return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                         }
+                     },
+                     {
+                         data: 'cate_cateRankId',
+                         title: '行业排名',
+                     },
+                     {
+                         data: 'tradeIndex',
+                         title: '交易金额',
+                     },
+                     {
+                         data: 'uvIndex',
+                         title: '访客人数',
+                     },
+                     {
+                         data: 'seIpv',
+                         title: '搜索人数',
+                     },
+                     {
+                         data: 'cltHit',
+                         title: '收藏人数',
+                     }, 
+                     {
+                         data: 'cartHit',
+                         title: '加购人数',
+                     }, 
+                     {
+                         data: 'payRate',
+                         title: '支付转化率',
+                     }, 
+                     {
+                         data: 'payByr',
+                         title: '支付人数',
+                     }, 
+                     {
+                         data: 'kdPrice',
+                         title: '客单价',
+                     },
+                      {
+                         data: 'uvPrice',
+                         title: 'UV价值',
+                     }, 
+                     {
+                         data: 'searRate',
+                         title: '搜索占比',
+                     }, 
+                     {
+                         data: 'scRate',
+                         title: '收藏率',
+                     }, 
+                     {
+                         data: 'jgRate',
+                         title: '加购率',
+                     }
+                 ]
+             }
+             domStructMark({
+                 data: resData,
+                 cols: cols,
+                 paging: {
+                     page: curPage,
+                     pageSize: curPageSize
+                 }
+             }, '品牌列表', 1)
+         } else {
+             for (var j = 0; j < curPageSize; j++) {
+                 tableInstance.row((curPage - 1) * curPageSize + j).data(resData[j])
+             }
+             $('.chaqz-wrapper .chaqz-mask').hide(100)
+         }
+     }, window.dataWrapper)
+}
+function compBrandIndex(){//竞品分析-关键指标
+     if (!isNewVersion()) {
+         return false
+     }
+     var selectInfo = getCompareBrands();
+     var localKey = getSearchParams('compBrandIndex',1,10,'local',{
+         userId: selectInfo.keys
+     })
+     var localData = localStorage.getItem(localKey);
+     if (!localData) {
+         popTip('获取数据失败')
+         return false;
+     }
+     var reductData = JSON.parse(filterLocalData(localData));
+     var sendData = filterCompareShopAnaly(reductData,3,0,selectInfo.indexName)
+        dealIndex({
+            type: 'dealTrend',
+            dataType: sendData
+        }, function (val) {
+            var transData = val.value;
+            var tableData = [];
+            var comItmeArr = selectInfo.resData;
+            var indexNames = selectInfo.indexName;
+            for (let i = 0; i < comItmeArr.length; i++) {
+                var obj = {
+                    shop: {}
+                };
+                obj.tradeIndex = transData.tradeIndex[i];
+                obj.uvIndex = transData.uvIndex[i];
+                obj.seIpvUvHits = transData.seIpvUvHits[i];
+                obj.cltHit = transData.cltHits[i];
+                obj.cartHit = transData.cartHits[i];
+                obj.payByrCntIndex = transData.payByrCntIndex[i];
+                obj.payRateIndex = (transData.payRateIndex[i] * 100).toFixed(2) + '%';
+                obj.kdPrice = (transData.tradeIndex[i] == '超出范围' || !transData.payByrCntIndex[i]) ? '-' : (transData.tradeIndex[i] / transData.payByrCntIndex[i]).toFixed(2);
+                obj.uvPrice = (transData.tradeIndex[i] == '超出范围' || !transData.uvIndex[i]) ? '-' : (transData.tradeIndex[i] / transData.uvIndex[i]).toFixed(2);
+                obj.searchRate = transData.uvIndex[i] ? (transData.seIpvUvHits[i] / transData.uvIndex[i] * 100).toFixed(2) : '-';
+                obj.cltRate = transData.uvIndex[i] ? (transData.cltHits[i] / transData.uvIndex[i] * 100).toFixed(2) : '-';
+                obj.carRate = transData.uvIndex[i] ? (transData.cartHits[i] / transData.uvIndex[i] * 100).toFixed(2) : '-';
+                obj.slrCnt = reductData[indexNames[i]].slrCnt.value;
+                obj.paySlrCnt = reductData[indexNames[i]].paySlrCnt.value;
+                obj.categroy = selectInfo.keyword[i];
+                obj.shop.title = comItmeArr[i].name;
+                obj.shop.url = '//img.alicdn.com/tps/'+ comItmeArr[i].picUrl;
+                obj.shopId = comItmeArr[i].brandId;
+                tableData.push(obj);
+            }
+            var cols = [{
+                    data: 'categroy',
+                    title: '类别'
+                },
+                {
+                    data: 'shop',
+                    title: '品牌信息',
+                    class: 'info',
+                    render: function (data, type, row, meta) {
+                        return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                    }
+                },
+                {
+                    data: 'shopId',
+                    title: '品牌ID'
+                },
+                {
+                    data: 'tradeIndex',
+                    title: '交易金额'
+                },
+                {
+                    data: 'uvIndex',
+                    title: '访客人数'
+                },
+                {
+                    data: 'seIpvUvHits',
+                    title: '搜索人数'
+                },
+                {
+                    data: 'cltHit',
+                    title: '收藏人数'
+                },
+                {
+                    data: 'cartHit',
+                    title: '加购人数'
+                },
+                {
+                    data: 'payByrCntIndex',
+                    title: '支付人数'
+                },
+                {
+                    data: 'payRateIndex',
+                    title: '支付转化率'
+                },
+                {
+                    data: 'kdPrice',
+                    title: '客单价'
+                },
+                {
+                    data: 'uvPrice',
+                    title: 'uv价值'
+                },
+                {
+                    data: 'searchRate',
+                    title: '搜索占比'
+                },
+                {
+                    data: 'cltRate',
+                    title: '收藏率'
+                },
+                {
+                    data: 'carRate',
+                    title: '加购率'
+                },
+                {
+                    data: 'paySlrCnt',
+                    title: '有支付卖家数'
+                },
+                {
+                    data: 'slrCnt',
+                    title: '支付商品数'
+                }
+            ];
+            domStruct({
+                data: tableData,
+                cols: cols
+            }, '品牌关键词指标对比')
+        })
+}
+function compareBrandTrend(){
+     if (!isNewVersion()) {
+         return false
+     }
+     var selectInfo = getCompareBrands();
+     var localKey = getSearchParams('compBrandIndex', 1, 10, 'local', {
+         userId: selectInfo.keys,
+         type:'trend'
+     })
+     var localData = localStorage.getItem(localKey);
+     if (!localData) {
+         popTip('获取数据失败')
+         return false;
+     }
+     var reductData = JSON.parse(filterLocalData(localData));
+     var sendData = filterCompareShopAnaly(reductData, 3, 1, selectInfo.indexName)
+     dealIndex({
+         type: 'dealTrend',
+         dataType: sendData
+     }, function (val) {
+         var transData = val.value;
+         var tableData = [];
+         var comItmeArr = selectInfo.resData;
+         var indexNames = selectInfo.indexName;
+         var month30Days = monthDays();
+         for (let i = 0; i < 30; i++) {
+             for (let j = 0; j < indexNames.length; j++) {
+                 var obj = {
+                     shop: {}
+                 };
+                 var cot = i;
+                 if (j > 0) {
+                     cot = j * 30 + i;
+                 }
+                 obj.date = month30Days[i];
+                 obj.tradeIndex = transData.tradeIndex[cot];
+                 obj.uvIndex = transData.uvIndex[cot];
+                 obj.seIpvUvHits = transData.seIpvUvHits[cot]? transData.seIpvUvHits[cot]:'-';
+                 obj.cltHit = transData.cltHits[cot];
+                 obj.cartHit = transData.cartHits[cot];
+                 obj.payByrCntIndex = transData.payByrCntIndex[cot];
+                 obj.payRateIndex = (transData.payRateIndex[cot] * 100).toFixed(2) + '%';
+                 obj.kdPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.payByrCntIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.payByrCntIndex[cot]).toFixed(2);
+                 obj.uvPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.uvIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.uvIndex[cot]).toFixed(2);
+                 obj.searchRate = transData.uvIndex[cot] ? (transData.seIpvUvHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
+                 obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
+                 obj.carRate = transData.uvIndex[cot] ? (transData.cartHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
+                 obj.slrCnt = reductData[indexNames[j]].slrCnt ? reductData[indexNames[j]].slrCnt[i]:'-';
+                 obj.paySlrCnt = reductData[indexNames[j]].paySlrCnt ? reductData[indexNames[j]].paySlrCnt[i]:'-';
+                 obj.categroy = selectInfo.keyword[j];
+                 obj.shop.title = comItmeArr[j].name;
+                 obj.shop.url = '//img.alicdn.com/tps/' + comItmeArr[j].picUrl;
+                 obj.shopId = comItmeArr[j].brandId;
+                tableData.push(obj);
+             }
+         }
+         var cols = [{
+                 data: 'date',
+                 title: '日期'
+             },
+             {
+                 data: 'categroy',
+                 title: '类别'
+             },
+             {
+                 data: 'shop',
+                 title: '品牌信息',
+                 class: 'info',
+                 render: function (data, type, row, meta) {
+                     return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                 }
+             },
+             {
+                 data: 'shopId',
+                 title: '品牌ID'
+             },
+             {
+                 data: 'tradeIndex',
+                 title: '交易金额'
+             },
+             {
+                 data: 'uvIndex',
+                 title: '访客人数'
+             },
+             {
+                 data: 'seIpvUvHits',
+                 title: '搜索人数'
+             },
+             {
+                 data: 'cltHit',
+                 title: '收藏人数'
+             },
+             {
+                 data: 'cartHit',
+                 title: '加购人数'
+             },
+             {
+                 data: 'payByrCntIndex',
+                 title: '支付人数'
+             },
+             {
+                 data: 'payRateIndex',
+                 title: '支付转化率'
+             },
+             {
+                 data: 'kdPrice',
+                 title: '客单价'
+             },
+             {
+                 data: 'uvPrice',
+                 title: 'uv价值'
+             },
+             {
+                 data: 'searchRate',
+                 title: '搜索占比'
+             },
+             {
+                 data: 'cltRate',
+                 title: '收藏率'
+             },
+             {
+                 data: 'carRate',
+                 title: '加购率'
+             },
+              {
+                  data: 'paySlrCnt',
+                  title: '有支付卖家数'
+              }, {
+                  data: 'slrCnt',
+                  title: '支付商品数'
+              }
+         ];
+         domStruct({
+             data: tableData,
+             cols: cols
+         }, '品牌关键指标趋势图')
+     })
+}
+function compBrandTop10(paramId, index, cateType) {
+     if (!isNewVersion()) {
+         return false
+     }
+     var curBrandId = '';
+     index = index ? index:0;
+     var selectInfo = getCompareBrands();
+     var seleItems = selectInfo.resData;
+     var chinaName = selectInfo.keyword;
+     if(!paramId){
+        var tabsHtml = '';
+        curBrandId = seleItems[0].brandId;
+        for (let i = 0; i < seleItems.length; i++) {
+            var isActive = i==0? 'active':'';
+            var hasShop = cateType?'shops':'';
+            tabsHtml += '<button class="switchBtn ' + isActive + ' switchBrandTop ' + hasShop + '" data-id=' + seleItems[i].brandId + '>' + chinaName[i] + '</button>';
+        }
+        tabsHtml = '<div class="chaqz-top-tabs">' + tabsHtml + '</div>';
+     }
+     curBrandId = paramId ? paramId : curBrandId;
+     var tabsId = cateType ? '#brandAnalysisShops' : '#brandAnalysisItems';
+     var tabsSelect = $('.op-mc-brand-analysis ' + tabsId + ' .oui-tab-switch-item-active').index(); //热销流量选择
+     var topType = tabsSelect?'flow':'trade';
+     var localKey = getSearchParams('compBrandTopItems', 1, 10, 'local', {
+         brandId: curBrandId,
+         topType: topType,
+         categroy: cateType
+     })
+     var localData = localStorage.getItem(localKey);
+     if (!localData) {
+         popTip('获取数据失败')
+         return false;
+     }
+     var reductData = JSON.parse(filterLocalData(localData));
+     var sendData = {};
+     if (tabsSelect) {
+         sendData.uvIndex = filterSearchRank(reductData, 'uvIndex', 'value')
+     } else {
+         sendData.tradeIndex = filterSearchRank(reductData, 'tradeIndex', 'value')
+     }
+      dealIndex({
+          type: 'dealTrend',
+          dataType: sendData
+      }, function (val) {
+          var transData = tabsSelect ? val.value.uvIndex : val.value.tradeIndex;
+          var tableData = [];
+          var len = reductData.length;
+          for (let i = 0; i < len; i++) {
+              var obj = {
+                  items: {},
+                  brand:{}
+              };
+              obj.tradeIndex = transData[i];
+              obj.brand.title = seleItems[index].name;
+              obj.brand.url = '//img.alicdn.com/tps/'+ seleItems[index].picUrl;
+              obj.brandId = seleItems[index].brandId;
+              obj.blogShop = reductData[i].shop.title ? reductData[i].shop.title:'-';
+              obj.blogShopId = reductData[i].shop.userId;
+              if (cateType){
+                 obj.items.title = reductData[i].shop.title;
+                 obj.items.url = reductData[i].shop.pictureUrl;
+                 obj.itemId = reductData[i].shop.userId;
+              }else{
+                 obj.items.title = reductData[i].item.title;
+                 obj.items.url = reductData[i].item.pictUrl;
+                 obj.itemId = reductData[i].item.userId;
+              }
+             
+              tableData.push(obj);
+          }
+          var titleName = tabsSelect ? '访客人数' : '交易金额';
+          var topName = tabsSelect ? '流量' : '热销';
+          var shopItmeName = cateType?'店铺': '商品';
+          var cols = [
+              {
+                  data: 'brand',
+                  title: '品牌信息',
+                  class: 'info',
+                  render: function (data, type, row, meta) {
+                      return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                  }
+              }, 
+              {
+                  data: 'brandId',
+                  title: '品牌ID'
+              }, 
+              {
+                  data: 'items',
+                  title: shopItmeName + '信息',
+                  class: 'info',
+                  render: function (data, type, row, meta) {
+                      return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                  }
+              }, 
+              {
+                  data: 'itemId',
+                  title: shopItmeName +'ID'
+              },
+               {
+                  data: 'blogShop',
+                  title: '所属店铺'
+              }, 
+              {
+                  data: 'blogShopId',
+                  title: '所属店铺ID'
+              },
+              {
+                  data: 'tradeIndex',
+                  title: titleName
+              },
+          ];
+          if (tabsHtml) {
+              domStruct({
+                  data: tableData,
+                  cols: cols,
+                  tabs: tabsHtml
+              }, 'TOP商品榜-' + topName)
+          } else {
+              tableInstance.clear();
+              tableInstance.rows.add(tableData).draw();
+          }
+
+      })
+}
+function brandCustomer(){
+     if (!isNewVersion()) {
+         return false
+     }
+     var tabSelectDom = $('.mc-brandCustomer #sycmMqBrandCunstomer .ant-radio-checked');//选择项
+    //  var tabIndex = tabSelectDom.parent().index();
+     var selIndex = tabSelectDom.find('.ant-radio-input').val();
+     var selectInfo = getCompareBrands(1);
+     var diffBrandId = selectInfo.selectIds;
+     diffBrandId.length = 3;
+     diffBrandId = diffBrandId.join(',');
+     var localKey = getSearchParams('BrandCustonerTrend', 1, 10, 'local', {
+         diffId: diffBrandId,
+         indexCode: selIndex
+     })
+     var localData = localStorage.getItem(localKey);
+     if (!localData) {
+         popTip('获取数据失败')
+         return false;
+     }
+     var reductData = JSON.parse(filterLocalData(localData));
+     var sendData = filterBrandCustomer(reductData, selectInfo.selectIds);
+     dealIndex({
+         type: 'dealTrend',
+         dataType: sendData
+     }, function (val) {
+         var transData = val.value;
+         var tableData = [];
+         var comItmeArr = selectInfo.resData;
+         var indexNames = selectInfo.indexName;
+         var month30Days = monthDays();
+         for (let i = 0; i < 30; i++) {
+             for (let j = 0; j < indexNames.length; j++) {
+                 var obj = {
+                     shop: {}
+                 };
+                 var cot = i;
+                 if (j > 0) {
+                     cot = j * 30 + i;
+                 }
+                 obj.date = month30Days[i];
+                 obj.tradeIndex = transData.tradeIndex[cot];
+                 obj.payByrCntIndex = transData.payByrCntIndex[cot];
+                 obj.payRateIndex = (transData.payRateIndex[cot] * 100).toFixed(2) + '%';
+                 obj.categroy = selectInfo.keyword[j];
+                 obj.shop.title = comItmeArr[j].name;
+                 obj.shop.url = '//img.alicdn.com/tps/' + comItmeArr[j].picUrl;
+                 obj.shopId = comItmeArr[j].brandId;
+                 tableData.push(obj);
+             }
+         }
+         var cols = [{
+                 data: 'date',
+                 title: '日期'
+             },
+             {
+                 data: 'categroy',
+                 title: '类别'
+             },
+             {
+                 data: 'shop',
+                 title: '品牌信息',
+                 class: 'info',
+                 render: function (data, type, row, meta) {
+                     return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                 }
+             },
+             {
+                 data: 'shopId',
+                 title: '品牌ID'
+             },
+             {
+                 data: 'payByrCntIndex',
+                 title: '支付人数'
+             },
+             {
+                 data: 'tradeIndex',
+                 title: '交易金额'
+             },
+             {
+                 data: 'payRateIndex',
+                 title: '支付转化率'
+             },
+         ];
+         domStruct({
+             data: tableData,
+             cols: cols
+         }, '客群趋势')
+     })
+}
+function filterBrandCustomer(data,  filterArr) {//过滤品牌客群index
+    var resIndex = {
+        payByrCntIndex:[],
+        payRateIndex:[],
+        tradeIndex:[]
+    };
+    for (let i = 0; i < filterArr.length; i++) {
+        var pKey = filterArr[i];
+        var kindData = data[pKey];
+        if (!kindData) {
+            continue;
+        }
+        resIndex.payByrCntIndex = resIndex.payByrCntIndex.concat(data[pKey].payByrCntIndex);
+        resIndex.payRateIndex = resIndex.payRateIndex.concat(data[pKey].payRateIndex);
+        resIndex.tradeIndex = resIndex.tradeIndex.concat(data[pKey].tradeIndex);
+    }
+    return resIndex
+}
+// 品牌客群-all
+function brandPersonAll() {
+    if (!isNewVersion()) {
+        return false
+    }
+    LoadingPop('show')
+    var selectInfo = getCompareBrands(1);
+     var diffBrandId = selectInfo.selectIds.slice(0);
+     diffBrandId.length = 3;
+     diffBrandId = diffBrandId.join(',');
+    $('#completeShopPortrait .mc-Portrait .ant-radio-wrapper').eq(0).click();
+    cycleFindPerson( {
+        step: 0,
+        res: {},
+        diffBrandId: diffBrandId,
+        selectInfo: selectInfo
+    })
+}
+
+function cycleFindPerson( extra) {
+    var typeItems = ['payByrCntIndex', 'payByrCntRate', 'tradeIndex', 'payRateIndex'];
+    var curStep = extra.step;
+    var keys = getSearchParams('brandPersonAll', 1, 10, 'local', {
+        attrType: 'all',
+        diffId: extra.diffBrandId,
+        indexCode: typeItems[curStep]
+    })
+    var localItemData = localStorage.getItem(keys);
+    if (localItemData) {
+        var reductData = JSON.parse(filterLocalData(localItemData));
+        if (curStep > 2) {
+            extra.res[typeItems[curStep]] = reductData;
+            brandPersonShow(extra.res, extra.selectInfo)
+            console.log(extra.res);
+        } else {
+            var nextStep = curStep + 1;
+            setTimeout(function () {
+                extra.res[typeItems[curStep]] = reductData;
+               $('#completeShopPortrait .mc-Portrait .ant-radio-wrapper').eq(nextStep).click();
+                extra.step = nextStep;
+                cycleFindPerson( extra)
+            }, 300)
+
+        }
+    } else {
+        setTimeout(function () {
+            if (COUNT > 20) {
+                popTip('获取数据失败！')
+                LoadingPop()
+                return false;
+            } else {
+                COUNT++
+                cycleFindPerson( extra)
+            }
+        }, 350)
+    }
+}
+
+function brandPersonShow(indexData, selectInfo) {
+    var resBox = {
+        payByrCntIndex:[],
+        payByrCntRate: [],
+        payRateIndex: [],
+        tradeIndex: []
+    }
+    var seleItems = selectInfo.resData;
+    var selecIds = selectInfo.selectIds;
+    for (let i = 0; i < selecIds.length; i++) {
+        resBox.payByrCntIndex.push(indexData.payByrCntIndex[selecIds[i]][0].value)
+        resBox.payByrCntRate.push(indexData.payByrCntRate[selecIds[i]][0].value)
+        resBox.payRateIndex.push(indexData.payRateIndex[selecIds[i]][0].value)
+        resBox.tradeIndex.push(indexData.tradeIndex[selecIds[i]][0].value)
+    }
+    dealIndex({
+        type: 'dealTrend',
+        dataType: {
+            payByrCntIndex: resBox.payByrCntIndex,
+            payRateIndex: resBox.payRateIndex,
+            tradeIndex: resBox.tradeIndex
+        }
+    }, function (val) {
+        var transData = val.value;
+        var tableData = [];
+        var len = selecIds.length;
+        for (let i = 0; i < len; i++) {
+            var obj = {
+                brand:{}
+            };
+            obj.brand.title = seleItems[i].name;
+            obj.brand.url = '//img.alicdn.com/tps/' + seleItems[i].picUrl;
+            obj.brandId = seleItems[i].brandId;
+            obj.payByrCntIndex = transData.payByrCntIndex[i];
+            obj.paybarRate = resBox.payByrCntRate[i];
+            obj.tradeIndex = transData.tradeIndex[i];
+            obj.payrate = transData.payRateIndex[i] ? (transData.payRateIndex[i] * 100).toFixed(2) + '%' : '';
+            tableData.push(obj)
+        }
+        var cols = [{
+                data: 'brand',
+                title: '品牌信息',
+                class: 'info',
+                render: function (data, type, row, meta) {
+                    return '<img src="' + data.url + '"><span>' + data.title + '</span>';
+                }
+            },
+            {
+                data: 'brandId',
+                title: '品牌ID',
+            },
+            {
+                data: 'payByrCntIndex',
+                title: '支付人数',
+            },
+            {
+                data: 'paybarRate',
+                title: '客群占比',
+            },
+            {
+                data: 'tradeIndex',
+                title: '交易金额',
+            },
+            {
+                data: 'payrate',
+                title: '支付转化率',
+            }
+        ]
+        domStructMark({
+            data: tableData,
+            cols: cols,
+            paging: {}
+        }, '品牌客群-属性画像')
+    })
+}
+function brandProvce(type, selectItem) { //属性分析-city-prov
+    if (!isNewVersion()) {
+        return false
+    }
+    selectItem = selectItem ? selectItem:0;
+    var tabSelect = $('#completeShopPortrait .mc-Portrait .ant-radio-wrapper-checked').index();
+    // 品牌选择信息
+    var selectInfo = getCompareBrands(1);
+    var seleItems = selectInfo.resData;
+    var sleList = selectInfo.selectIds;
+    var chinaName = selectInfo.keyword;
+    var tabsHtml = '';
+    // var curBrandId = seleItems[0].brandId;
+    for (let i = 0; i < seleItems.length; i++) {
+        var isActive = i == 0 ? 'active' : '';
+        tabsHtml += '<button class="switchBtn ' + isActive + ' switchBrandCity" data-id=' + seleItems[i].brandId + '>' + chinaName[i] + '</button>';
+    }
+    tabsHtml = '<div class="chaqz-top-tabs">' + tabsHtml + '</div>';
+    COMP_ITEM_INFO = {
+        type: type
+    }
+    var typeItems = ['payByrCntIndex', 'payByrCntRate', 'tradeIndex', 'payRateIndex'];
+    var curAttrType = typeItems[tabSelect];
+    var diffBrandId = selectInfo.selectIds.slice(0);
+    diffBrandId.length = 3;
+    diffBrandId = diffBrandId.join(',');
+    var localKey = getSearchParams('brandPersonAll', 1, 10, 'local', {
+        attrType: type,
+        diffId: diffBrandId,
+        indexCode: curAttrType
+    })
+    var localData = localStorage.getItem(localKey);
+    if (!localData) {
+        popTip('数据获取失败！')
+        return false;
+    }
+    var reduceData = JSON.parse(filterLocalData(localData));
+    var choseBrandId = selectItem ? sleList[selectItem] : sleList[0];
+    var filteDa = reduceData[choseBrandId] ? reduceData[choseBrandId] : [];
+    if (curAttrType != 'payByrCntRate') {
+        var sendArr = filterSearchRank(filteDa, 'value');
+        var sendData = {};
+        sendData[curAttrType] = sendArr
+        dealIndex({
+            type: 'dealTrend',
+            dataType: sendData
+        }, function (val) {
+            brandProvceShow({
+                type:type,
+                word: seleItems[selectItem].name,
+                tabs: tabsHtml,
+                selType: curAttrType,
+                oldData: filteDa,
+                data: val.value[curAttrType]
+            })
+        })
+    } else {
+        brandProvceShow({
+            type: type,
+            word: seleItems[selectItem].name,
+            tabs: tabsHtml,
+            selType: curAttrType,
+            oldData: filteDa
+        })
+    }
+}
+
+function brandProvceShow(oriData) {
+    var tableData = [];
+    var transInfo = oriData.oldData;
+    var isTrans = oriData.data?true:false;
+    var transData = oriData.data ? oriData.data:[];
+    var curType = oriData.selType;
+    var len = transInfo.length;
+    for (let i = 0; i < len; i++) {
+        var obj = {};
+        obj.rank = i + 1;
+        obj.type = transInfo[i].name;
+        if (isTrans){
+             obj.count = curType == 'payRateIndex' ? (transData[i]*100).toFixed(2)+'%' : transData[i];
+        }else{
+            obj.count = transInfo[i].value;
+        }
+        obj.count = isTrans ? transData[i] : transData[i].value ? (oriData[i].value * 100).toFixed(2) + '%' : '-';
+        tableData.push(obj)
+    }
+    var whre = oriData.type == 'prov' ? '省份' : "城市";
+    var numWord = {
+        payByrCntIndex: '支付人数',
+        payByrCntRate: '客群占比',
+        tradeIndex: '交易金额',
+        payRateIndex: '支付转化率',
+    }
+    var cols = [{
+            data: 'rank',
+            title: '排名'
+        },
+        {
+            data: 'type',
+            title: whre
+        },
+        {
+            data: 'count',
+            title: numWord[curType]
+        },
+    ];
+    if ($('.chaqz-wrapper').length) {
+        tableInstance.clear();
+        tableInstance.rows.add(tableData).draw();
+        $('.chaqz-wrapper .chaqz-table-title').text('品牌：' + oriData.word);
+    } else {
+        domStruct({
+            data: tableData,
+            cols: cols,
+            paging: {
+
+            },
+            tabs: oriData.tabs
+        }, '品牌:' + oriData.word)
     }
 }

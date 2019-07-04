@@ -211,6 +211,10 @@ $(function () {
                 $('.mc-searchCustomer #completeShopPortrait .portrait-container').eq(3).find('.portrait-title').append(showBtn())
                 $('.mc-searchCustomer #completeShopPortrait .portrait-container').eq(4).find('.portrait-title').append(showBtn())
             }
+            if (!$('.mc-brandCustomer #completeShopPortrait .portrait-container').eq(3).find('#search').length) {
+                $('.mc-brandCustomer #completeShopPortrait .portrait-container').eq(3).find('.portrait-title').append(showBtn())
+                $('.mc-brandCustomer #completeShopPortrait .portrait-container').eq(4).find('.portrait-title').append(showBtn())
+            }
         } else if (e.target.id == 'sycmMqIndustryCunstomer') { //行业客群-客群趋势
            $('#sycmMqIndustryCunstomer .oui-card-header-wrapper .oui-card-header-item-pull-left').append(showBtn());
            $('#completeShopPurchase .mc-Purchase .sycm-trade-rank-table-title').append(showBtn());
@@ -225,16 +229,35 @@ $(function () {
         } else if (e.target.className == 'op-mc-rival-trend-analysis op-mc-shop-recognition-trend-analysis oui-card') { //竞争-竞店识别
             $('.op-mc-shop-recognition .op-mc-rival-trend-analysis-chart-container-title').append(showBtn());
             $('.op-mc-shop-recognition #shopRecognitionDrainShopList .oui-card-header-wrapper .oui-card-header-item-pull-left').html(showBtn());
+        } else if (e.target.className == 'op-mc-rival-trend-analysis op-mc-brand-recognition-trend-analysis oui-card') { //竞争-品牌识别
+            $('.op-mc-brand-recognition .op-mc-rival-trend-analysis-chart-container-title').append(showBtn());
         } else if (e.target.className == 'alife-one-design-sycm-indexes-trend op-mc-shop-analysis-trend oui-card') { //竞争-竞店分析
             $('.op-mc-shop-analysis .op-mc-shop-analysis-trend .oui-card-header .oui-card-header-item-pull-left').append(showBtn());
         } else if (e.target.id == 'shopAnalysisItems') { //竞争-竞店分析-top榜单
             $('.op-mc-shop-analysis #shopAnalysisItems .oui-card-header .oui-card-header-item-pull-left').append(showBtn());
-            $('.op-mc-shop-analysis #shopAnalysisItems .oui-card-header .oui-card-header-item-pull-left').append(showBtn());
         } else if (e.target.className == 'recharts-wrapper') {
+            // 趋势分析
            $('.op-mc-shop-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
            $('.op-mc-item-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
-        } else if (e.target.id == 'mqBrandMonitor') {
+           $('.op-mc-brand-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
+        //    品牌客群
+        if (!$('.mc-brandCustomer #sycmMqBrandCunstomer .oui-card-header-item-pull-left #search').length){
+             $('.mc-brandCustomer #sycmMqBrandCunstomer .oui-card-header-item-pull-left').append(showBtn());
+        }
+        } else if (e.target.id == 'mqBrandMonitor') {//监控品牌
             $('.mc-brandMonitor .oui-card-header-wrapper .oui-card-title').append(showBtn());
+        } else if (e.target.id == 'itemAnalysisKeyword') {//竞品分析-关键词
+            $('.op-mc-item-analysis .oui-card-header-wrapper .oui-card-title').append(showBtn());
+        } else if (e.target.id == 'brandAnalysisShops') {
+            $('.op-mc-brand-analysis #brandAnalysisShops .oui-card-title').append(showBtn());
+        } else if (e.target.id == 'brandAnalysisTrend') { //竞争-品牌关键指标对比
+            $('.op-mc-brand-analysis #brandAnalysisTrend .oui-card-header').append(showBtn('keyRight'))
+        } else if (e.target.id == 'brandAnalysisItems') { //品牌分析-top榜单
+            $('.op-mc-brand-analysis #brandAnalysisItems .oui-card-header-wrapper .oui-card-title').append(showBtn());
+        } else if (e.target.className == 'portrait-content-bar') { //品牌分析-top榜单
+            if (!$('.mc-brandCustomer #completeShopPortrait .oui-card-header-wrapper #search').length) {
+                $('.mc-brandCustomer #completeShopPortrait .oui-card-title').append(showBtn())
+            }
         }
     });
 })
@@ -631,7 +654,7 @@ function bubbleSort(data) {
 function searchWhatType(url){
     var typeArr = ['shop','item','brand'];
     var res = '';
-    url = url.toLowerCase();
+    url = url.split('?')[0].toLowerCase();
     for (let i = 0; i < typeArr.length; i++) {
         const element = typeArr[i];
         if (url.indexOf(element) != -1){

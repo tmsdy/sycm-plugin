@@ -157,6 +157,9 @@
  //  index transfrom rules
  var indexTrans = {
      findType:function(num){
+          if (num == undefined) {
+              return 0
+          }
         if (num >= 0 && num < 3000) {
             return indexTrans.rang1(num)
         } else if (num >= 3000 && num < 20000) {
@@ -190,6 +193,9 @@
         }
      },
      findRateType:function(num){
+         if(num==undefined){
+             return 0
+         }
          if (num >= 0 && num < 23) {
              return indexTrans.rangRate1(num)
          } else if (num >= 23 && num < 70) {

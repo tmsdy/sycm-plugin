@@ -239,7 +239,7 @@ export function changeLoginStatus(type) {
         // $('.chaqz-compete-wrap').remove();
     } else {
         $('.chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button>' );
-        $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header .chaqz-btns').html('<button id="search" class="serachBtn"></button><button id="vesting" class="serachBtn vesting">一键加权</button>');
+        $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header .chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button><button id="vesting" class="serachBtn vesting">一键加权</button>');
         $('.op-mc-search-analyze-container .ebase-Switch__root .chaqz-btns').html('<button id="search" class="serachBtn">一键分析</button>');
         if ($('.chaqz-compete-wrap').length){
             return false;
