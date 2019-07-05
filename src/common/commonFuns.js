@@ -146,11 +146,11 @@ export function operatcPmpareData(v1, v2, v3) {
         result.num1 = '-';
         result.num2 = '-';
     } else if (!v3 || v3 == '-') {
-        result.num1 = Math.round(v1 * v2 / 100)
+        result.num1 = Math.round(v1 * v2 )
         result.num2 = '-';
     } else {
-        result.num1 = Math.round(v1 * v2 / 100)
-        result.num2 = result.num1 ? Math.round((v3 / result.num1) * 100).toFixed(2) / 100 : '-';
+        result.num1 = Math.round(v1 * v2 )
+        result.num2 = result.num1 ? (v3 / result.num1).toFixed(2) : '-';
     }
     return result
 }
@@ -168,11 +168,11 @@ export function computedPayByr(v1, v2, v3) {
         v2 = (v2 + '').replace(',', '').slice(0, -1);
         v3 = (v3 + '').replace(',', '');
         var del = v1 * v2
-        result.res1 = Math.round(del / 100)
+        result.res1 = Math.round(del)
         if (v3 == '-') {
             result.res2 = '-'
         } else {
-            result.res2 = del ? Math.round((v3 / del) * 10000) / 100 : '-'
+            result.res2 = del ? (v3 / del).toFixed(2) : '-'
         }
     }
     return result

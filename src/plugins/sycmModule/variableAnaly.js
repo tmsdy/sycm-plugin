@@ -1158,7 +1158,7 @@ function concatArr(decryData, decryDataTwo) {
                         obj.date = tableDateArr[i]
                         obj.tradeIndex = res.tradeIndex[i] == '超出范围,请使用插件最高支持7.8亿' ? '-' : res.tradeIndex[i]
                         obj.uvIndex = res.uvIndex[i]
-                        obj.payRate = res.payRateIndex[i] + "%";
+                        obj.payRate = (res.payRateIndex[i]*100).toFixed(2) + "%";
                         obj.uvPrice = formula(obj.tradeIndex, res.uvIndex[i], 1)
                         if (type == 'cross'){
                             if (res.payByrCntIndex){
@@ -1175,7 +1175,7 @@ function concatArr(decryData, decryDataTwo) {
                               resData.push(obj);
                               continue;
                         }
-                        var paybyr = res.payRateIndex[i] * res.uvIndex[i] / 100;
+                        var paybyr = res.payRateIndex[i] * res.uvIndex[i];
                         obj.payByr = isNaN(paybyr) ? '-' : Math.floor(paybyr);
                         obj.kdPrice = formula(obj.tradeIndex, res.payItemCnt[i], 1)
                         obj.seIpv = res.seIpvUvHits[i]

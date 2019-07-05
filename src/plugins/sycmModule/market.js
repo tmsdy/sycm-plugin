@@ -1754,7 +1754,7 @@ function analyRelatedTable(){//相关分析
             obj.clickHits = indexVal.clickHits[i];
             obj.p4pAmt = reductData[i].p4pAmt ? (reductData[i].p4pAmt*1).toFixed(2) : '-';
             if (!selectItem) {
-                obj.clickRate = (reductData[i].clickRate).toFixed(2) + '%';
+                obj.clickRate = (reductData[i].clickRate*100).toFixed(2) + '%';
                 obj.trade = indexVal.tradeIndex[i];
                 obj.sePvIndex = indexVal.sePvIndex[i];
                 obj.clickhot = indexVal.clickHot[i];

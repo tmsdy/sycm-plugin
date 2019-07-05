@@ -2565,7 +2565,7 @@ function MonitorItem(pageType) {
                   var payRate = j == 0 ? findRes.selfItem.payRate[i] : itemAcct == 3 ? findRes['rivalItem' + j].payRate[i] : findRes[wItem].payRate[i];
                   obj.tradeIndex = Math.round(tradeIndex)
                   obj.uvIndex = uv ? Math.round(uv) : '-'
-                  obj.payRate = payRate.toFixed(2) + '%'
+                  obj.payRate = (payRate*100).toFixed(2) + '%'
                   obj.payByr = Math.round(payByr)
                   obj.kdPrice = formula(delePoint(tradeIndex), delePoint(payByr), 1)
                   obj.uvPrice = formula(delePoint(tradeIndex), delePoint(uv), 1)
@@ -2673,7 +2673,7 @@ function MonitorItem(pageType) {
                   var isNumber = isNaN(rateNum);
                   obj.tradeIndex = Math.round(res.tradeIndex[i]);
                   obj.uvIndex = Math.round(res.uvIndex[i]);
-                  obj.payRate = !isNumber ? (rateNum.toFixed(2) + '%') : "-";
+                  obj.payRate = !isNumber ? ((rateNum*100).toFixed(2) + '%') : "-";
                   obj.payByr = operatcPmpareData(res.uvIndex[i], res.payRate[i], res.tradeIndex[i]).num1;
                   obj.kdPrice = operatcPmpareData(res.uvIndex[i], res.payRate[i], res.tradeIndex[i]).num2;
                   obj.uvPrice = formula(res.tradeIndex[i], res.uvIndex[i], 1);
