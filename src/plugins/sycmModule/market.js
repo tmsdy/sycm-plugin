@@ -40,7 +40,7 @@ var rememberPropId = '';
                  "next": "&gt;",
                  "previous": "&lt;"
              },
-             "sEmptyTable": '获取数据失败，请刷新界面'
+             "sEmptyTable": '数据为空。'
          },
          pageLength: paramsPage.pageSize,
          searching: false,
@@ -272,7 +272,7 @@ var rememberPropId = '';
                  "next": "&gt;",
                  "previous": "&lt;"
              },
-             "sEmptyTable": '获取数据失败，请刷新界面',
+             "sEmptyTable": '数据为空。',
             //  zeroRecords:"没有匹配数据"
          },
          searching: false,
@@ -510,7 +510,7 @@ var rememberPropId = '';
                  "previous": "&lt;",
                  "search": "查找记录:"
              },
-             "sEmptyTable": '获取数据失败，请刷新界面'
+             "sEmptyTable": '数据为空。'
          },
          pageLength: pageSize,
         //  searching: false,
@@ -3251,7 +3251,7 @@ $(document).on('click', '#completeShopPurchase .mc-Purchase #search', function (
 $(document).on('click', '.op-mc-property-insight-container .oui-card-header-wrapper #search', function () {
     if ($(this).parents('.oui-card-header').prev().text() == '热销榜单') {
         listPropTable('pageType');
-    }else{
+    } else if ($(this).parents(':contains("属性排行")').length) {
         propHotRank();
     }
 })
@@ -3271,7 +3271,7 @@ $(document).on('click', '.op-mc-property-insight-container .alife-dt-card-common
 $(document).on('click', '.op-mc-product-insight-container .oui-card-header-wrapper #search', function () {
     if ($(this).parents('.oui-card-header').prev().text() == '热销榜单') {
         listProductTable('pageType');
-    }else{
+    } else if ($(this).parents(':contains("产品排行")').length) {
         productHotRank();
     }
 })

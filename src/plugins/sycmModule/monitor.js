@@ -1762,7 +1762,9 @@ function shopCompareAnaly(){
          return false
      }
     var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
+    var isToday = dayIndex == '实 时' ?true:false;//判断是否是实时
     var shopType = $('.op-mc-shop-analysis .op-mc-shop-analysis-trend .oui-card-switch-item-container-active').index();
+    shopType = isToday?0:shopType;
     var selectInfo = getCompareShops();
     var selfInfo = getSelfShopInfo();
     var endKey = selectInfo.keys + '&selfUserId=' + selfInfo.runAsUserId
@@ -1776,7 +1778,7 @@ function shopCompareAnaly(){
         return false;
     }
     var reductData = JSON.parse(filterLocalData(localData));
-    reductData = dayIndex == '实 时' ? reductData.data : reductData;
+    reductData = isToday ? reductData.data: reductData;
     var sendData = filterCompareShopAnaly(reductData, shopType);
     dealIndex({
         type:'dealTrend',
@@ -1978,7 +1980,9 @@ function compareShopTrend() { // 趋势
          return false
      }
     var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
+    var isToday = dayIndex == '实 时' ? true : false; //判断是否是实时
     var shopType = $('.op-mc-shop-analysis .op-mc-shop-analysis-trend .oui-card-switch-item-container-active').index();
+    shopType = isToday ? 0 : shopType;
     var selectInfo = getCompareShops();
     var selfInfo = getSelfShopInfo();
     var endKey = selectInfo.keys + '&selfUserId=' + selfInfo.runAsUserId
@@ -1993,7 +1997,7 @@ function compareShopTrend() { // 趋势
         return false;
     }
     var reductData = JSON.parse(filterLocalData(localData));
-    reductData = dayIndex == '实 时' ? reductData.data : reductData;
+    reductData = isToday ? reductData.data: reductData;
     var sendData = filterCompareShopAnaly(reductData, shopType,1);
     dealIndex({
         type: 'dealTrend',
@@ -2003,11 +2007,11 @@ function compareShopTrend() { // 趋势
         var tableData = [];
         // var length = transData.tradeIndex.length ;
         var comItmeArr = selectInfo.resData;
-        var length = reductData.selfShop.tradeIndex.length;
-        length = length ? length:30;
+        var totalLen = reductData.selfShop.tradeIndex.length;
+        totalLen = totalLen ? totalLen : 30;
         var month30Days = monthDays();
         // var saveSelfData = '';
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < totalLen; i++) {
             var itemNums = selectInfo.locat.length + 1;
             // var saveSelfData = '';
             for (let j = 0; j< itemNums; j++) {
@@ -2016,7 +2020,7 @@ function compareShopTrend() { // 趋势
                };
                var cot = i;
                if(j>0){
-                   cot = j*30+i;
+                   cot = j * totalLen + i;
                }
                obj.date = month30Days[i];
                obj.tradeIndex = transData.tradeIndex[cot];
@@ -2160,6 +2164,7 @@ function getShopFlowSource() {
     var selecItem = $('#sycm-mc-flow-analysis .oui-index-picker-list .ant-radio-wrapper-checked').parent().index();
     var seleName = ['uvIndex', 'payByrCntIndex', 'payRateIndex', 'tradeIndex'][selecItem];
      var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
+     var isToday = dayIndex == '实 时' ? true : false; //判断是否是实时
      var selectInfo = getCompareShops();
      var selfInfo = getSelfShopInfo();
      var endKey = selectInfo.keys + '&selfUserId=' + selfInfo.runAsUserId
@@ -2173,8 +2178,8 @@ function getShopFlowSource() {
          return false;
      }
      var reductData = JSON.parse(filterLocalData(localData));
-     reductData = dayIndex == '实 时' ? reductData.data : reductData;
-     var sendData = filterShopFlowSource(reductData);
+     reductData = isToday ? reductData.data : reductData;
+     var sendData = isToday ? filterShopFlowSource(reductData, 1) : filterShopFlowSource(reductData);
      dealIndex({
          type:'dealTrend',
          dataType: sendData
@@ -2191,10 +2196,10 @@ function getShopFlowSource() {
                          shop: {}
                      };
                      var cot = i;
-                     obj.tradeIndex = transData.tradeIndex[cot];
-                     obj.uvIndex = transData.uvIndex[cot];
-                     obj.payByrCntIndex = transData.payByrCntIndex[cot];
-                     obj.payRateIndex = (transData.payRateIndex[cot] * 100).toFixed(2) + '%';
+                     obj.tradeIndex = transData.tradeIndex[cot]!=undefined ? transData.tradeIndex[cot]:'-';
+                     obj.uvIndex = transData.uvIndex[cot] != undefined ? transData.uvIndex[cot] : '-';
+                     obj.payByrCntIndex = transData.payByrCntIndex[cot] != undefined ? transData.payByrCntIndex[cot] : '-';
+                     obj.payRateIndex = transData.payRateIndex[cot] != undefined ? (transData.payRateIndex[cot] * 100).toFixed(2) + '%' : "_";
                      obj.souce = reductData[i].pageName.value;
                      if (j == 0) {
                          obj.categroy = '本店';
@@ -2254,7 +2259,7 @@ function getShopFlowSource() {
               }, '入店来源')
         })
 }
-function filterShopFlowSource(data){
+function filterShopFlowSource(data,type){
      var resIndex = {
          payRateIndex: [],
          tradeIndex: [],
@@ -2267,14 +2272,18 @@ function filterShopFlowSource(data){
          const element = data[j];
           for (let i = 0; i < 3; i++) {
                var pKey = pushOrder[i];
-               var kindData = element[pKey + 'PayByrCntIndex'];
+               var kindData = element[pKey + 'UvIndex'];
                if (!kindData) {
                    continue;
                }
-              resIndex.payRateIndex.push(element[pKey + 'PayRateIndex'].value);
-              resIndex.tradeIndex.push(element[pKey + 'TradeIndex'].value);
-              resIndex.payByrCntIndex.push(element[pKey + 'PayByrCntIndex'].value);
-              resIndex.uvIndex.push(element[pKey + 'UvIndex'].value);
+              if(type){
+                 resIndex.uvIndex.push(element[pKey + 'UvIndex'].value);
+              }else{
+                resIndex.payRateIndex.push(element[pKey + 'PayRateIndex'].value);
+                resIndex.tradeIndex.push(element[pKey + 'TradeIndex'].value);
+                resIndex.payByrCntIndex.push(element[pKey + 'PayByrCntIndex'].value);
+                resIndex.uvIndex.push(element[pKey + 'UvIndex'].value);
+              }
           }
      }
      return resIndex
@@ -2743,9 +2752,11 @@ function compareItemTrend(){
         var comItmeArr = selectInfo.resData;
         var chainName = selectInfo.keyword.name;
         var keyName = selectInfo.keyword.enkey;
+        var totalLen = reductData[keyName[0]].tradeIndex.length;
+        totalLen = totalLen ? totalLen : 30;
         var month30Days = monthDays();
         // var saveSelfData = '';
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < totalLen; i++) {
             var obj = {
                 shop: {}
             };
@@ -2757,7 +2768,7 @@ function compareItemTrend(){
                 };
                 var cot = i;
                 if (j > 0) {
-                    cot = j * 30 + i;
+                    cot = j * totalLen + i;
                 }
                 obj.date = month30Days[i];
                 obj.tradeIndex = transData.tradeIndex[cot];

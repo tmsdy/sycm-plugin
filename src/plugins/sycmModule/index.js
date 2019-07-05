@@ -165,6 +165,14 @@ $(function () {
              if (!$('.op-mc-market-rank-container .oui-card-header .chaqz-btns').length) {
                  $('.op-mc-market-rank-container .oui-card-header').append(showBtn())
              }
+            //  属性洞察
+             if (!$('.op-mc-property-insight-container .oui-card-title:contains("属性排行")  #search').length) {
+                 $('.op-mc-property-insight-container .oui-card-title:contains("属性排行")').append(showBtn());
+             }
+            //  产品洞察
+             if (!$('.op-mc-product-insight-container .oui-card-title:contains("产品排行")  #search').length) {
+                 $('.op-mc-product-insight-container .oui-card-title:contains("产品排行")').append(showBtn());
+             }
         } else if (e.target.id == 'itemAnalysisTrend') { //竞争-分析竞品
             $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header').append(showBtn('keyRight'))
         } else if (e.target.id == 'sycm-mc-flow-analysis') { //竞争-分析竞品-入口来源
@@ -194,11 +202,11 @@ $(function () {
             if (!$('.op-mc-market-overview-container #cateTrend .op-mc-market-overview-compare-area .chaqz-btns').length) {
                 $('.op-mc-market-overview-container #cateTrend .op-mc-market-overview-compare-area').append(showBtn('download'))
             }
-             if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length) { //属性洞察-hotlOIST
-                 $('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
+             if (!$('.op-mc-property-insight-container .oui-card-title:contains("热销榜单")').next().find('#search').length) { //属性洞察-hotlOIST
+                $('.op-mc-property-insight-container .oui-card-title:contains("热销榜单")').next().append(showBtn());
              }
-             if (!$('.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-header #search').length) { //产品洞察-hotlOIST
-                 $('.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
+             if (!$('.op-mc-product-insight-container .oui-card-title:contains("热销榜单")').next().find('#search').length) { //产品洞察-hotlOIST
+                 $('.op-mc-product-insight-container .oui-card-title:contains("热销榜单")').next().append(showBtn());
              }
         } else if (e.target.id == 'categoryConstitute') { //market-analy-struct
             if (!$('.op-mc-search-analyze-container  .oui-card-header-wrapper #search').length) {
@@ -218,10 +226,6 @@ $(function () {
         } else if (e.target.id == 'sycmMqIndustryCunstomer') { //行业客群-客群趋势
            $('#sycmMqIndustryCunstomer .oui-card-header-wrapper .oui-card-header-item-pull-left').append(showBtn());
            $('#completeShopPurchase .mc-Purchase .sycm-trade-rank-table-title').append(showBtn());
-        } else if (e.target.id == 'propsRank') { //属性洞察-人们属性
-            if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length){
-                $('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
-            }
         } else if (e.target.className == 'sycm-common-select-simple-text') { //属性洞察-人们属性
             // if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length) {
                 $('.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-title').append(showBtn());
@@ -247,11 +251,11 @@ $(function () {
         } else if (e.target.id == 'mqBrandMonitor') {//监控品牌
             $('.mc-brandMonitor .oui-card-header-wrapper .oui-card-title').append(showBtn());
         } else if (e.target.id == 'itemAnalysisKeyword') {//竞品分析-关键词
-            $('.op-mc-item-analysis .oui-card-header-wrapper .oui-card-title').append(showBtn());
+            $('.op-mc-item-analysis #itemAnalysisKeyword .oui-card-header-wrapper .oui-card-title').append(showBtn());
         } else if (e.target.id == 'brandAnalysisShops') {
             $('.op-mc-brand-analysis #brandAnalysisShops .oui-card-title').append(showBtn());
         } else if (e.target.id == 'brandAnalysisTrend') { //竞争-品牌关键指标对比
-            $('.op-mc-brand-analysis #brandAnalysisTrend .oui-card-header').append(showBtn('keyRight'))
+            $('.op-mc-brand-analysis #brandAnalysisTrend .oui-card-header').append(showBtn())
         } else if (e.target.id == 'brandAnalysisItems') { //品牌分析-top榜单
             $('.op-mc-brand-analysis #brandAnalysisItems .oui-card-header-wrapper .oui-card-title').append(showBtn());
         } else if (e.target.className == 'portrait-content-bar') { //品牌分析-top榜单
@@ -261,167 +265,6 @@ $(function () {
         }
     });
 })
-/**-----用户信息登录模块方法-------------------*/
-// var anyDom = {
-//     loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + BASE_URL + '/reg" class="right" target="_blank">免费注册</a><a href="' + BASE_URL + '/findP" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
-//     infoDom: function (memInfo, bindedInfo) {
-//         var acct = memInfo.username;
-//         var title = memInfo.member.title;
-//         var expirTime = memInfo.member.expireAt;
-//         var whetherOrder = '';
-//         // var binded = '未绑定';
-//         // var shopInfo = dealShopInfo();
-//         if (title && expirTime) {
-//             var formDate = new Date(expirTime)
-//             var isExpire = formDate - memInfo.time * 1000
-//             if (isExpire > 0) {
-//                 whetherOrder = '续费';
-//             } else {
-//                 whetherOrder = '订购';
-//             }
-//             // bindedInfo.data.forEach(function (item) {
-//             //     if (item['mainUid'] = shopInfo['mainUserId']) {
-//             //         binded = "已绑定"
-//             //     }
-//             // })
-//         } else {
-//             title = '普通会员';
-//             expirTime = '--';
-//             whetherOrder = '订购'
-//             // binded = '未绑定'
-//         }
-//         var wrap = '<div class="chaqz-info-wrapper user"><div class="c-cont"><span class="close2 hided">×</span><div class="help"><img src="https://file.cdn.chaquanzhong.com/wenhao.png" alt="?"><a href="' + BASE_URL + '/pluginIntro" target="_blank">帮助</a></div><div class="infoList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><ul class="user-list"><li><span class="name">账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span><span>' + acct + '</span><span class="fr" id="logout">退出登录</span></li><li><span class="name">会员信息:</span><span>' + title + '</span></li><li><span class="name">到期时间:</span><span>' + expirTime + '</span><a href="' + BASE_URL + '/vipInfo?from=plugin" target="_blank" class="fr">' + whetherOrder + '</a></li><li><span class="name">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span><span>' + LOCAL_VERSION + '</span></li><li><span class="name">联系客服:</span><span><a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><img class="mr_10" src="https://file.cdn.chaquanzhong.com/qq_icon.png" alt="qq"></a><img src="https://file.cdn.chaquanzhong.com/wx_icon.png" alt="wx" class="wxpop"></span></li></ul></div></div></div>';
-//         // <li><span class="name">店铺绑定</span><span>' + binded + '</span></li>
-//         $('#app').append(wrap);
-
-//     },
-//     login: function () {
-//         var onLoading = false;
-//         var _that = this
-//         var user = $('.chaqz-info-wrapper #phone').val()
-//         var pwd = $('.chaqz-info-wrapper #pwd').val()
-//         if (!user || !pwd || onLoading) {
-//             return false
-//         }
-//         chrome.runtime.sendMessage({
-//             key: "getData",
-//             options: {
-//                 url: BASE_URL + '/api/v1/user/login',
-//                 type: "POST",
-//                 data: JSON.stringify({
-//                     phone: user,
-//                     password: pwd
-//                 }),
-//                 contentType: "application/json,charset=utf-8",
-//             }
-//         }, function (val) {
-//             if (val.code == 200) {
-//                 $('.chaqz-info-wrapper').remove();
-//                 var member = val.data;
-//                 var token = val.data.token;
-//                 localStorage.setItem('chaqz_token', token);
-//                 SAVE_MEMBER = member;
-//                 window.SAVE_MEMBER2 = member;
-//                 chrome.storage.local.set({
-//                     'chaqz_token': token
-//                 }, function () {});
-//                 isLogin = true;
-//                 // _that.getShopBind()
-//                 changeLoginStatus()
-//                 $('.chaqz-info-wrapper.login').remove();
-//             } else {
-//                 $('.chaqz-info-wrapper.login .pwd .tips').text('账号或密码错误').show()
-//                 onLoading = false
-//             }
-//         })
-//     },
-//     init: function () {
-//         var _that = this
-//         $('#app').append(this.loginDom);
-//         $('.chaqz-info-wrapper #phone').blur(function () {
-//             var phoneVal = $(this).val()
-//             var phoneReg = /^1[34578]\d{9}$/;
-//             if (!phoneVal) {
-//                 $(this).siblings('.tips').text('请输入手机号码').show()
-//             } else if (!phoneReg.test(phoneVal)) {
-//                 $(this).siblings('.tips').text('请输入正确号码').show()
-//             } else {
-//                 $(this).siblings('.tips').hide()
-//             }
-//         })
-//         $('.chaqz-info-wrapper #pwd').blur(function () {
-//             var pwdValue = $(this).val()
-//             if (!pwdValue) {
-//                 $(this).siblings('.tips').text('请输入密码').show()
-//             } else {
-//                 $(this).siblings('.tips').hide()
-//             }
-//         })
-//         // 登录处理
-//         $('.chaqz-info-wrapper .login-btn').click(function () {
-//             _that.login()
-//         })
-//         //回车搜索
-//         $('.chaqz-info-wrapper #pwd').bind('keydown', function (event) {
-//             var evt = window.event || event;
-//             if (evt.keyCode == 13) {
-//                 _that.login()
-//             }
-//         });
-//         // 关闭登录弹窗
-//         $('.chaqz-info-wrapper .hided').click(function () {
-//             $('.chaqz-info-wrapper.login').remove()
-//         })
-//     },
-//     getShopBind: function () {
-//         var saveToke = localStorage.getItem('chaqz_token')
-//         chrome.runtime.sendMessage({
-//             key: 'getData',
-//             options: {
-//                 url: BASE_URL + '/api/v1/plugin/shop',
-//                 type: 'GET',
-//                 headers: {
-//                     Authorization: "Bearer " + saveToke
-//                 }
-//             }
-//         }, function (val) {
-//             if (val.code == 200) {
-//                 var bindInfo = val.data
-//                 SAVE_BIND = bindInfo
-//                 window.SAVE_BIND2 = bindInfo;
-//             } else if (val.code == 2030) {
-//                 LogOut()
-//             }
-//         })
-//     },
-//     getInfo: function () {
-//         var userWrap = $('.chaqz-info-wrapper.user')
-//         if (userWrap.length) {
-//             userWrap.show()
-//         } else {
-//             var memInfo = SAVE_MEMBER;
-//             // var bindInfo = SAVE_BIND;
-//             if (memInfo.token) {
-//                 // this.infoDom(memInfo, bindInfo)
-//                 this.infoDom(memInfo)
-//             } else {
-//                 popUp.init('noShopInfo')
-//             }
-//             $('.chaqz-info-wrapper .hided').click(function () {
-//                 $('.chaqz-info-wrapper.user').hide()
-//             })
-//             $('.chaqz-info-wrapper #logout').click(function () {
-//                 $('.chaqz-info-wrapper.user').hide();
-//                 LogOut()
-
-//             })
-//             $('.chaqz-info-wrapper.user .wxpop').click(function () {
-//                 $('.chaqz-info-wrapper.user').hide()
-//                 popUp.init('weixin')
-//             })
-//         }
-//     }
-// }
 // 显示按钮切换
 function showBtn(type) {
     var reDom = '';

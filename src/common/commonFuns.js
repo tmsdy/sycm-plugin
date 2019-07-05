@@ -76,9 +76,11 @@ export function formulaRate(val, val2, type) {
     } else {
         var compu = val / val2;
         if(type){
-            compu = (compu*100).toFixed(2)+'%';
+             compu = (compu*100).toFixed(2)+'%';
+             return compu;
         }else{
             compu = compu.toFixed(2);
+             return compu;
         }
     }
 }
@@ -342,7 +344,7 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
     } else if (key == 'getTopItems') {
         var isMonitLive = dateType == 'today' ? 'Live' : '';
         var indexCode = extra.topType == 'flow' ? 'uvIndex' : 'tradeIndex';
-        return '/mc/rivalShop/analysis/getTopItems.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=' + indexCode + '&page=1&pageSize=20&topType=' + extra.topType + '&userId=' + extra.usrId;
+        return '/mc/rivalShop/analysis/get' + isMonitLive + 'TopItems.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=' + indexCode + '&page=1&pageSize=20&topType=' + extra.topType + '&userId=' + extra.usrId;
     } else if (key == 'getSourceTrend') {
         var isMonitLive = dateType == 'today' ? 'Live' : '';
         var shopItem = extra.type ? 'Item' : 'Shop';
@@ -354,7 +356,7 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
     } else if (key == 'compItemKeyword') {
         var isMonitLive = dateType == 'today' ? 'Live' : '';
         var indexCode = extra.hotType == 'flow' ? 'uv' : 'tradeIndex';
-        return '/mc/rivalItem/analysis/getKeywords.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode='+indexCode+'&itemId='+extra.useId+'&page=1&pageSize=20&sellerType='+sellType+'&topType='+extra.hotType;
+        return '/mc/rivalItem/analysis/get' + isMonitLive + 'Keywords.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=' + indexCode + '&itemId=' + extra.useId + '&page=1&pageSize=20&sellerType=' + sellType + '&topType=' + extra.hotType;
     } else if (key == 'compBrandIndex') {//品牌分析-关键指标
         var mainType = extra.type ? 'Trend' : 'Indexes';
         var indexCode = extra.type ? '&indexCode=' : '';
