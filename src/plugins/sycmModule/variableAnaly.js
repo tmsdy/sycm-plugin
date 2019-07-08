@@ -422,9 +422,6 @@ function domStructweightPars(info, eData) {
     var filterWeight = operatWeight(weightData);
     var wrapper = '<div class="chaqz-wrapper weight-pop"><div class="content"><div class="cha-box"><div class="parsing-title">竞品权重解析</div><div class="weight-parsing"><div class="left"><div class="head-info"><img src="' + info.pic + '" alt="pic"><div class="name"><p>' + info.title + '</p><span class="price">' + info.priceRange + '</span></div></div><div id="chaqzx-echarts-wrap"></div></div><div class="right"><div class="scores"><p class="sorce-head">本次权重得分</p><p class="dScore"></p><p class="moreShop">超过市场' + (eData.rank*100) + '%商品</p></div><div class="proposal"><div class="propos-title">优化方案</div><ul class="prompt-list">' + filterWeight.promtHtml + '</ul></div></div></div></div><span class="chaqz-close">×</span></div></div>'
     $('#app').append(wrapper)
-    $(document).on('click', '.weight-pop button', function () {
-        popTip('开发中,敬请期待')
-    })
     $(".weight-pop .dScore").animate({
         num: "dd",
     }, {
@@ -762,6 +759,12 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
              }
          }
      }, function (val) {
+          weightParsing(576589082425, 50000697, {
+              pic: 0,
+              title: 'test',
+              priceRange: '18`55'
+          }, 16);
+          return 
          if (val.code == 200) {
              var localCateId = getFirstCateId();
              var resCateId = val.data.rootCategoryId;
@@ -1740,32 +1743,67 @@ function weightParsing(rivald, category, itemInfo, localCateId) {
          LoadingPop();
          return false;
      }
-     COUNTER = 0;
-     var resultWrap = [];
-     var weightIndexType = ['seIpvUvHits', 'uv', 'cltByrCnt', 'cartByrCnt', 'payByrCntIndex', 'tradeIndex'];
      var resData = JSON.parse(Decrypt(res.data)).rivalItem1;
-     for (let i = 0; i < 6; i++) {
-         var selType = weightIndexType[i];
-         var bigPanUrl = 'https://sycm.taobao.com/mc/mq/supply/mkt/trend/cate.json?dateType=recent7&dateRange=' + dateRange + '&indexCode=' + selType + '&cateId=' + category + '&device=0&sellerType=-1'
-         getHttpRquest(bigPanUrl, function (res) {
-              if (!res.data) {
-                  popTip('暂不支持，请先将商品添加监控')
-                  LoadingPop();
-                  return false;
-              }
-              var resBigData = JSON.parse(Decrypt(res.data));
-              resultWrap.push(resBigData.self);
-             if (COUNTER > 4) {
-                 COUNTER = 0;
-                 getCompareData(resData, resultWrap, itemInfo);
-                 console.log(resData, resultWrap, itemInfo);
-                 return false;
-             }
-            
-            COUNTER++;
-         })
-     }
+    getTopItem(category, itemInfo, localCateId, resData)
    })
+}
+// get top1 item info
+function getTopItem(category, itemInfo, localCateId, selfCoreData) {
+    var nowTime = getCurrentTime('moreDay');
+    var dateRange = setDateRange(nowTime, 'recent7');
+    var finalUrl = "https://sycm.taobao.com/mc/mq/mkt/rank/item/hotsale.json?dateRange=" + dateRange + "&dateType=recent7&pageSize=100&page=2&order=desc&orderBy=tradeIndex&cateId=" + category + "&device=0&sellerType=-1&indexCode=cateRankId%2CtradeIndex%2CtradeGrowthRange%2CpayRateIndex";
+    getHttpRquest(finalUrl, function (res) {
+        if (!res.data) {
+            popTip('获取数据失败请重试')
+            LoadingPop();
+            return false;
+        }
+        var resData = JSON.parse(Decrypt(res.data));
+        var topItem = findFirstItme(resData);
+        var dayRange = setDateRange(nowTime, 'day');
+        var topItemId = topItem.itemId.value;
+        var finaTrendlUrl = 'https://sycm.taobao.com/mc/ci/item/trend.json?dateType=day&dateRange=' + dayRange + '&cateId=' + localCateId + '&itemId=' + topItemId + '&device=0&sellerType=-1&indexCode=uvIndex%2CpayRateIndex%2CtradeIndex%2CpayByrCntIndex'
+        getHttpRquest(finaTrendlUrl, function (res2) {
+            if (!res2.data) {
+                popTip('获取数据失败请重试')
+                LoadingPop();
+                return false;
+            }
+            var res2Data = JSON.parse(Decrypt(res2.data));
+            // var twoIndexData = {};
+            // twoIndexData.uvIndex = res2Data.uvIndex;
+            // twoIndexData.tradeIndex = res2Data.tradeIndex;
+            // weightParsing(rivald, category, itemInfo, localCateId)
+            COUNTER = 0;
+            var resultWrap = [];
+            resultWrap.push({
+                tradeIndex: res2Data.tradeIndex
+            }, {
+                payByrCntIndex: res2Data.payByrCntIndex
+            })
+            var weightIndexType = ['seIpvUvHits', 'cltByrCnt', 'cartByrCnt', 'uv'];
+            for (let i = 0; i < 4; i++) {
+                var selType = weightIndexType[i];
+                var bigPanUrl = 'https://sycm.taobao.com/mc/mq/supply/mkt/trend/cate.json?dateType=recent7&dateRange=' + dateRange + '&indexCode=' + selType + '&cateId=' + category + '&device=0&sellerType=-1'
+                getHttpRquest(bigPanUrl, function (res) {
+                    if (!res.data) {
+                        popTip('暂不支持，请先将商品添加监控')
+                        LoadingPop();
+                        return false;
+                    }
+                    var resBigData = JSON.parse(Decrypt(res.data));
+                    resultWrap.push(resBigData.self);
+                    if (COUNTER > 2) {
+                        COUNTER = 0;
+                        getCompareData(selfCoreData, resultWrap, itemInfo);
+                        console.log(selfCoreData, resultWrap, itemInfo);
+                        return false;
+                    }
+                    COUNTER++;
+                })
+            }
+        })
+    })
 }
 // 获取竞品数据
 function getCompareData(resData, resultWrap, itemInfo) {
@@ -1787,7 +1825,9 @@ function getCompareData(resData, resultWrap, itemInfo) {
              dataType: {
                 seIpvUvHits: itemSendIndex.seIpvUvHits,
                 payByrCntIndex: itemSendIndex.payByrCntIndex,
-                tradeIndex: itemSendIndex.tradeIndex
+                tradeIndex: itemSendIndex.tradeIndex,
+                uvIndex: itemSendIndex.uvIndex
+
              }
          }, function (val2) {
             var requestData = {};

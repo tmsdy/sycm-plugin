@@ -1818,7 +1818,7 @@ function shopCompareAnaly(){
     var reductData = JSON.parse(filterLocalData(localData));
     reductData = isToday=='today' ? reductData.data: reductData;
     var filteShopType = !shopType?(isToday != 'day' && isToday != 'today') ? 2 : shopType:shopType;
-    var filtRealType = shopType?'real':0;
+    var filtRealType = (shopType && isToday == 'today') ? 'real' : 0;
     var sendData = filterCompareShopAnaly(reductData, filteShopType, filtRealType);
     dealIndex({
         type:'dealTrend',
@@ -2019,6 +2019,8 @@ function filterCompareShopAnaly(data, type, dateType,fitlerKey) {
         }
         if (dateType == 'real') {
             resIndex.tradeIndex.push(data[pKey].tradeIndex.value);
+        }else if(dateType == 'realConcat') {
+            resIndex.tradeIndex = resIndex.tradeIndex.concat(data[pKey].tradeIndex);
         }else if (dateType) {
            resIndex.payRateIndex = resIndex.payRateIndex.concat(data[pKey].payRateIndex);
            resIndex.tradeIndex = resIndex.tradeIndex.concat(data[pKey].tradeIndex);
@@ -2061,7 +2063,7 @@ function compareShopTrend() { // 趋势
     var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
     var isToday = dayIndex == '实 时' ? true : false; //判断是否是实时
     var shopType = $('.op-mc-shop-analysis .op-mc-shop-analysis-trend .oui-card-switch-item-container-active').index();
-    shopType = isToday ? 0 : shopType;
+    // shopType = isToday ? 0 : shopType;
     var selectInfo = getCompareShops();
     var selfInfo = getSelfShopInfo();
     var endKey = selectInfo.keys + '&selfUserId=' + selfInfo.runAsUserId
@@ -2077,7 +2079,8 @@ function compareShopTrend() { // 趋势
     }
     var reductData = JSON.parse(filterLocalData(localData));
     reductData = isToday ? reductData.data: reductData;
-    var sendData = filterCompareShopAnaly(reductData, shopType,1);
+    var filterCateType = (isToday && shopType) ? 'realConcat' : 1;
+    var sendData = filterCompareShopAnaly(reductData, shopType, filterCateType);
     dealIndex({
         type: 'dealTrend',
         dataType: sendData
@@ -2089,6 +2092,14 @@ function compareShopTrend() { // 趋势
         var totalLen = reductData.selfShop.tradeIndex.length;
         totalLen = totalLen ? totalLen : 30;
         var month30Days = monthDays();
+        var month30Days = [];
+        if (dayIndex == '周') {
+            month30Days = weekMonthDate('', totalLen)
+        } else if (dayIndex == '月') {
+            month30Days = weekMonthDate('month', totalLen)
+        } else {
+            month30Days = monthDays()
+        }
         // var saveSelfData = '';
         for (let i = 0; i < totalLen; i++) {
             var itemNums = selectInfo.locat.length + 1;
@@ -2101,8 +2112,32 @@ function compareShopTrend() { // 趋势
                if(j>0){
                    cot = j * totalLen + i;
                }
+                if (j == 0) {
+                    obj.categroy = '本店';
+                    obj.shop.title = selfInfo.runAsUserName;
+                    obj.shop.url = selfInfo.runAsUserImg;
+                    obj.shopId = selfInfo.runAsUserId;
+                    if (!shopType) {
+                        obj.prePayItmCnt = reductData.selfShop.prePayItmCnt ? reductData.selfShop.prePayItmCnt[i] : '-';
+                        obj.fstOnsItmCnt = reductData.selfShop.fstOnsItmCnt ? reductData.selfShop.fstOnsItmCnt[i] : '-';
+                    }
+                } else {
+                    obj.categroy = '竞店' + selectInfo.locat[j - 1];
+                    obj.shop.title = comItmeArr[j - 1].name;
+                    obj.shop.url = comItmeArr[j - 1].picUrl;
+                    obj.shopId = comItmeArr[j - 1].userId;
+                    if (!shopType) {
+                        obj.prePayItmCnt = reductData['rivalShop' + selectInfo.locat[j - 1]].prePayItmCnt ? reductData['rivalShop' + selectInfo.locat[j - 1]].prePayItmCnt[i] : '-';
+                        obj.fstOnsItmCnt = reductData['rivalShop' + selectInfo.locat[j - 1]].fstOnsItmCnt ? reductData['rivalShop' + selectInfo.locat[j - 1]].fstOnsItmCnt[i] : '-';
+                    }
+                    
+                }
                obj.date = month30Days[i];
                obj.tradeIndex = transData.tradeIndex[cot];
+               if(isToday && shopType){
+                   tableData.push(obj);
+                    continue;
+               }
                obj.uvIndex = transData.uvIndex[cot];
                obj.seIpvUvHits = transData.seIpvUvHits[cot];
                obj.cltHit = transData.cltHits[cot];
@@ -2115,31 +2150,11 @@ function compareShopTrend() { // 趋势
                obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
                obj.carRate = transData.uvIndex[cot] ? (transData.cartHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
                if (!shopType) {
-                   obj.prePayAmtIndex = transData.prePayAmtIndex[cot];
+                   obj.prePayAmtIndex = transData.prePayAmtIndex[cot]!=undefined ? transData.prePayAmtIndex[cot] : '-';
                } else {
                    obj.cartByrCntIndex = transData.cartByrCntIndex[cot];
                }
-               if (j == 0) {
-                   obj.categroy = '本店';
-                   obj.shop.title = selfInfo.runAsUserName;
-                   obj.shop.url = selfInfo.runAsUserImg;
-                   obj.shopId = selfInfo.runAsUserId;
-                   if (!shopType) {
-                       obj.prePayItmCnt = reductData.selfShop.prePayItmCnt[i];
-                       obj.fstOnsItmCnt = reductData.selfShop.fstOnsItmCnt[i];
-                   }
-                   tableData.push(obj);
-               } else {
-                   obj.categroy = '竞店' + selectInfo.locat[j - 1];
-                   obj.shop.title = comItmeArr[j - 1].name;
-                   obj.shop.url = comItmeArr[j - 1].picUrl;
-                   obj.shopId = comItmeArr[j - 1].userId;
-                   if (!shopType) {
-                       obj.prePayItmCnt = reductData['rivalShop' + selectInfo.locat[j - 1]].prePayItmCnt[i];
-                       obj.fstOnsItmCnt = reductData['rivalShop' + selectInfo.locat[j - 1]].fstOnsItmCnt[i];
-                   }
-                   tableData.push(obj);
-               }
+             tableData.push(obj);
             }
         }
         // tableData.length ? '' : tableData.push(saveSelfData);
@@ -2168,67 +2183,59 @@ function compareShopTrend() { // 趋势
                 data: 'tradeIndex',
                 title: '交易金额'
             },
-            {
+        ];
+        if (!(isToday && shopType)) {
+            cols.push({
                 data: 'uvIndex',
                 title: '访客人数'
-            },
-            {
+            }, {
                 data: 'seIpvUvHits',
                 title: '搜索人数'
-            },
-            {
+            }, {
                 data: 'cltHit',
                 title: '收藏人数'
-            },
-            {
+            }, {
                 data: 'cartHit',
                 title: '加购人数'
-            },
-            {
+            }, {
                 data: 'payByrCntIndex',
                 title: '支付人数'
-            },
-            {
+            }, {
                 data: 'payRateIndex',
                 title: '支付转化率'
-            },
-            {
+            }, {
                 data: 'kdPrice',
                 title: '客单价'
-            },
-            {
+            }, {
                 data: 'uvPrice',
                 title: 'uv价值'
-            },
-            {
+            }, {
                 data: 'searchRate',
                 title: '搜索占比'
-            },
-            {
+            }, {
                 data: 'cltRate',
                 title: '收藏率'
-            },
-            {
+            }, {
                 data: 'carRate',
                 title: '加购率'
-            }
-        ];
-        if (!shopType) {
-            cols.push({
-                data: 'prePayAmtIndex',
-                title: '预售定金交易金额'
-            }, {
-                data: 'prePayItmCnt',
-                title: '预售支付商品件数'
-            }, {
-                data: 'fstOnsItmCnt',
-                title: '上新商品数'
             })
-        } else {
-            cols.push({
-                data: 'cartByrCntIndex',
-                title: '加购金额'
-            })
+             if (!shopType) {
+                 cols.push({
+                     data: 'prePayAmtIndex',
+                     title: '预售定金交易金额'
+                 }, {
+                     data: 'prePayItmCnt',
+                     title: '预售支付商品件数'
+                 }, {
+                     data: 'fstOnsItmCnt',
+                     title: '上新商品数'
+                 })
+             } else {
+                 cols.push({
+                     data: 'cartByrCntIndex',
+                     title: '加购金额'
+                 })
+             }
         }
         domStruct({
             data: tableData,
@@ -3372,7 +3379,6 @@ function compareBrandTrend(){
          } else {
              yearMonthDays = monthDays()
          }
-         var len = yearMonthDays.length;
          for (let i = 0; i < singleLength; i++) {
              for (let j = 0; j < indexNames.length; j++) {
                  var obj = {
