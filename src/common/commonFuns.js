@@ -333,7 +333,7 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
         return '/mc/mq/product/prodHotRank.json?brandId=' + extra.brandId + '&cateId=' + localCateId.id + '&dateRange=' + finalTime + '&dateType=' + dateType + '&deviceType=' + device + '&indexCode=tradeIndex,payItmCnt&order=desc&orderBy=tradeIndex&page=1&pageSize=10&sellerType=' + sellType
     } else if (key == 'compareShopAnaly') { //竞店识别
         var isMonitLive = dateType == 'today' ? 'Live' : '';
-        var shopType = extra.shopType ? ('&shopType=-1'):'';
+        var shopType = isMonitLive?'':extra.shopType ? ('&shopType=-1') : '';
         var CoreOrCate = extra.shopType?'Cate':'Core';
         var seleKind = extra.type ? 'Trend' : 'Indexes';
         var indexCode = extra.type ? '&indexCode=' : '';

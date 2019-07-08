@@ -418,7 +418,9 @@ function domStructEchart(data, eDate, edata, time, chartType) {
 }
 //  权重解析
 function domStructweightPars(info, eData) {
-    var wrapper = '<div class="chaqz-wrapper weight-pop"><div class="content"><div class="cha-box"><div class="parsing-title">竞品权重解析</div><div class="weight-parsing"><div class="left"><div class="head-info"><img src="' + info.pic + '" alt="pic"><div class="name"><p>' + info.title + '</p><span class="price">' + info.priceRange + '</span></div></div><div id="chaqzx-echarts-wrap"></div></div><div class="right"><div class="scores"><p class="sorce-head">本次权重得分</p><p class="dScore"></p><p class="moreShop">超过市场' + eData.rank + '%商品</p></div><div class="proposal"><div class="propos-title">优化方案</div><ul class="prompt-list"><li><span>标题热度提升</span><button>优化</button></li><li><span>补冲流量，稳定转化</span><button>优化</button></li><li><span>补充单量</span><button>优化</button></li></ul></div></div></div></div><span class="chaqz-close">×</span></div></div>'
+    var weightData = eData.weight;
+    var filterWeight = operatWeight(weightData);
+    var wrapper = '<div class="chaqz-wrapper weight-pop"><div class="content"><div class="cha-box"><div class="parsing-title">竞品权重解析</div><div class="weight-parsing"><div class="left"><div class="head-info"><img src="' + info.pic + '" alt="pic"><div class="name"><p>' + info.title + '</p><span class="price">' + info.priceRange + '</span></div></div><div id="chaqzx-echarts-wrap"></div></div><div class="right"><div class="scores"><p class="sorce-head">本次权重得分</p><p class="dScore"></p><p class="moreShop">超过市场' + (eData.rank*100) + '%商品</p></div><div class="proposal"><div class="propos-title">优化方案</div><ul class="prompt-list">' + filterWeight.promtHtml + '</ul></div></div></div></div><span class="chaqz-close">×</span></div></div>'
     $('#app').append(wrapper)
     $(document).on('click', '.weight-pop button', function () {
         popTip('开发中,敬请期待')
@@ -435,7 +437,7 @@ function domStructweightPars(info, eData) {
             $(this).html(parseInt(b.pos * eData.combat));
         }
     });
-    var weightData = eData.weight
+    var filterData = filterWeight.filterData;
     var myChart = echarts.init(document.getElementById('chaqzx-echarts-wrap'));
     var option = {
         grid: {
@@ -458,28 +460,28 @@ function domStructweightPars(info, eData) {
             //  },
             splitNumber: 4,
             indicator: [{
-                    name: '流量',
-                    max: weightData.uvIndex.max_index
+                    name: 'UV价值',
+                    max: 100
                 },
                 {
-                    name: '客群',
-                    max: weightData.payItemCnt.max_index
-                },
-                {
-                    name: '坑产',
-                    max: weightData.tradeIndex.max_index
-                },
-                {
-                    name: '收藏',
-                    max: weightData.cltHits.max_index
+                    name: '转化率',
+                    max: 100
                 },
                 {
                     name: '加购',
-                    max: weightData.cartHits.max_index
+                    max: 100
                 },
                 {
-                    name: '搜索',
-                    max: weightData.seIpvUvHits.max_index
+                    name: '收藏',
+                    max: 100
+                },
+                {
+                    name: '坑产',
+                    max: 100
+                },
+                {
+                    name: '客群',
+                    max: 100
                 }
             ]
         },
@@ -498,13 +500,47 @@ function domStructweightPars(info, eData) {
                 color: '#EB6F3C',
                 width: 2
             },
-            data: [{
-                value: [weightData.uvIndex.log, weightData.payItemCnt.log, weightData.tradeIndex.log, weightData.cltHits.log, weightData.cartHits.log, weightData.seIpvUvHits.log],
-            }, ]
+            data: [
+                {
+                value: [filterData.tradeIndexAvgRate, filterData.payRateIndexAvg, filterData.pushAvgRate, filterData.collectionAvgRate, filterData.tradeIndexAvg, filterData.payItemCntAvg],
+            }]
         }]
     };
     myChart.setOption(option);
     LoadingPop()
+}
+// 处理权重返回数据
+function operatWeight(weightData) {
+    var filterData = {};
+    var sortList = [];
+    for (var key in weightData) { //大于1
+        var obj = {};
+        var curNum = weightData[key] > 1 ? 100 : (weightData[key]*100).toFixed(2);
+        filterData[key] = curNum;
+        obj.name = key;
+        obj.value = weightData[key];
+        sortList.push(obj);
+    }
+    var sortEndList = rootwordSort(sortList);
+    var typeName = {
+        tradeIndexAvgRate: 'uv价值',
+        payRateIndexAvg: '转化率',
+        pushAvgRate: '加购率',
+        collectionAvgRate: '收藏率',
+        tradeIndexAvg: '坑产',
+        payItemCntAvg: '客群',
+    }
+    var promtHtml = '';
+    for (let j = 0; j < 2; j++) {
+        var proKey = sortEndList[5 - j].name;
+        var name = typeName[proKey];
+        var url = 'pushAvgRate,collectionAvgRate'.indexOf(proKey) == -1 ? 'http://www.liuliang120.com/homePage/mainPage' : 'http://www.renwu188.com/';
+        promtHtml += '<li><span>宝贝' + name + '低于行业优秀，建议</span><a href="' + url + '" target="_blank"><button>优化</button></li></a>';
+    }
+    return {
+        filterData:filterData,
+        promtHtml: promtHtml
+    }
 }
 // 词根数据解析
 function domStructRootWord(data, rootType) {
@@ -904,49 +940,7 @@ function findFirstItme(arr) {
     }
     return firstItem;
 }
-// 权重解析--解析
-function parsingAnaly(dealRes, info) {
-    var sendData = {},
-        sendData2 = {}
-    sendData.payItemCnt = dealRes.payItemCnt[0];
-    sendData.cartHits = dealRes.cartHits[0];
-    sendData.cltHits = dealRes.cltHits[0];
-    sendData.seIpvUvHits = dealRes.seIpvUvHits[0];
-    sendData.tradeIndex = dealRes.tradeIndex[0];
-    sendData.uvIndex = dealRes.uvIndex[0];
-    sendData2.payItemCnt = dealRes.payItemCnt[1];
-    sendData2.cartHits = dealRes.cartHits[1];
-    sendData2.cltHits = dealRes.cltHits[1];
-    sendData2.seIpvUvHits = dealRes.seIpvUvHits[1];
-    sendData2.tradeIndex = dealRes.tradeIndex[1];
-    sendData2.uvIndex = dealRes.uvIndex[1];
-    var saveToke = localStorage.getItem('chaqz_token')
-    chrome.runtime.sendMessage({
-        key: 'getData',
-        options: {
-            url: BASE_URL + '/py/api/v1/weight',
-            type: 'POST',
-            headers: {
-                Authorization: "Bearer " + saveToke
-            },
-            data: JSON.stringify({
-                selfItem: sendData,
-                item: sendData2
-            }),
-            contentType: "application/json,charset=utf-8",
-        }
-    }, function (val) {
-        if (val.code == 200) {
-            domStructweightPars(info, val.data)
-        } else if (val.code == 2030) {
-            LogOut()
-        } else {
-            popTip('解析失败');
-        }
-        $('.chaqz-info-wrapper.pop').hide();
-        LoadingPop();
-    })
-}
+
 // 方法
 function concantSearKey(arr1, arr2) {
     var redArr = [];
@@ -1729,16 +1723,24 @@ function concatArr(decryData, decryDataTwo) {
 }
 // 权重解析
 function weightParsing(rivald, category, itemInfo, localCateId) {
+    $('.chaqz-info-wrapper.pop').remove();
     var nowTime = getCurrentTime('moreDay');
     var dateRange = setDateRange(nowTime, 'recent7');
-   var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreIndexes.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + localCateId + "&rivalItem1Id=" + rivald;
-   getHttpRquest(finalUrl,function(res){
+    var locaKey = 'rivald=' + rivald + '&dateRange=' + dateRange + '&cateId=' + localCateId;
+    if(localStorage.getItem(locaKey)){
+        var localData = JSON.parse(localStorage.getItem(locaKey))
+        domStructweightPars(localData.itemInfo, localData.data);
+        return false;
+    }
+    var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + localCateId + "&rivalItem1Id=" + rivald;
+    itemInfo.locaKey = locaKey;
+    getHttpRquest(finalUrl,function(res){
      if (!res.data) {
          popTip('暂不支持，请先将商品添加监控')
          LoadingPop();
          return false;
      }
-     var weightCount = 0;
+     COUNTER = 0;
      var resultWrap = [];
      var weightIndexType = ['seIpvUvHits', 'uv', 'cltByrCnt', 'cartByrCnt', 'payByrCntIndex', 'tradeIndex'];
      var resData = JSON.parse(Decrypt(res.data)).rivalItem1;
@@ -1746,85 +1748,113 @@ function weightParsing(rivald, category, itemInfo, localCateId) {
          var selType = weightIndexType[i];
          var bigPanUrl = 'https://sycm.taobao.com/mc/mq/supply/mkt/trend/cate.json?dateType=recent7&dateRange=' + dateRange + '&indexCode=' + selType + '&cateId=' + category + '&device=0&sellerType=-1'
          getHttpRquest(bigPanUrl, function (res) {
-             console.log(weightCount)
-             if (weightCount>4){
-                //  getCompareData(resData, resultWrap, itemInfo);
+              if (!res.data) {
+                  popTip('暂不支持，请先将商品添加监控')
+                  LoadingPop();
+                  return false;
+              }
+              var resBigData = JSON.parse(Decrypt(res.data));
+              resultWrap.push(resBigData.self);
+             if (COUNTER > 4) {
+                 COUNTER = 0;
+                 getCompareData(resData, resultWrap, itemInfo);
                  console.log(resData, resultWrap, itemInfo);
                  return false;
              }
-            if (!res.data) {
-                popTip('暂不支持，请先将商品添加监控')
-                LoadingPop();
-                return false;
-            }
-            var resBigData = JSON.parse(Decrypt(res.data));
-            resultWrap.push(resBigData.self);
-            console.log(resultWrap,selType)
-            weightCount++;
+            
+            COUNTER++;
          })
      }
    })
 }
 // 获取竞品数据
-function getCompareData(params) {
-    var nowTime = getCurrentTime('moreDay');
-    var dateRange = setDateRange(nowTime, 'recent7');
-    var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreIndexes.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + params.category + "&rivalItem1Id=" + params.rivald;
-    $.ajax({
-        url: finalUrl,
-        type: 'GET',
-        headers: {
-            "transit-id": params.transId
-        },
-        error: function () {
-            popTip('获取数据失败请重试！')
-            LoadingPop()
-        },
-        success: function (res) {
-            //  if(res.code == 1009){
-            //     weightParsing(rivald,1)
-            //     return false
-            //  }
-            if (res.code !== 0 || !res.data) {
-                popTip('暂不支持，请先将商品添加监控')
-                LoadingPop()
-                return false;
-            }
-            var decryData = JSON.parse(Decrypt(res.data)).rivalItem1;
-            var finalUrl2 = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreIndexes.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + params.category + "&rivalItem1Id=" + params.rivald2;
-            $.ajax({
-                url: finalUrl2,
-                type: 'GET',
-                headers: {
-                    "transit-id": params.transId
-                },
-                error: function () {
-                    popTip('获取数据失败请重试！')
-                    LoadingPop()
-                },
-                success: function (res2) {
-                    if (res2.code !== 0 || !res2.data) {
-                        popTip('暂不支持，请先将商品添加监控！')
-                        LoadingPop()
-                        return false;
-                    }
-                    // var decryData2 = res2.data.rivalItem1;
-                    var decryData2 = JSON.parse(Decrypt(res2.data)).rivalItem1;
-                    var dealSendData = mergeArr(decryData, decryData2)
-                    dealIndex({
-                        type: 'dealTrend',
-                        dataType: dealSendData
-                    }, function (dealRes) {
-                        var dealVal = dealRes.value
-                        dealVal.payItemCnt = [];
-                        dealVal.payItemCnt.push(decryData.payItemCnt.value)
-                        dealVal.payItemCnt.push(decryData2.payItemCnt.value)
-                        parsingAnaly(dealVal, params.itemInfo)
-                    })
-                }
-            })
+function getCompareData(resData, resultWrap, itemInfo) {
+    var selfSendIndex = filterWeightData(resData,1);
+    var itemSendIndex = filterWeightData(resultWrap);
+    dealIndex({
+        type:'dealTrend',
+        dataType: {
+            seIpvUvHits: selfSendIndex.seIpvUvHits,
+            cartHits: selfSendIndex.cartHits,
+            tradeIndex: selfSendIndex.tradeIndex,
+            uvIndex: selfSendIndex.uvIndex,
+            cltHits: selfSendIndex.cltHits,
+            payRateIndex: selfSendIndex.payRateIndex
         }
+    },function(val){
+         dealIndex({
+             type: 'dealTrend',
+             dataType: {
+                seIpvUvHits: itemSendIndex.seIpvUvHits,
+                payByrCntIndex: itemSendIndex.payByrCntIndex,
+                tradeIndex: itemSendIndex.tradeIndex
+             }
+         }, function (val2) {
+            var requestData = {};
+            requestData.selfItem={
+                seIpvUvHits: val.value.seIpvUvHits,
+                uvIndex: val.value.uvIndex,
+                cltHits: val.value.cltHits,
+                cartHits: val.value.cartHits,
+                payItemCnt: selfSendIndex.payItemCnt,
+                tradeIndex: val.value.tradeIndex,
+                payRateIndex: val.value.payRateIndex
+            }
+            requestData.item={
+                seIpvUvHits: val2.value.seIpvUvHits,
+                uvIndex: itemSendIndex.uv,
+                cltHits: itemSendIndex.cltByrCnt,
+                cartHits: itemSendIndex.cartByrCnt,
+                payItemCnt: val2.value.payByrCntIndex,
+                tradeIndex: val2.value.tradeIndex
+            }
+            requestData.version = 1.1;
+            var saveToke = localStorage.getItem('chaqz_token')
+            chrome.runtime.sendMessage({
+                key: 'getData',
+                options: {
+                    url: BASE_URL + '/py/api/v1/weight',
+                    type: 'POST',
+                    headers: {
+                        Authorization: "Bearer " + saveToke
+                    },
+                    data: JSON.stringify(requestData),
+                    contentType: "application/json,charset=utf-8",
+                }
+            }, function (val) {
+                if (val.code == 200) {
+                    localStorage.setItem(itemInfo.locaKey, JSON.stringify({
+                        itemInfo:itemInfo,
+                        data:val.data
+                    }))
+                    domStructweightPars(itemInfo, val.data)
+                } else if (val.code == 2030) {
+                    LogOut()
+                } else {
+                    popTip('解析失败');
+                }
+                $('.chaqz-info-wrapper.pop').hide();
+                LoadingPop();
+            })
+         })
     })
+   
+}
+function filterWeightData(arr,type){//过滤权重数据
+    var res={};
+    if(type){
+        for (var key in arr) {
+            res[key] = arr[key].slice(-7);
+        }
+    }else{
+        for (var j = 0; j < arr.length; j++) {
+            var element = arr[j];
+            for (var indx in element) {
+                res[indx] = element[indx].slice(-7);
+            }
+        }
+    }
+    return res
 }
 /*----------词根分析----------*/
 //  词根分析展示

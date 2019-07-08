@@ -1093,7 +1093,46 @@ function monthDays() {
     return arr;
 }
 
+function weekMonthDate(type,count) {
+    var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text();
+    var spliteTime = timeRnage.split(' ');
+    var splitLen = spliteTime.length;
+    var finalTime = (splitLen == 3 || splitLen == 2) ? spliteTime[1] : splitLen == 4 ? spliteTime[3] : '';
+    var finalDate = new Date(finalTime);
+    var res = [];
+    var year = finalDate.getFullYear();
+    var month = finalDate.getMonth() + 1;
+    if (!type) {
+        var date = finalDate.getDate();
+        var curWeek = getYearWeek(year, month, date);
+    }
 
+    for (let i = 0; i < count; i++) {
+        var text = ''
+        if (type) {
+            var calMonth = month - i < 0 ? (12 + month - i) : (month - i);
+            var calYear = month - i < 0 ? (year - 1) : year;
+            text = calYear + '-' + calMonth;
+        } else {
+            text = year + ' 第' + (curWeek - i) + '周';
+        }
+        res.push(text)
+    }
+    return res
+}
+// 获取一年中的第几周
+function getYearWeek(year, month, date) {
+    /*
+    dateNow是当前日期
+    dateFirst是当年第一天
+    dataNumber是当前日期是今年第多少天
+    用dataNumber + 当前年的第一天的周差距的和在除以7就是本年第几周
+    */
+    let dateNow = new Date(year, parseInt(month) - 1, date);
+    let dateFirst = new Date(year, 0, 1);
+    let dataNumber = Math.round((dateNow.valueOf() - dateFirst.valueOf()) / 86400000);
+    return Math.ceil((dataNumber + ((dateFirst.getDay() + 1) - 1)) / 7);
+}
 
 //  加权计划方法
 function getDay(prodctDay, key, planName,  localCache) {
@@ -1762,9 +1801,8 @@ function shopCompareAnaly(){
          return false
      }
     var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
-    var isToday = dayIndex == '实 时' ?true:false;//判断是否是实时
+    var isToday = dayIndex == '实 时' ? 'today' : dayIndex == '日' ? 'day' : false; //判断是否是实时
     var shopType = $('.op-mc-shop-analysis .op-mc-shop-analysis-trend .oui-card-switch-item-container-active').index();
-    shopType = isToday?0:shopType;
     var selectInfo = getCompareShops();
     var selfInfo = getSelfShopInfo();
     var endKey = selectInfo.keys + '&selfUserId=' + selfInfo.runAsUserId
@@ -1778,8 +1816,10 @@ function shopCompareAnaly(){
         return false;
     }
     var reductData = JSON.parse(filterLocalData(localData));
-    reductData = isToday ? reductData.data: reductData;
-    var sendData = filterCompareShopAnaly(reductData, shopType);
+    reductData = isToday=='today' ? reductData.data: reductData;
+    var filteShopType = !shopType?(isToday != 'day' && isToday != 'today') ? 2 : shopType:shopType;
+    var filtRealType = shopType?'real':0;
+    var sendData = filterCompareShopAnaly(reductData, filteShopType, filtRealType);
     dealIndex({
         type:'dealTrend',
         dataType: sendData
@@ -1788,12 +1828,64 @@ function shopCompareAnaly(){
         var tableData = [];
         var length = selectInfo.locat.length ? selectInfo.locat.length+1:1;
         var comItmeArr = selectInfo.resData;
-        var saveSelfData = '';
         for (let i = 0; i < length; i++) {
             var obj={
                 shop:{}
             };
+            if (i == 0) {
+                obj.categroy = '本店';
+                obj.shop.title = selfInfo.runAsUserName;
+                obj.shop.url = selfInfo.runAsUserImg;
+                obj.shopId = selfInfo.runAsUserId;
+                if (!shopType && isToday) {
+                    obj.prePayItmCnt = reductData.selfShop.prePayItmCnt.value;
+                    obj.fstOnsItmCnt = reductData.selfShop.fstOnsItmCnt.value;
+                } else if (shopType && isToday == 'today') {
+                    obj.uvIndex = reductData.selfShop.uv.value;
+                    obj.seIpvUvHits = reductData.selfShop.seIpvUv.value;
+                    obj.cltHit = reductData.selfShop.cltByrCnt.value;
+                    obj.cartHit = reductData.selfShop.cartByrCnt.value;
+                    obj.payByrCntIndex = reductData.selfShop.payByrCnt.value;
+                    obj.payRateIndex = (reductData.selfShop.payRate.value * 100).toFixed(2) + '%';
+                    obj.kdPrice = formulaRate(transData.tradeIndex[i], obj.payByrCntIndex);
+                    obj.uvPrice = formulaRate(transData.tradeIndex[i], obj.uvIndex, 1);
+                    obj.searchRate = formulaRate(obj.seIpvUvHits, obj.uvIndex, 1);
+                    obj.cltRate = formulaRate(obj.cltHit, obj.uvIndex, 1);
+                    obj.carRate = formulaRate(obj.cartHit, obj.uvIndex, 1);
+                }
+            } else {
+                var localItem = 'rivalShop' + selectInfo.locat[i - 1];
+                obj.categroy = '竞店' + selectInfo.locat[i - 1];
+                obj.shop.title = comItmeArr[i - 1].name;
+                obj.shop.url = comItmeArr[i - 1].picUrl;
+                obj.shopId = comItmeArr[i - 1].userId;
+                if (!shopType && isToday) {
+                    obj.prePayItmCnt = reductData[localItem].prePayItmCnt.value;
+                    obj.fstOnsItmCnt = reductData[localItem].fstOnsItmCnt.value;
+                } else if (shopType && isToday == 'today') {
+                     obj.uvIndex = reductData[localItem].uv.value;
+                     obj.seIpvUvHits = reductData[localItem].seIpvUv.value;
+                     obj.cltHit = reductData[localItem].cltByrCnt.value;
+                     obj.cartHit = reductData[localItem].cartByrCnt.value;
+                     obj.payByrCntIndex = reductData[localItem].payByrCnt.value;
+                     obj.payRateIndex = (reductData[localItem].payRate.value * 100).toFixed(2) + '%';
+                     obj.kdPrice = formulaRate(transData.tradeIndex[i], obj.payByrCntIndex);
+                     obj.uvPrice = formulaRate(transData.tradeIndex[i], obj.uvIndex, 1);
+                     obj.searchRate = formulaRate(obj.seIpvUvHits, obj.uvIndex, 1);
+                     obj.cltRate = formulaRate(obj.cltHit, obj.uvIndex, 1);
+                     obj.carRate = formulaRate(obj.cartHit, obj.uvIndex, 1);
+                }
+            }
             obj.tradeIndex = transData.tradeIndex[i];
+             if (!shopType) {
+                 obj.prePayAmtIndex = isToday ? transData.prePayAmtIndex[i] : '-';
+             } else {
+                 obj.cartByrCntIndex = transData.cartByrCntIndex[i] ? transData.cartByrCntIndex[i]:'-';
+             }
+            if (shopType && isToday == 'today'){
+                tableData.push(obj);
+                continue;
+            }
             obj.uvIndex = transData.uvIndex[i];
             obj.seIpvUvHits = transData.seIpvUvHits[i];
             obj.cltHit = transData.cltHits[i];
@@ -1802,38 +1894,11 @@ function shopCompareAnaly(){
             obj.payRateIndex = (transData.payRateIndex[i]*100).toFixed(2)+'%';
             obj.kdPrice = (transData.tradeIndex[i] == '超出范围' || !transData.payByrCntIndex[i]) ? '-' : (transData.tradeIndex[i] / transData.payByrCntIndex[i]).toFixed(2);
             obj.uvPrice = (transData.tradeIndex[i] == '超出范围' || !transData.uvIndex[i]) ? '-' : (transData.tradeIndex[i] / transData.uvIndex[i]).toFixed(2);
-            obj.searchRate = transData.uvIndex[i] ? (transData.seIpvUvHits[i] / transData.uvIndex[i] * 100).toFixed(2) : '-';
-            obj.cltRate = transData.uvIndex[i] ? (transData.cltHits[i] / transData.uvIndex[i] * 100).toFixed(2) : '-';
-            obj.carRate = transData.uvIndex[i] ? (transData.cartHits[i] / transData.uvIndex[i] * 100).toFixed(2) : '-';
-            if(!shopType){
-                obj.prePayAmtIndex = transData.prePayAmtIndex[i];
-            }else{
-                 obj.cartByrCntIndex = transData.cartByrCntIndex[i];
-            }
-            if(i==0){
-                obj.categroy = '本店';
-                obj.shop.title = selfInfo.runAsUserName;
-                obj.shop.url = selfInfo.runAsUserImg;
-                obj.shopId = selfInfo.runAsUserId;
-                if (!shopType) {
-                    obj.prePayItmCnt = reductData.selfShop.prePayItmCnt.value;
-                    obj.fstOnsItmCnt = reductData.selfShop.fstOnsItmCnt.value;
-                }
-                 saveSelfData = obj;
-            }else{
-                 obj.categroy = '竞店' + selectInfo.locat[i - 1];
-                 obj.shop.title = comItmeArr[i - 1].name;
-                 obj.shop.url = comItmeArr[i - 1].picUrl;
-                 obj.shopId = comItmeArr[i - 1].userId;
-                 if (!shopType) {
-                     obj.prePayItmCnt = reductData['rivalShop' + selectInfo.locat[i - 1]].prePayItmCnt.value;
-                     obj.fstOnsItmCnt = reductData['rivalShop' + selectInfo.locat[i - 1]].fstOnsItmCnt.value;
-                 }
-                 tableData.push(saveSelfData);
-                 tableData.push(obj);
-            }
+            obj.searchRate = transData.uvIndex[i] ? (transData.seIpvUvHits[i] / transData.uvIndex[i] * 100).toFixed(2) +'%': '-';
+            obj.cltRate = transData.uvIndex[i] ? (transData.cltHits[i] / transData.uvIndex[i] * 100).toFixed(2) + '%' : '-';
+            obj.carRate = transData.uvIndex[i] ? (transData.cartHits[i] / transData.uvIndex[i] * 100).toFixed(2) + '%' : '-';
+            tableData.push(obj);
         }
-        tableData.length ? '' : tableData.push(saveSelfData);
         var cols = [
             {
                 data: 'categroy',
@@ -1900,7 +1965,7 @@ function shopCompareAnaly(){
                 title: '加购率'
             },
         ];
-        if(!shopType){
+        if (!shopType && isToday) {
             cols.push({
                 data: 'prePayAmtIndex',
                 title: '预售定金交易金额'
@@ -1911,11 +1976,11 @@ function shopCompareAnaly(){
                 data: 'fstOnsItmCnt',
                 title: '上新商品数'
             })
-        }else{
-             cols.push({
-                 data: 'cartByrCntIndex',
-                 title: '加购金额'
-             })
+        } else if(shopType) {
+            cols.push({
+                data: 'cartByrCntIndex',
+                title: '加购金额'
+            })
         }
          domStruct({
              data: tableData,
@@ -1923,6 +1988,13 @@ function shopCompareAnaly(){
          }, '关键词指标对比')
     })
 }
+/**
+ * 
+ * @param data   数据
+ * @param type   不同日期字段
+ * @param dateType true数组否则对象
+ * @param  fitlerKey 数据key值
+ */
 function filterCompareShopAnaly(data, type, dateType,fitlerKey) {
     var resIndex={
         payRateIndex: [],
@@ -1945,12 +2017,14 @@ function filterCompareShopAnaly(data, type, dateType,fitlerKey) {
         if (!kindData) {
             continue;
         }
-        if (dateType){
+        if (dateType == 'real') {
+            resIndex.tradeIndex.push(data[pKey].tradeIndex.value);
+        }else if (dateType) {
            resIndex.payRateIndex = resIndex.payRateIndex.concat(data[pKey].payRateIndex);
            resIndex.tradeIndex = resIndex.tradeIndex.concat(data[pKey].tradeIndex);
            resIndex.payByrCntIndex = resIndex.payByrCntIndex.concat(data[pKey].payByrCntIndex);
            resIndex.uvIndex = resIndex.uvIndex.concat(type == 1 ? data[pKey].pvIndex: data[pKey].uvIndex );
-           resIndex.seIpvUvHits = resIndex.seIpvUvHits.concat(data[pKey].seIpvUvHits);
+           resIndex.seIpvUvHits = resIndex.seIpvUvHits.concat(data[pKey].seIpvUvHits ? data[pKey].seIpvUvHits : data[pKey].seIpvUvHitsIndex ? data[pKey].seIpvUvHitsIndex:[]);
            resIndex.cartHits = resIndex.cartHits.concat(data[pKey].cartHits);
            resIndex.cltHits = resIndex.cltHits.concat(type == 1 ? data[pKey].cltByrCntIndex:data[pKey].cltHits);
            if (!type) {
@@ -1972,6 +2046,11 @@ function filterCompareShopAnaly(data, type, dateType,fitlerKey) {
                 resIndex.cartByrCntIndex.push(data[pKey].cartByrCntIndex.value);
             }
         }
+     }
+     if(dateType=='real'){
+         return {
+             tradeIndex:resIndex.tradeIndex
+         }
      }
     return resIndex
 }
@@ -2032,9 +2111,9 @@ function compareShopTrend() { // 趋势
                obj.payRateIndex = (transData.payRateIndex[cot] * 100).toFixed(2) + '%';
                obj.kdPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.payByrCntIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.payByrCntIndex[cot]).toFixed(2);
                obj.uvPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.uvIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.uvIndex[cot]).toFixed(2);
-               obj.searchRate = transData.uvIndex[cot] ? (transData.seIpvUvHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
-               obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
-               obj.carRate = transData.uvIndex[cot] ? (transData.cartHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
+               obj.searchRate = transData.uvIndex[cot] ? (transData.seIpvUvHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
+               obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
+               obj.carRate = transData.uvIndex[cot] ? (transData.cartHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
                if (!shopType) {
                    obj.prePayAmtIndex = transData.prePayAmtIndex[cot];
                } else {
@@ -2780,9 +2859,9 @@ function compareItemTrend(){
                 obj.payRateIndex = (transData.payRateIndex[cot] * 100).toFixed(2) + '%';
                 obj.kdPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.payByrCntIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.payByrCntIndex[cot]).toFixed(2);
                 obj.uvPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.uvIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.uvIndex[cot]).toFixed(2);
-                obj.searchRate = transData.uvIndex[cot] ? (transData.seIpvUvHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
-                obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
-                obj.carRate = transData.uvIndex[cot] ? (transData.cartHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
+                obj.searchRate = transData.uvIndex[cot] ? (transData.seIpvUvHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
+                obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
+                obj.carRate = transData.uvIndex[cot] ? (transData.cartHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
                 obj.categroy = chainName[j];
                 obj.shop.title = comItmeArr[chainName[j]].title ? comItmeArr[chainName[j]].title : comItmeArr[chainName[j]].name;
                 obj.shop.url = comItmeArr[chainName[j]].pictUrl ? comItmeArr[chainName[j]].pictUrl : comItmeArr[chainName[j]].picUrl;
@@ -3169,9 +3248,9 @@ function compBrandIndex(){//竞品分析-关键指标
                 obj.payRateIndex = (transData.payRateIndex[i] * 100).toFixed(2) + '%';
                 obj.kdPrice = (transData.tradeIndex[i] == '超出范围' || !transData.payByrCntIndex[i]) ? '-' : (transData.tradeIndex[i] / transData.payByrCntIndex[i]).toFixed(2);
                 obj.uvPrice = (transData.tradeIndex[i] == '超出范围' || !transData.uvIndex[i]) ? '-' : (transData.tradeIndex[i] / transData.uvIndex[i]).toFixed(2);
-                obj.searchRate = transData.uvIndex[i] ? (transData.seIpvUvHits[i] / transData.uvIndex[i] * 100).toFixed(2) : '-';
-                obj.cltRate = transData.uvIndex[i] ? (transData.cltHits[i] / transData.uvIndex[i] * 100).toFixed(2) : '-';
-                obj.carRate = transData.uvIndex[i] ? (transData.cartHits[i] / transData.uvIndex[i] * 100).toFixed(2) : '-';
+                obj.searchRate = transData.uvIndex[i] ? (transData.seIpvUvHits[i] / transData.uvIndex[i] * 100).toFixed(2) + '%' : '-';
+                obj.cltRate = transData.uvIndex[i] ? (transData.cltHits[i] / transData.uvIndex[i] * 100).toFixed(2) + '%' : '-';
+                obj.carRate = transData.uvIndex[i] ? (transData.cartHits[i] / transData.uvIndex[i] * 100).toFixed(2) + '%' : '-';
                 obj.slrCnt = reductData[indexNames[i]].slrCnt.value;
                 obj.paySlrCnt = reductData[indexNames[i]].paySlrCnt.value;
                 obj.categroy = selectInfo.keyword[i];
@@ -3264,6 +3343,7 @@ function compareBrandTrend(){
          return false
      }
      var selectInfo = getCompareBrands();
+     var tabsSelect = $('.oui-date-picker .ant-btn-primary').text();
      var localKey = getSearchParams('compBrandIndex', 1, 10, 'local', {
          userId: selectInfo.keys,
          type:'trend'
@@ -3283,17 +3363,26 @@ function compareBrandTrend(){
          var tableData = [];
          var comItmeArr = selectInfo.resData;
          var indexNames = selectInfo.indexName;
-         var month30Days = monthDays();
-         for (let i = 0; i < 30; i++) {
+         var singleLength = reductData[indexNames[0]].tradeIndex.length;
+         var yearMonthDays = [];
+         if (tabsSelect == '周') {
+             yearMonthDays = weekMonthDate('', singleLength)
+         } else if (tabsSelect == '月') {
+             yearMonthDays = weekMonthDate('month', singleLength)
+         } else {
+             yearMonthDays = monthDays()
+         }
+         var len = yearMonthDays.length;
+         for (let i = 0; i < singleLength; i++) {
              for (let j = 0; j < indexNames.length; j++) {
                  var obj = {
                      shop: {}
                  };
                  var cot = i;
                  if (j > 0) {
-                     cot = j * 30 + i;
+                     cot = j * singleLength + i;
                  }
-                 obj.date = month30Days[i];
+                 obj.date = yearMonthDays[i];
                  obj.tradeIndex = transData.tradeIndex[cot];
                  obj.uvIndex = transData.uvIndex[cot];
                  obj.seIpvUvHits = transData.seIpvUvHits[cot]? transData.seIpvUvHits[cot]:'-';
@@ -3303,9 +3392,9 @@ function compareBrandTrend(){
                  obj.payRateIndex = (transData.payRateIndex[cot] * 100).toFixed(2) + '%';
                  obj.kdPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.payByrCntIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.payByrCntIndex[cot]).toFixed(2);
                  obj.uvPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.uvIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.uvIndex[cot]).toFixed(2);
-                 obj.searchRate = transData.uvIndex[cot] ? (transData.seIpvUvHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
-                 obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
-                 obj.carRate = transData.uvIndex[cot] ? (transData.cartHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) : '-';
+                 obj.searchRate = transData.uvIndex[cot] ? (transData.seIpvUvHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) +'%': '-';
+                 obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
+                 obj.carRate = transData.uvIndex[cot] ? (transData.cartHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
                  obj.slrCnt = reductData[indexNames[j]].slrCnt ? reductData[indexNames[j]].slrCnt[i]:'-';
                  obj.paySlrCnt = reductData[indexNames[j]].paySlrCnt ? reductData[indexNames[j]].paySlrCnt[i]:'-';
                  obj.categroy = selectInfo.keyword[j];

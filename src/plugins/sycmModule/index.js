@@ -226,10 +226,6 @@ $(function () {
         } else if (e.target.id == 'sycmMqIndustryCunstomer') { //行业客群-客群趋势
            $('#sycmMqIndustryCunstomer .oui-card-header-wrapper .oui-card-header-item-pull-left').append(showBtn());
            $('#completeShopPurchase .mc-Purchase .sycm-trade-rank-table-title').append(showBtn());
-        } else if (e.target.className == 'sycm-common-select-simple-text') { //属性洞察-人们属性
-            // if (!$('.op-mc-property-insight-container .oui-card-header-wrapper .oui-card-header #search').length) {
-                $('.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-title').append(showBtn());
-            // }
         } else if (e.target.className == 'op-mc-rival-trend-analysis op-mc-shop-recognition-trend-analysis oui-card') { //竞争-竞店识别
             $('.op-mc-shop-recognition .op-mc-rival-trend-analysis-chart-container-title').append(showBtn());
             $('.op-mc-shop-recognition #shopRecognitionDrainShopList .oui-card-header-wrapper .oui-card-header-item-pull-left').html(showBtn());
@@ -245,7 +241,7 @@ $(function () {
            $('.op-mc-item-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
            $('.op-mc-brand-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
         //    品牌客群
-        if (!$('.mc-brandCustomer #sycmMqBrandCunstomer .oui-card-header-item-pull-left #search').length){
+        if (!$('.mc-brandCustomer #sycmMqBrandCunstomer .oui-card-header-item-pull-left .chaqz-btns').length) {
              $('.mc-brandCustomer #sycmMqBrandCunstomer .oui-card-header-item-pull-left').append(showBtn());
         }
         } else if (e.target.id == 'mqBrandMonitor') {//监控品牌
