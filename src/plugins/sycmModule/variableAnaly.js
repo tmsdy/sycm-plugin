@@ -28,7 +28,7 @@ import {
 var tableInstance = null; //table实例对象
 var echartsInstance = null; //echarts实例对象
 var competeSelectId =0;
-var competeType = 'cross';
+var competeType = '';
 var rootWordSaveKey = '';
 var COUNTER = 0;
 var personDone = false;//人群搜索结束
@@ -659,17 +659,21 @@ function domStructRootWord(data, rootType) {
           return false;
       }
       var _index = $(this).index();
-      $(this).addClass('hasCross').siblings().removeClass('hasCross');
-       competeType = _index ? 'all' : 'cross';
       if (_index){
-        $('.chaqz-info-wrapper .analyBtn').eq(2).removeClass('hide-btn');
-        $('.chaqz-info-wrapper .analyBtn').eq(1).removeClass('hide-btn');
-        $('.chaqz-info-wrapper .bot-tips').removeClass('hide-btn');
-      }else{
-          $('.chaqz-info-wrapper .analyBtn').eq(2).addClass('hide-btn');
-          $('.chaqz-info-wrapper .analyBtn').eq(1).addClass('hide-btn');
-          $('.chaqz-info-wrapper .bot-tips').addClass('hide-btn');
+          popTip('正在升级中，敬请期待')
+          return false;
       }
+      $(this).addClass('hasCross').siblings().removeClass('hasCross');
+       competeType = !_index ? 'all' : 'cross';
+    //   if (!_index){
+    //     $('.chaqz-info-wrapper .analyBtn').eq(2).removeClass('hide-btn');
+    //     $('.chaqz-info-wrapper .analyBtn').eq(1).removeClass('hide-btn');
+    //     $('.chaqz-info-wrapper .bot-tips').removeClass('hide-btn');
+    //   }else{
+    //       $('.chaqz-info-wrapper .analyBtn').eq(2).addClass('hide-btn');
+    //       $('.chaqz-info-wrapper .analyBtn').eq(1).addClass('hide-btn');
+    //       $('.chaqz-info-wrapper .bot-tips').addClass('hide-btn');
+    //   }
  })
  // 竞品解析-切换终端-数据解析
  $(document).on('click', '.chaqz-wrapper .switchData', function () {
@@ -759,12 +763,6 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
              }
          }
      }, function (val) {
-          weightParsing(576589082425, 50000697, {
-              pic: 0,
-              title: 'test',
-              priceRange: '18`55'
-          }, 16);
-          return 
          if (val.code == 200) {
              var localCateId = getFirstCateId();
              var resCateId = val.data.rootCategoryId;
@@ -1025,14 +1023,14 @@ function concatArr(decryData, decryDataTwo) {
  function competeDataAnaly(rivalId, device,type) {
     LoadingPop('show')
     var nowTime = getCurrentTime('moreDay');
-     var dayRange = setDateRange(nowTime, 'day');
+    //  var dayRange = setDateRange(nowTime, 'day');
     var dateRange = setDateRange(nowTime);
     var titleDate = dateRange.replace('|', '~');
     var localCateId = getFirstCateId();
     var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent30&dateRange=" + dateRange + "&device=" + device + "&cateId=" + localCateId + "&rivalItem1Id=" + rivalId;
-    if(type=='cross'){
-        finalUrl = 'https://sycm.taobao.com/mc/ci/item/trend.json?dateType=day&dateRange=' + dayRange + '&cateId=' + localCateId + '&itemId=' + rivalId + '&device=' + device + '&sellerType=-1&indexCode=uvIndex%2CpayRateIndex%2CtradeIndex%2CpayByrCntIndex'
-    }
+    // if(type=='cross'){
+    //     finalUrl = 'https://sycm.taobao.com/mc/ci/item/trend.json?dateType=day&dateRange=' + dayRange + '&cateId=' + localCateId + '&itemId=' + rivalId + '&device=' + device + '&sellerType=-1&indexCode=uvIndex%2CpayRateIndex%2CtradeIndex%2CpayByrCntIndex'
+    // }
     var localData = localStorage.getItem(finalUrl);
     var hasWrap = $('.chaqz-wrapper').length
     if (localData) {
@@ -1153,8 +1151,8 @@ function concatArr(decryData, decryDataTwo) {
                         var obj = {}
                         obj.order = i + 1;
                         obj.date = tableDateArr[i]
-                        obj.tradeIndex = res.tradeIndex[i] == '超出范围,请使用插件最高支持7.8亿' ? '-' : res.tradeIndex[i]
-                        obj.uvIndex = res.uvIndex[i]
+                        obj.tradeIndex = res.tradeIndex[i];
+                        obj.uvIndex = res.uvIndex[i];
                         obj.payRate = (res.payRateIndex[i]*100).toFixed(2) + "%";
                         obj.uvPrice = formula(obj.tradeIndex, res.uvIndex[i], 1)
                         if (type == 'cross'){
@@ -1739,7 +1737,7 @@ function weightParsing(rivald, category, itemInfo, localCateId) {
     itemInfo.locaKey = locaKey;
     getHttpRquest(finalUrl,function(res){
      if (!res.data) {
-         popTip('暂不支持，请先将商品添加监控')
+         popUp('goOperator');
          LoadingPop();
          return false;
      }
