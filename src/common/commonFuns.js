@@ -369,6 +369,16 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
         return '/mc/ci/brand/crowd/trend.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&diffBrandIds=' + extra.diffId + '&indexCode=' + extra.indexCode + '&sellerType=' + sellType
     } else if (key == 'brandPersonAll') { //品牌客群-属性画像-all
         return '/mc/ci/brand/crowd.json?attrType='+extra.attrType+'&cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&diffBrandIds=' + extra.diffId + '&indexCode='+extra.indexCode+'&sellerType=' + sellType;
+    } else if (key == 'mqPropOverview') { //属性洞察-overview
+        localCateId = findcategory();
+        var isTrend = extra.type == 'trend' ? 'trend' : 'overview';
+        var indCode = extra.type == 'trend' ? '&indexCode=' : '';
+        return '/mc/mq/prop/' + isTrend + '.json?cateId=' + localCateId.id + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + indCode + '&propertyIds=' + extra.propId + '&propertyValueIds=' + extra.propValId + '&seller=' + sellType;
+    } else if (key == 'mqPropRankOverview') { //属性洞察-overview
+        localCateId = findcategory();
+        var isTrend = extra.type == 'trend' ? 'trend' : 'overview';
+        var indCode = extra.type == 'trend' ? '&indexCode=' : '';
+        return '/mc/mkt/product/' + isTrend + '.json?cateId=' + localCateId.id + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + indCode + '&sellerType=' + sellType + '&spuId=' + extra.spuId
     }
    
      
@@ -517,3 +527,111 @@ export function filterLocalData(val) {
      let decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
      return decryptedStr.toString();
  }
+ // 获取本店信息
+ export function getSelfShopInfo() {
+     var localData = localStorage.getItem('//sycm.taobao.com/custom/menu/getViewMode.json');
+     if (!localData) {
+         popTip('获取本店信息失败！')
+         return false;
+     }
+     var shopInfoFont = JSON.parse(localData).split('|')[1];
+     var shopInfo = JSON.parse(shopInfoFont).value._d.singleShops[0]
+     return shopInfo;
+ }
+ // 指数过滤
+export function filterSearchRank(data, filteWord, filterWord2) {
+     if (!data) {
+         return ''
+     }
+     var res = [];
+     var len = data.length;
+     for (let i = 0; i < len; i++) {
+         const element = data[i];
+         res.push(filterWord2 ? element[filteWord][filterWord2] : element[filteWord])
+     }
+     return res;
+ }
+ // a month date
+ export function monthDays() {
+     var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text();
+     var spliteTime = timeRnage.split(' ');
+     var splitLen = spliteTime.length;
+     var finalTime = (splitLen == 3 || splitLen == 2) ? spliteTime[1] : splitLen == 4 ? spliteTime[3] : '';
+     var finalDate = new Date(finalTime);
+     var arr = [];
+     for (let i = 0; i < 30; i++) {
+         const ele = formate('yyyy-MM-dd', new Date(finalDate - 86400000 * i))
+         arr.unshift(ele);
+     }
+     return arr;
+ }
+
+ export function weekMonthDate(type, count) {
+     var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text();
+     var spliteTime = timeRnage.split(' ');
+     var splitLen = spliteTime.length;
+     var finalTime = (splitLen == 3 || splitLen == 2) ? spliteTime[1] : splitLen == 4 ? spliteTime[3] : '';
+     var finalDate = new Date(finalTime);
+     var res = [];
+     var year = finalDate.getFullYear();
+     var month = finalDate.getMonth() + 1;
+     if (!type) {
+         var date = finalDate.getDate();
+         var curWeek = getYearWeek(year, month, date);
+     }
+
+     for (let i = 0; i < count; i++) {
+         var text = ''
+         if (type) {
+             var calMonth = month - i < 0 ? (12 + month - i) : (month - i);
+             var calYear = month - i < 0 ? (year - 1) : year;
+             text = calYear + '-' + calMonth;
+         } else {
+             text = year + ' 第' + (curWeek - i) + '周';
+         }
+         res.push(text)
+     }
+     return res
+ }
+ // 获取一年中的第几周
+ function getYearWeek(year, month, date) {
+     /*
+     dateNow是当前日期
+     dateFirst是当年第一天
+     dataNumber是当前日期是今年第多少天
+     用dataNumber + 当前年的第一天的周差距的和在除以7就是本年第几周
+     */
+     let dateNow = new Date(year, parseInt(month) - 1, date);
+     let dateFirst = new Date(year, 0, 1);
+     let dataNumber = Math.round((dateNow.valueOf() - dateFirst.valueOf()) / 86400000);
+     return Math.ceil((dataNumber + ((dateFirst.getDay() + 1) - 1)) / 7);
+ }
+// 趋势分析方法
+export function trendKeyJoin(type, idNum) {
+    var trendFont = getSearchParams("allTrend", null, null, 'type');
+    var res = '';
+    if (type == 'brand') {
+        res = '/mc/ci/brand/trend.json?brandId=' + idNum + '&' + trendFont + "&sellerType=-1";
+    }
+    if (type == 'shop') {
+        res = '/mc/ci/shop/trend.json?' + trendFont + "&sellerType=-1&userId=" + idNum;
+    }
+    if (type == 'item') {
+        res = '/mc/ci/shop/trend.json?' + trendFont + "&itemId=" + idNum + "&sellerType=-1";
+    }
+    return res
+}
+
+export function trendInfoJoin(type, idNum, cateId) {
+    var res = '';
+    if (type == 'brand') {
+        res = '/mc/ci/config/rival/brand/getSingleMonitoredInfo.json?brandId=' + idNum + '&firstCateId=' + cateId + '&rivalType=brand';
+    }
+    if (type == 'shop') {
+        res = '/mc/ci/config/rival/shop/getSingleMonitoredInfo.json?firstCateId=' + cateId + '&rivalType=shop&userId=' + idNum;
+    }
+    if (type == 'item') {
+        res = '/mc/ci/config/rival/item/getSingleMonitoredInfo.json?firstCateId=' + cateId + '&itemId=' + idNum + '&rivalType=item';
+    }
+    return res
+}

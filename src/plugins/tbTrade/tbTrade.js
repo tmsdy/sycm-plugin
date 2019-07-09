@@ -1,4 +1,5 @@
 console.log("taobao 交易管理");
+
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
     'http://118.25.153.205:8090';
 var LOCAL_VERSION = '1.0.13';
@@ -23,6 +24,7 @@ chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray)
         if (e.target.className.indexOf('ww-inline')!=-1) {
             if (haset) {
                 $('.item-mod__trade-order___2LnGB .buyer-mod__buyer___3NRwJ').parent().append('<button id="chaqzSearch" class="tbtrade-btn">点击查黑号</button>');
+                $('.item-mod__thead-cell___3aIQ_:first-child').append('<button id="chaqzCheck" class="tbtrade-btn" style="margin-left:20px;">淘客订单检测</button>');
                 haset = false
             }
 
@@ -37,6 +39,12 @@ chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray)
 $(document).on('click', '#chaqzSearch', function () {
     var tbName = $(this).siblings().find('.buyer-mod__name___S9vit').text();
     isLogin ? anyDom.searchHei(tbName) : anyDom.init(tbName);
+
+})
+// 逃课检测
+$(document).on('click', '#chaqzCheck', function () {
+    var tbName = $(this).prev().children().eq(3).text()+'';
+    isLogin ? anyDom.searchTbk(tbName) : anyDom.init();
 
 })
 var anyDom = {
@@ -193,6 +201,16 @@ var anyDom = {
             }
             LoadingPop()
         })
+    },
+    searchTbk:function(ids){
+        var text = 'https://mos.m.taobao.com/union/query_cps_result?tbTradeParentId=' + ids;
+        popUp.init('weixin')
+        var QRCode = require('qrcode');
+        var canvas = document.getElementById('qrcode');
+        QRCode.toCanvas(canvas, text, function (error) {
+            if (error) console.error(error)
+            console.log('success!');
+        })
     }
 }
 function logOut(){
@@ -248,7 +266,7 @@ var popUp = {
     renewal: '<p class="tips"> 已达使用上限,请前往官网升级续费。</p><div class="cha-btns"><button class="cancel  mr_30 btn hided">取消</button><button class="btn buyBtn">前往</button></div>',
     hasLogout: '<p class="tips">登录过期,去重新登录</p><div class="cha-btns"><button class="cancel  mr_30 btn hided">取消</button><button class="btn goLogin">确认</button></div>',
     orderSucc: '<p class="tips">若订购成功请刷新。</p><div class="cha-btns"><button id="pageRefresh" class="btn">确定</button></div>',
-    weixin: '<p class="head">查权重客服很高兴为您服务</p><img src="https://file.cdn.chaquanzhong.com/wx_contact.jpg" alt="wx"><p class="foot">微信扫一扫 添加客服</p>',
+    weixin: '<canvas id="qrcode"></canvas>',
     init: function (type, data) {
         if ($('.chaqz-info-wrapper.pop').length) {
             this.changeDom(type, data)

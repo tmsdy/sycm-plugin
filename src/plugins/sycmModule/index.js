@@ -205,9 +205,15 @@ $(function () {
              if (!$('.op-mc-property-insight-container .oui-card-title:contains("热销榜单")').next().find('.chaqz-btns').length) { //属性洞察-hotlOIST
                 $('.op-mc-property-insight-container .oui-card-title:contains("热销榜单")').next().append(showBtn());
              }
+             if (!$('.op-mc-property-insight-container #propertyTrend .oui-card-header-item-pull-left .chaqz-btns').length) { //属性洞察-属性趋势
+                $('.op-mc-property-insight-container #propertyTrend .oui-card-header-item-pull-left').append(showBtn());
+             }
              if (!$('.op-mc-product-insight-container .oui-card-title:contains("热销榜单")').next().find('.chaqz-btns').length) { //产品洞察-hotlOIST
                  $('.op-mc-product-insight-container .oui-card-title:contains("热销榜单")').next().append(showBtn());
              }
+              if (!$('.op-mc-product-insight-container #productTrend .oui-card-header-item-pull-left .chaqz-btns').length) { //产品洞察-属性趋势
+                  $('.op-mc-product-insight-container #productTrend .oui-card-header-item-pull-left').append(showBtn());
+              }
         } else if (e.target.id == 'categoryConstitute') { //market-analy-struct
             if (!$('.op-mc-search-analyze-container  .oui-card-header-wrapper .chaqz-btns').length) {
                 $('.op-mc-search-analyze-container  .oui-card-header-wrapper').eq(0).append(showBtn())
@@ -240,6 +246,8 @@ $(function () {
            $('.op-mc-shop-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
            $('.op-mc-item-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
            $('.op-mc-brand-analysis .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());
+           $('.op-mc-property-insight-container .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn());//属性洞察
+           $('.op-mc-product-insight-container .alife-one-design-sycm-indexes-trend .oui-pro-chart-component-legend-content').append(showBtn()); //产品洞察
         //    品牌客群
         if (!$('.mc-brandCustomer #sycmMqBrandCunstomer .oui-card-header-item-pull-left .chaqz-btns').length) {
              $('.mc-brandCustomer #sycmMqBrandCunstomer .oui-card-header-item-pull-left').append(showBtn());

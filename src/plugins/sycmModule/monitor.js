@@ -12,10 +12,15 @@ import {
      getproduceIds,
      getFirstCateId,
      getDateRange,
-     formate,
      formulaRate,
      getCurrentTime,
-     filterLocalData
+     filterLocalData,
+     getSelfShopInfo,
+     filterSearchRank,
+     monthDays,
+     weekMonthDate,
+     trendKeyJoin,
+     trendInfoJoin
  } from '../../common/commonFuns'
  import {
      LoadingPop,
@@ -276,37 +281,37 @@ function domStructMark(data, title, type) {
          ]
      });
      var myChart = echarts.init(document.getElementById('chaqzx-echarts-wrap'));
-     var option = {}
+     var option = {
+         tooltip: {
+             trigger: 'axis'
+         },
+         grid: {
+             right: '5%',
+             left: '5%'
+         },
+         xAxis: {
+             type: 'category',
+             boundaryGap: false,
+             data: eDate
+         },
+         yAxis: [{
+             type: 'value',
+             axisLine: {
+                 show: false
+             },
+             axisTick: {
+                 show: false
+             },
+             axisLabel: {
+                 show: false
+             },
+             splitLine: {
+                 show: true
+             }
+         }],
+     }
      if (title.type == 'dapan') {
-         option = {
-             tooltip: {
-                 trigger: 'axis'
-             },
-             grid: {
-                 right: '5%',
-                 left: '5%'
-             },
-             xAxis: {
-                 type: 'category',
-                 boundaryGap: false,
-                 data: eDate
-             },
-             yAxis: [{
-                 type: 'value',
-                 axisLine: {
-                     show: false
-                 },
-                 axisTick: {
-                     show: false
-                 },
-                 axisLabel: {
-                     show: false
-                 },
-                 splitLine: {
-                     show: true
-                 }
-             }],
-             series: [{
+         option.series = [{
                      name: edata.typeNames.selfName,
                      type: 'line',
                      smooth: true,
@@ -323,37 +328,8 @@ function domStructMark(data, title, type) {
                      data: edata.cate
                  },
              ]
-         };
      } else if (title.type == 'only') {
-         option = {
-             tooltip: {
-                 trigger: 'axis'
-             },
-             grid: {
-                 right: '5%',
-                 left: '5%'
-             },
-             xAxis: {
-                 type: 'category',
-                 boundaryGap: false,
-                 data: eDate
-             },
-             yAxis: [{
-                 type: 'value',
-                 axisLine: {
-                     show: false
-                 },
-                 axisTick: {
-                     show: false
-                 },
-                 axisLabel: {
-                     show: false
-                 },
-                 splitLine: {
-                     show: true
-                 }
-             }],
-             series: [{
+         option.series[{
                  name: title.name,
                  type: 'line',
                  smooth: true,
@@ -361,37 +337,8 @@ function domStructMark(data, title, type) {
                  symbol: 'circle',
                  data: edata
              }]
-         };
      } else if (title.type == 'sourceTrend') {
-         option = {
-             tooltip: {
-                 trigger: 'axis'
-             },
-             grid: {
-                 right: '5%',
-                 left: '5%'
-             },
-             xAxis: {
-                 type: 'category',
-                 boundaryGap: false,
-                 data: eDate
-             },
-             yAxis: [{
-                 type: 'value',
-                 axisLine: {
-                     show: false
-                 },
-                 axisTick: {
-                     show: false
-                 },
-                 axisLabel: {
-                     show: false
-                 },
-                 splitLine: {
-                     show: true
-                 }
-             }],
-             series: [{
+         option.series = [{
                  name: '本店',
                  type: 'line',
                  smooth: true,
@@ -414,37 +361,8 @@ function domStructMark(data, title, type) {
                 symbol: 'circle',
                 data: edata.rival2
             }]
-         };
      } else if (title.type == 'itemSourceTrend') {
-         option = {
-             tooltip: {
-                 trigger: 'axis'
-             },
-             grid: {
-                 right: '5%',
-                 left: '5%'
-             },
-             xAxis: {
-                 type: 'category',
-                 boundaryGap: false,
-                 data: eDate
-             },
-             yAxis: [{
-                 type: 'value',
-                 axisLine: {
-                     show: false
-                 },
-                 axisTick: {
-                     show: false
-                 },
-                 axisLabel: {
-                     show: false
-                 },
-                 splitLine: {
-                     show: true
-                 }
-             }],
-             series: [{
+         option.series = [{
                      name: edata.itemName[0],
                      type: 'line',
                      smooth: true,
@@ -468,8 +386,6 @@ function domStructMark(data, title, type) {
                      data: edata.data[2]
                  }
              ]
-         };
-         
      } else {
          option = {
              tooltip: {
@@ -585,9 +501,6 @@ function domStructMark(data, title, type) {
  function trendTable(paramsSwitch) {
      var maskWrap = $('.ant-modal-mask:not(.ant-modal-mask-hidden)').siblings('.ant-modal-wrap')
      var maskHead = maskWrap.find('.ant-modal-header')
-    //  var chooseList = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index() //0店铺，1商品，2品牌
-    //  var switchType = chooseList == 1 ? 'item' : chooseList == 2 ? 'brand' : 'shop';
-    //  switchType = paramsSwitch ? paramsSwitch : switchType;
      switchType = paramsSwitch ;
      if ($(maskHead).find('.serachBtn').length) {
          return false
@@ -747,11 +660,9 @@ function compareItemSourceTrend(val, selectInfo, selecItem, seleName) {
      var tableData = [];
      var comItmeArr = selectInfo.resData;
       var chainName = selectInfo.keyword.name;
-      var keyName = selectInfo.keyword.enkey;
      var month30Days = monthDays();
      for (let i = 0; i < 30; i++) {
          var itemNums = selectInfo.keyword.name.length;
-         // var saveSelfData = '';
          for (let j = 0; j < itemNums; j++) {
              var obj = {
                  shop: {}
@@ -886,44 +797,14 @@ function compareItemSourceTrend(val, selectInfo, selecItem, seleName) {
       })
  }
 /**function type-------------- */
-// 趋势分析方法
-function trendKeyJoin(type, idNum) {
-    var trendFont = getSearchParams("allTrend", null, null, 'type');
-    var res = '';
-    if (type == 'brand') {
-        res = '/mc/ci/brand/trend.json?brandId=' + idNum + '&' + trendFont + "&sellerType=-1";
-    }
-    if (type == 'shop') {
-        res = '/mc/ci/shop/trend.json?' + trendFont + "&sellerType=-1&userId=" + idNum;
-    }
-    if (type == 'item') {
-        res = '/mc/ci/shop/trend.json?' + trendFont + "&itemId=" + idNum + "&sellerType=-1";
-    }
-    return res
-}
 
-function trendInfoJoin(type, idNum, cateId) {
-    var res = '';
-    if (type == 'brand') {
-        res = '/mc/ci/config/rival/brand/getSingleMonitoredInfo.json?brandId=' + idNum + '&firstCateId=' + cateId + '&rivalType=brand';
-    }
-    if (type == 'shop') {
-        res = '/mc/ci/config/rival/shop/getSingleMonitoredInfo.json?firstCateId=' + cateId + '&rivalType=shop&userId=' + idNum;
-    }
-    if (type == 'item') {
-        res = '/mc/ci/config/rival/item/getSingleMonitoredInfo.json?firstCateId=' + cateId + '&itemId=' + idNum + '&rivalType=item';
-    }
-    return res
-}
 // 获取对比选项
 function getCompareShops() {
     var searchItemWrap = $('.op-mc-shop-analysis .sycm-common-select-wrapper .alife-dt-card-sycm-common-select');
-    // var searchKey1 = searchItemWrap.eq(0).find('.sycm-common-select-selected-title').length ? searchwordWrap.eq(0).find('.sycm-common-select-selected-title').text() : '';
     var searchKey2 = searchItemWrap.eq(1).find('.sycm-common-select-selected-title').length ? searchItemWrap.eq(1).find('.sycm-common-select-selected-title').text() : '';
     var searchKey3 = searchItemWrap.eq(2).find('.sycm-common-select-selected-title').length ? searchItemWrap.eq(2).find('.sycm-common-select-selected-title').text() : '';
     var keyword = [];
     var locat = []
-    // searchKey1 ? keyword.push(searchKey1) : '';
     var compareShops = dataWrapper.getMonitoredList.data.shop;
     if(!compareShops){
         popTip('获取竞店列表为空，请重试！');
@@ -958,7 +839,6 @@ function getCompareShops() {
 }
  function getLocalSelfList() {//获取对比本店商品列表
      var localSelf = localStorage.getItem('/mc/rivalShop/recommend/item.json')
-    //  var getLocal = localSelf ? JSON.parse(localSelf.split("|")[1]).value._d : '';
      return JSON.parse(filterLocalData(localSelf))
  }
 // 获取竞品对比选项
@@ -1054,86 +934,6 @@ function getCompareBrands(type) {
         selectIds: selecIdList
     }
 }
-// 获取本店信息
-function getSelfShopInfo (){
-    var localData = localStorage.getItem('//sycm.taobao.com/custom/menu/getViewMode.json');
-    if(!localData){
-        popTip('获取本店信息失败！')
-        return false;
-    }
-    var shopInfoFont = JSON.parse(localData).split('|')[1];
-    var shopInfo = JSON.parse(shopInfoFont).value._d.singleShops[0]
-    return shopInfo;
-}
-// 指数过滤
-function filterSearchRank(data, filteWord,filterWord2) {
-    if (!data) {
-        return ''
-    }
-    var res = [];
-    var len = data.length;
-    for (let i = 0; i < len; i++) {
-        const element = data[i];
-        res.push(filterWord2 ? element[filteWord][filterWord2] : element[filteWord])
-    }
-    return res;
-}
-// a month date
-function monthDays() {
-    var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text();
-    var spliteTime = timeRnage.split(' ');
-    var splitLen = spliteTime.length;
-    var finalTime = (splitLen == 3 || splitLen == 2) ? spliteTime[1] : splitLen == 4 ? spliteTime[3] : '';
-    var finalDate = new Date(finalTime);
-    var arr = [];
-    for (let i = 0; i < 30; i++) {
-        const ele = formate('yyyy-MM-dd', new Date(finalDate - 86400000 * i))
-        arr.unshift(ele);
-    }
-    return arr;
-}
-
-function weekMonthDate(type,count) {
-    var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text();
-    var spliteTime = timeRnage.split(' ');
-    var splitLen = spliteTime.length;
-    var finalTime = (splitLen == 3 || splitLen == 2) ? spliteTime[1] : splitLen == 4 ? spliteTime[3] : '';
-    var finalDate = new Date(finalTime);
-    var res = [];
-    var year = finalDate.getFullYear();
-    var month = finalDate.getMonth() + 1;
-    if (!type) {
-        var date = finalDate.getDate();
-        var curWeek = getYearWeek(year, month, date);
-    }
-
-    for (let i = 0; i < count; i++) {
-        var text = ''
-        if (type) {
-            var calMonth = month - i < 0 ? (12 + month - i) : (month - i);
-            var calYear = month - i < 0 ? (year - 1) : year;
-            text = calYear + '-' + calMonth;
-        } else {
-            text = year + ' 第' + (curWeek - i) + '周';
-        }
-        res.push(text)
-    }
-    return res
-}
-// 获取一年中的第几周
-function getYearWeek(year, month, date) {
-    /*
-    dateNow是当前日期
-    dateFirst是当年第一天
-    dataNumber是当前日期是今年第多少天
-    用dataNumber + 当前年的第一天的周差距的和在除以7就是本年第几周
-    */
-    let dateNow = new Date(year, parseInt(month) - 1, date);
-    let dateFirst = new Date(year, 0, 1);
-    let dataNumber = Math.round((dateNow.valueOf() - dateFirst.valueOf()) / 86400000);
-    return Math.ceil((dataNumber + ((dateFirst.getDay() + 1) - 1)) / 7);
-}
-
 //  加权计划方法
 function getDay(prodctDay, key, planName,  localCache) {
     var timer = null;
@@ -1671,16 +1471,7 @@ function recognitDrainShop(pageType) {
     var curPage = $('.op-mc-shop-recognition .ant-pagination .ant-pagination-item-active').attr('title');
     var curPageSize = $('.op-mc-shop-recognition .oui-page-size .ant-select-selection-selected-value').text();
     curPageSize = Number(curPageSize);
-    var finalKey = '';
     var itemKey = getSearchParams('topDrainList', curPage, curPageSize);
-    // var localKey = getSearchParams('topDrainList', curPage, curPageSize, 'local')
-
-    // if (localStorage.getItem(itemKey)) {
-    //     finalKey = itemKey;
-    // } else {
-    //     finalKey = localKey;
-    //     localCache = true;
-    // }
      var localData = localStorage.getItem(itemKey);
      if (!localData) {
          popTip('获取数据失败！')
@@ -1988,13 +1779,6 @@ function shopCompareAnaly(){
          }, '关键词指标对比')
     })
 }
-/**
- * 
- * @param data   数据
- * @param type   不同日期字段
- * @param dateType true数组否则对象
- * @param  fitlerKey 数据key值
- */
 function filterCompareShopAnaly(data, type, dateType,fitlerKey) {
     var resIndex={
         payRateIndex: [],
@@ -2063,7 +1847,6 @@ function compareShopTrend() { // 趋势
     var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
     var isToday = dayIndex == '实 时' ? true : false; //判断是否是实时
     var shopType = $('.op-mc-shop-analysis .op-mc-shop-analysis-trend .oui-card-switch-item-container-active').index();
-    // shopType = isToday ? 0 : shopType;
     var selectInfo = getCompareShops();
     var selfInfo = getSelfShopInfo();
     var endKey = selectInfo.keys + '&selfUserId=' + selfInfo.runAsUserId
@@ -2100,10 +1883,8 @@ function compareShopTrend() { // 趋势
         } else {
             month30Days = monthDays()
         }
-        // var saveSelfData = '';
         for (let i = 0; i < totalLen; i++) {
             var itemNums = selectInfo.locat.length + 1;
-            // var saveSelfData = '';
             for (let j = 0; j< itemNums; j++) {
                var obj = {
                    shop: {}
@@ -2157,7 +1938,6 @@ function compareShopTrend() { // 趋势
              tableData.push(obj);
             }
         }
-        // tableData.length ? '' : tableData.push(saveSelfData);
         var cols = [
             {
                 data: 'date',
@@ -2276,7 +2056,6 @@ function getShopFlowSource() {
             var len = reductData.length;
             for (let i = 0; i < len; i++) {
                  var itemNums = selectInfo.locat.length + 1;
-                 // var saveSelfData = '';
                  for (let j = 0; j < itemNums; j++) {
                      var obj = {
                          shop: {}
@@ -2841,13 +2620,11 @@ function compareItemTrend(){
         var totalLen = reductData[keyName[0]].tradeIndex.length;
         totalLen = totalLen ? totalLen : 30;
         var month30Days = monthDays();
-        // var saveSelfData = '';
         for (let i = 0; i < totalLen; i++) {
             var obj = {
                 shop: {}
             };
             var itemNums = selectInfo.keyword.name.length;
-            // var saveSelfData = '';
             for (let j = 0; j < itemNums; j++) {
                 var obj = {
                     shop: {}
@@ -2876,7 +2653,6 @@ function compareItemTrend(){
                 tableData.push(obj);
             }
         }
-        // tableData.length ? '' : tableData.push(saveSelfData);
         var cols = [{
                 data: 'date',
                 title: '日期'
@@ -3621,7 +3397,6 @@ function brandCustomer(){
          return false
      }
      var tabSelectDom = $('.mc-brandCustomer #sycmMqBrandCunstomer .ant-radio-checked');//选择项
-    //  var tabIndex = tabSelectDom.parent().index();
      var selIndex = tabSelectDom.find('.ant-radio-input').val();
      var selectInfo = getCompareBrands(1);
      var diffBrandId = selectInfo.selectIds;
@@ -3742,7 +3517,6 @@ function brandPersonAll() {
         selectInfo: selectInfo
     })
 }
-
 function cycleFindPerson( extra) {
     var typeItems = ['payByrCntIndex', 'payByrCntRate', 'tradeIndex', 'payRateIndex'];
     var curStep = extra.step;
@@ -3781,7 +3555,6 @@ function cycleFindPerson( extra) {
         }, 350)
     }
 }
-
 function brandPersonShow(indexData, selectInfo) {
     var resBox = {
         payByrCntIndex:[],
@@ -3869,7 +3642,6 @@ function brandProvce(type, selectItem) { //属性分析-city-prov
     var sleList = selectInfo.selectIds;
     var chinaName = selectInfo.keyword;
     var tabsHtml = '';
-    // var curBrandId = seleItems[0].brandId;
     for (let i = 0; i < seleItems.length; i++) {
         var isActive = i == 0 ? 'active' : '';
         tabsHtml += '<button class="switchBtn ' + isActive + ' switchBrandCity" data-id=' + seleItems[i].brandId + '>' + chinaName[i] + '</button>';

@@ -1775,12 +1775,12 @@ function getTopItem(category, itemInfo, localCateId, selfCoreData) {
             COUNTER = 0;
             var resultWrap = [];
             resultWrap.push({
-                tradeIndex: res2Data.tradeIndex
+                tradeIndexTop: res2Data.tradeIndex
             }, {
-                payByrCntIndex: res2Data.payByrCntIndex
+                payByrCntIndexTop: res2Data.payByrCntIndex
             })
-            var weightIndexType = ['seIpvUvHits', 'cltByrCnt', 'cartByrCnt', 'uv'];
-            for (let i = 0; i < 4; i++) {
+            var weightIndexType = ['seIpvUvHits', 'uv', 'cltByrCnt', 'cartByrCnt', 'payByrCntIndex', 'tradeIndex'];
+            for (let i = 0; i < 6; i++) {
                 var selType = weightIndexType[i];
                 var bigPanUrl = 'https://sycm.taobao.com/mc/mq/supply/mkt/trend/cate.json?dateType=recent7&dateRange=' + dateRange + '&indexCode=' + selType + '&cateId=' + category + '&device=0&sellerType=-1'
                 getHttpRquest(bigPanUrl, function (res) {
@@ -1791,7 +1791,7 @@ function getTopItem(category, itemInfo, localCateId, selfCoreData) {
                     }
                     var resBigData = JSON.parse(Decrypt(res.data));
                     resultWrap.push(resBigData.self);
-                    if (COUNTER > 2) {
+                    if (COUNTER > 4) {
                         COUNTER = 0;
                         getCompareData(selfCoreData, resultWrap, itemInfo);
                         console.log(selfCoreData, resultWrap, itemInfo);
@@ -1824,8 +1824,9 @@ function getCompareData(resData, resultWrap, itemInfo) {
                 seIpvUvHits: itemSendIndex.seIpvUvHits,
                 payByrCntIndex: itemSendIndex.payByrCntIndex,
                 tradeIndex: itemSendIndex.tradeIndex,
-                uvIndex: itemSendIndex.uvIndex
-
+                uvIndex: itemSendIndex.uvIndex,
+                tradeIndexTop: itemSendIndex.tradeIndexTop,
+                payByrCntIndexTop: itemSendIndex.payByrCntIndexTop
              }
          }, function (val2) {
             var requestData = {};
@@ -1846,6 +1847,10 @@ function getCompareData(resData, resultWrap, itemInfo) {
                 payItemCnt: val2.value.payByrCntIndex,
                 tradeIndex: val2.value.tradeIndex
             }
+            requestData.topItem = {
+                tradeIndex: val2.value.tradeIndex,
+                payItemCnt: val2.value.payByrCntIndexTop,
+            }
             requestData.version = 1.1;
             var saveToke = localStorage.getItem('chaqz_token')
             chrome.runtime.sendMessage({
@@ -1859,14 +1864,14 @@ function getCompareData(resData, resultWrap, itemInfo) {
                     data: JSON.stringify(requestData),
                     contentType: "application/json,charset=utf-8",
                 }
-            }, function (val) {
-                if (val.code == 200) {
+            }, function (val3) {
+                if (val3.code == 200) {
                     localStorage.setItem(itemInfo.locaKey, JSON.stringify({
                         itemInfo:itemInfo,
                         data:val.data
                     }))
-                    domStructweightPars(itemInfo, val.data)
-                } else if (val.code == 2030) {
+                    domStructweightPars(itemInfo, val3.data)
+                } else if (val3.code == 2030) {
                     LogOut()
                 } else {
                     popTip('解析失败');

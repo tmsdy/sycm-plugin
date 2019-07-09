@@ -10,7 +10,12 @@ import {
     getDateRange,
     filterLocalData,
     formate,
-    findcategory
+    findcategory,
+    trendInfoJoin,
+    trendKeyJoin,
+    weekMonthDate,
+    monthDays,
+    formulaRate
 } from '../../common/commonFuns';
 import {
     LoadingPop,
@@ -146,29 +151,6 @@ var rememberPropId = '';
              var localKey = getSearchParams('structSearchItem', (info.page + 1), paramsPage.pageSize);
              var hasSave = localStorage.getItem(localKey);
              astructRelatedTable()
-            //  if (!hasSave) {
-            //      timer = setInterval(function () {
-            //          hasSave = localStorage.getItem(localKey);
-            //          if (hasSave ) {
-            //              astructRelatedTable();
-            //              clearInterval(timer);
-            //              timer = null;
-            //              hasCount = 0;
-            //          } else if (hasCount > 10) {
-            //              clearInterval(timer);
-            //              timer = null;
-            //              hasCount = 0;
-            //              popTip('获取数据失败！');
-            //              LoadingPop();
-            //          } else {
-            //              hasCount++
-            //          }
-
-            //      }, 200);
-            //  } else {
-            //      astructRelatedTable()
-            //  }
-
          } else if (type == 6) {
              $('.chaqz-wrapper .chaqz-mask').show(100);
              $('.op-mc-property-insight-container .ant-pagination .ant-pagination-item-' + (info.page + 1)).click();
@@ -295,37 +277,37 @@ var rememberPropId = '';
          ]
      });
      var myChart = echarts.init(document.getElementById('chaqzx-echarts-wrap'));
-     var option = {}
+     var option = {
+         tooltip: {
+             trigger: 'axis'
+         },
+         grid: {
+             right: '5%',
+             left: '5%'
+         },
+         xAxis: {
+             type: 'category',
+             boundaryGap: false,
+             data: eDate
+         },
+         yAxis: [{
+             type: 'value',
+             axisLine: {
+                 show: false
+             },
+             axisTick: {
+                 show: false
+             },
+             axisLabel: {
+                 show: false
+             },
+             splitLine: {
+                 show: true
+             }
+         }],
+     }
      if (title.type == 'dapan') {
-         option = {
-            tooltip: {
-                trigger: 'axis'
-            },
-            grid: {
-                right: '5%',
-                left: '5%'
-            },
-            xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                data: eDate
-            },
-            yAxis: [{
-                type: 'value',
-                axisLine: {
-                    show: false
-                },
-                axisTick: {
-                    show: false
-                },
-                axisLabel: {
-                    show: false
-                },
-                splitLine: {
-                    show: true
-                }
-            }],
-            series: [{
+         option.series = [{
                     name: edata.typeNames.selfName,
                     type: 'line',
                     smooth: true,
@@ -342,37 +324,8 @@ var rememberPropId = '';
                     data: edata.cate
                 },
             ]
-        };
      } else if (title.type == 'only') {
-        option = {
-            tooltip: {
-                trigger: 'axis'
-            },
-            grid: {
-                right: '5%',
-                left: '5%'
-            },
-            xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                data: eDate
-            },
-            yAxis: [{
-                type: 'value',
-                axisLine: {
-                    show: false
-                },
-                axisTick: {
-                    show: false
-                },
-                axisLabel: {
-                    show: false
-                },
-                splitLine: {
-                    show: true
-                }
-            }],
-            series: [{
+        option.series = [{
                     name: title.name,
                     type: 'line',
                     smooth: true,
@@ -381,8 +334,123 @@ var rememberPropId = '';
                     data: edata
                 }
             ]
-        };
-     }else{
+     } else if (title.type == 'mqprop') {
+         option.series = [{
+             name: '支付买家数',
+             type: 'line',
+             smooth: true,
+             showSymbol: false,
+             symbol: 'circle',
+             data: edata.payByrCnt
+            },
+            {
+                name: '支付件数',
+                type: 'line',
+                smooth: true,
+                showSymbol: false,
+                symbol: 'circle',
+                data: edata.payItmCnt
+            },
+            {
+                name: '支付子订单数',
+                type: 'line',
+                smooth: true,
+                showSymbol: false,
+                symbol: 'circle',
+                data: edata.payOrdCnt
+            }, {
+                name: '交易金额',
+                type: 'line',
+                smooth: true,
+                showSymbol: false,
+                symbol: 'circle',
+                data: edata.tradeIndex
+            }
+        ]
+     } else if (title.type == 'mqpropRnak') {
+         option.toolbox = {
+             show: true
+         }
+         option.legend = {
+             data: ['交易金额', '访客人数', '搜索人数', '收藏人数', '加购人数', '支付人数', '支付转化率', '卖家数', '有支付卖家数', '支付商品数'],
+             right: '5%'
+         }
+         option.series = [
+             {
+                 name: '交易金额',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.tradeIndex
+             },
+             {
+                 name: '访客人数',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.uvIndex
+             },
+             {
+                 name: '搜索人数',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.seIpvUvHits
+             }, {
+                 name: '收藏人数',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.cltHits
+             }, {
+                 name: '加购人数',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.cartHits
+             }, {
+                 name: '支付人数',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.payByrCntIndex
+             }, {
+                 name: '支付转化率',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.payRateIndex
+             }, {
+                 name: '卖家数',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.payItemCnt
+             }, {
+                 name: '有支付卖家数',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.paySlrCnt
+             }, {
+                 name: '支付商品数',
+                 type: 'line',
+                 smooth: true,
+                 showSymbol: false,
+                 symbol: 'circle',
+                 data: edata.slrCnt
+             }
+         ]
+     } else {
           option = {
              tooltip: {
                  trigger: 'axis'
@@ -513,7 +581,6 @@ var rememberPropId = '';
              "sEmptyTable": '数据为空。'
          },
          pageLength: pageSize,
-        //  searching: false,
          ordering: false,
          info: false,
          dom: 'Bfrtip',
@@ -574,17 +641,14 @@ var rememberPropId = '';
             }
             obj.tradeIndex = res.tradeIndex[i] != '超出范围,请使用插件最高支持7.8亿' ? res.tradeIndex[i] : '超出范围'
             if (chooseItem == 0) {
-                //  obj.tradeIndex = res.tradeIndex[i] != '超出范围,请使用插件最高支持7.8亿' ? res.tradeIndex[i]:'超出范围'
                 obj.growth = dealTradeGrowth(marketData[i].tradeGrowthRange.value)
                 obj.payRate = res.payRate[i] ? (res.payRate[i]*100).toFixed(2) + "%":"-";
             } else if (chooseItem == 1) {
-                //  obj.tradeIndex = res.tradeIndex[i]
                 obj.uvIndex = res.uvIndex[i]
                 obj.seIpv = res.seIpv[i]
                 obj.searRate = formula(res.seIpv[i], res.uvIndex[i], 2)
                 obj.uvPrice = formula(res.tradeIndex[i], res.uvIndex[i], 1)
             } else {
-                //  obj.tradeIndex = res.tradeIndex[i]
                 obj.cltHit = res.cltHit[i]
                 obj.cartHit = res.cartHit[i]
             }
@@ -730,9 +794,6 @@ var rememberPropId = '';
    var localKey = getSearchParams(backT, curPage, curPageSize, 'local')
    if (localStorage.getItem(itemKey)) {
        finalKey = itemKey;
-    //    if (chooseTop) {
-    //        itemKey = itemKey.replace('marketFood', 'monitFood')
-    //    }
    } else {
        finalKey = localKey;
        localCache = true;
@@ -896,7 +957,6 @@ var rememberPropId = '';
     var curPageSize = $('.op-mc-market-monitor-industryCard .oui-page-size .ant-select-selection-selected-value').text()
     curPageSize = Number(curPageSize)
     var backT = hotType == 1 ? 'marketHotitem' : hotType == 2 ? 'marketHotbrand' : 'marketHotshop'
-     // var itemKey = getSearchParams(backT, curPage, curPageSize)
      var localCache = false;
      var finalKey = '';
      var itemKey = getSearchParams(backT, curPage, curPageSize);
@@ -1232,13 +1292,12 @@ function bigMarketTrendTable(){
 function bigMarketShowData(selfData, cateData, selectIndexType, typeNames) {
     var yearMonthDays = '';
     if (selectIndexType=='周'){
-        yearMonthDays = weekMonthDate()
+        yearMonthDays = weekMonthDate('',12)
     } else if (selectIndexType == '月'){
-        yearMonthDays = weekMonthDate('month')
+        yearMonthDays = weekMonthDate('month',12)
     }else{
         yearMonthDays = monthDays()
     }
-    //  var month30Days = monthDays();
     var len = yearMonthDays.length;
      var resData = [];
      for (let j = 0; j < len; j++) {
@@ -1310,18 +1369,6 @@ function searchRankTable(){
     var chooseData = wordTabType ? reductData.soarList : reductData.hotList;
     var spIv = filterSearchRank(chooseData, filteWord);
     var clickHits = filterSearchRank(chooseData, filteWord2);
-    // var relateLength = needIndex.length;
-    // var res=[];
-    // var counter = 0;
-    // termialWord(relateLength, counter, needIndex, res, {
-    //     data: chooseData,
-    //     choseInfo: {
-    //         selType: wordType,
-    //         tabType: wordTabType
-    //     }
-    // })
-    
-
     dealIndex({
         type: 'dealTrend',
         dataType: {
@@ -1343,13 +1390,11 @@ function searchRankTable(){
                 obj.clickCount = clcikHits[i];
                 obj.clickRate = chooseData[i].clickRate?(chooseData[i].clickRate * 100).toFixed(2) + '%':'-';
                 obj.payRate = chooseData[i].payRate?(chooseData[i].payRate * 100).toFixed(2) + '%':'-';
-                // obj.searchRate = chooseData[i].p4pRefPrice ? chooseData[i].p4pRefPrice : '-';
             } else {
                 obj.clickCount = clcikHits[i];
                 obj.clickRate = chooseData[i].avgWordClickRate?(chooseData[i].avgWordClickRate * 100).toFixed(2)+'%':'-';
                 obj.payRate = chooseData[i].avgWordPayRate?(chooseData[i].avgWordPayRate * 100).toFixed(2)+'%':'-';
                 obj.relSeWordCnt = chooseData[i].relSeWordCnt;
-                // obj.searchRate = chooseData[i].p4pRefPrice ? chooseData[i].p4pRefPrice : '-';
             }
             resData.push(obj)
         }
@@ -1383,10 +1428,6 @@ function searchRankTable(){
                     data: 'p4pRefPrice',
                     title: '参考价格'
                 },
-                // {
-                //     data: 'searchRate',
-                //     title: '搜索占比(%)'
-                // },
             ]
         } else {
             cols = [{
@@ -1421,10 +1462,6 @@ function searchRankTable(){
                     data: 'p4pRefPrice',
                     title: '参考价格'
                 },
-                // {
-                //     data: 'searchRate',
-                //     title: '搜索占比(%)'
-                // },
             ]
         }
         var titleFont = wordType == 1 ? '长尾词' : wordType == 2 ? '品牌词' : wordType == 3 ? '核心词' : wordType == 4 ? '修饰词' : '搜索词';
@@ -1438,135 +1475,6 @@ function searchRankTable(){
         }, (titleFont + '-' + titleEnd))
     })
 }
-// function termialWord(relateLength, counter, relateSeI, res, relateWord) {
-//     var start = counter * 100;
-//     var end = (counter + 1) * 100;
-//     if (start < relateLength) {
-//         var sendData = relateSeI.slice(start, end);
-//         dealIndex({
-//             type: 'dealTrend',
-//             dataType: {
-//                 seIpvUvHits: sendData
-//             }
-//         }, function (val) {
-//             res = res.concat(val.value.seIpvUvHits);
-//             termialWord(relateLength, counter + 1, relateSeI, res, relateWord);
-//         })
-//     } else {
-//         searchRankShow(res, relateWord)
-//     }
-
-// }
-// function searchRankShow(transList, orginData) {
-//     var resData = [];
-//     var firType = orginData.choseInfo.selType;
-//     var secType = orginData.choseInfo.tabType;
-//     var res = orginData.data;
-//     var rankLength = transList.length
-//     for (let i = 0; i < rankLength; i++) {
-//         var obj = {};
-//         obj.word = res[i].searchWord;
-//         obj.seIpvUvHits = transList[i];
-//         obj.hotrank = secType ? res[i].soarRank : res[i].hotSearchRank;
-//         obj.p4pRefPrice = res[i].p4pRefPrice ? Math.ceil(res[i].p4pRefPrice) : '-';
-//         if (firType<2){
-//             obj.clickCount = res[i].clickHits;
-//             obj.clickRate = (res[i].clickRate * 100).toFixed(2);
-//             obj.payRate = (res[i].payRate * 100).toFixed(2);
-//             // obj.searchRate = res[i].p4pRefPrice ? res[i].p4pRefPrice : '-';
-//         }else{
-//             obj.clickCount = res[i].avgWordClickHits;
-//             obj.clickRate = (res[i].avgWordClickRate * 100).toFixed(2);
-//             obj.payRate = (res[i].avgWordPayRate * 100).toFixed(2);
-//             obj.relSeWordCnt = res[i].relSeWordCnt;
-//             // obj.searchRate = res[i].p4pRefPrice ? res[i].p4pRefPrice : '-';
-//         }
-//         resData.push(obj)
-//     }
-//     var cols = [];
-//     if (firType < 2){
-//         cols = [{
-//                 data: 'word',
-//                 title: '搜索词',
-//             },
-//             {
-//                 data: 'hotrank',
-//                 title: '热搜排名'
-//             },
-//             {
-//                 data: 'seIpvUvHits',
-//                 title: '搜索人数'
-//             },
-//             {
-//                 data: 'clickCount',
-//                 title: '点击人数'
-//             },
-//             {
-//                 data: 'clickRate',
-//                 title: '点击率(%)'
-//             },
-//             {
-//                 data: 'payRate',
-//                 title: '支付转化率'
-//             },
-//             {
-//                 data: 'p4pRefPrice',
-//                 title: '参考价格'
-//             },
-//             {
-//                 data: 'searchRate',
-//                 title: '搜索占比(%)'
-//             },
-//         ]
-//     }else{
-//         cols = [{
-//                 data: 'word',
-//                 title: '搜索词',
-//             },
-//             {
-//                 data: 'hotrank',
-//                 title: '热搜排名'
-//             },
-//             {
-//                 data: 'relSeWordCnt',
-//                 title: '相关搜索词数'
-//             },
-//             {
-//                 data: 'seIpvUvHits',
-//                 title: '相关搜索人数'
-//             },
-//             {
-//                 data: 'clickCount',
-//                 title: '相关点击人数'
-//             },
-//             {
-//                 data: 'clickRate',
-//                 title: '词均点击率(%)'
-//             },
-//             {
-//                 data: 'payRate',
-//                 title: '词均支付转化率'
-//             },
-//             {
-//                 data: 'p4pRefPrice',
-//                 title: '参考价格'
-//             },
-//             // {
-//             //     data: 'searchRate',
-//             //     title: '搜索占比(%)'
-//             // },
-//         ]
-//     }
-//     var titleFont = firType == 1 ? '长尾词' : firType == 2 ? '品牌词' : firType == 3 ? '核心词' : firType == 4 ? '修饰词' :  '搜索词' ;
-//     var titleEnd = secType?'飙升':'热搜';
-//     domStructSearch({
-//         data: resData,
-//         cols: cols,
-//         paging:{
-//             pageSize:10
-//         }
-//     }, (titleFont+'-'+titleEnd))
-// }
 
 // 搜索分析
 function analyOverviewTable(){//'ovewview
@@ -1727,7 +1635,6 @@ function analyRelatedTable(){//相关分析
         popTip('获取数据失败！')
         return false;
     }
-    // cycleFind(localKey, selectItem)
     var reductData = JSON.parse(filterLocalData(localData));
     var sendData = {}
     if (!selectItem) {
@@ -1867,196 +1774,7 @@ function analyRelatedTable(){//相关分析
         }, titleName[selectItem])
 
     })
-    // analyRelatedShow(reductData, selectItem);
 }
-
-// function cycleFind(localKey, selectItem) {
-//      var reductData = JSON.parse(filterLocalData(localKey));
-//      if (reductData) {
-//         analyRelatedShow(reductData, selectItem)
-//      } else {
-//          setTimeout(function () {
-//             if (COUNT>20){
-//                 popTip('获取数据失败！')
-//                 return false;
-//             }else{
-//                 COUNT++
-//                 cycleFind(localKey, selectItem)
-//             }
-//          }, 200)
-//      }
-// }
-// function analyRelatedShow(reductData, selectItem) {
-//     var sendData = {};
-//     var seIpv =[];
-//     var trade = [];
-//     var res = {};
-//      seIpv = filterSearchRank(reductData, 'seIpvUvHits');
-//     if(selectItem){
-//         sendData.seIpvUvHits = seIpv;
-//     }else{
-//         trade = filterSearchRank(reductData, 'tradeIndex');
-//         sendData.seIpvUvHits = seIpv;
-//         sendData.tradeIndex = trade;
-//     }
-//     var relateLength = reductData.length;
-//     termialRelatedWord(relateLength, sendData, res, {
-//         reductData: reductData,
-//         selectItem: selectItem
-//     })
-// }
-// function termialRelatedWord(relateLength, relateSeI, res, reductData) {//循环指数每100指数值；
-//     var start = COUNT * 100;
-//     var end = (COUNT + 1) * 100;
-//     var sendData = {};
-//     if (start < relateLength) {
-//         for (var k in relateSeI) {
-//             sendData[k] = relateSeI[k].slice(start, end);
-//         }
-//         dealIndex({
-//             type: 'dealTrend',
-//             dataType:sendData
-//         }, function (val) {
-//              for (var key in val.value) {
-//                  if (val.value[key].length) {
-//                      res[key] = res[key] ? res[key] : [];
-//                     res[key] = res[key].concat(val.value[key]);
-//                  }
-//              }
-//              COUNT++;
-//             termialRelatedWord(relateLength, relateSeI, res, reductData);
-//         })
-//     } else {
-//         COUNT = 0;
-//         getRelatedShow(res, reductData)
-//     }
-
-// }
-// function getRelatedShow(res,originData){ //展现表格数据
-//     var selecType = originData.selectItem;
-//     var oriData = originData.reductData; //元数据
-//     var seIpv = res.seIpvUvHits;
-//     var trade = res.tradeIndex;
-//     var len = oriData.length;
-//     var tableData = [];
-//     for (let i = 0; i < len; i++) {
-//         var obj = {};
-//         obj.keyword = oriData[i].keyword;
-//         obj.spev = seIpv[i];
-//         obj.p4pAmt = oriData[i].p4pAmt ? Math.floor(oriData[i].p4pAmt) : '-';
-//         if (!selecType){
-//             obj.clickRate = (oriData[i].clickRate).toFixed(2)+'%';
-//             obj.trade = trade[i];
-//             obj.payrate = (oriData[i].payConvRate * 100).toFixed(2) + '%';
-//             obj.onlineFood = oriData[i].onlineGoodsCnt;
-//             obj.shopClickRate = oriData[i].tmClickRatio;
-//             obj.uvPrice = (trade[i] && trade[i] != "超出范围,请使用插件最高支持7.8亿") ? (trade[i] / seIpv[i]).toFixed(2):'-';
-//             obj.compare = (seIpv[i] / oriData[i].onlineGoodsCnt).toFixed(2);
-//             obj.shopper = (trade[i] && trade[i] != "超出范围,请使用插件最高支持7.8亿") ? (trade[i] / oriData[i].onlineGoodsCnt).toFixed(2) : '-';
-//         }else{
-//             obj.clickRate = oriData[i].avgWordClickRate*100+'%';
-//             obj.payrate = oriData[i].avgWordPayRate * 100 + '%';
-//         }
-//         tableData.push(obj);
-//     }
-//     var cols = [];
-//     if (selecType){
-//          cols = [{
-//                  data: 'keyword',
-//                  title: '搜索词'
-//              },
-//              {
-//                  data: 'spev',
-//                  title: '搜索人数'
-//              },
-//              {
-//                  data: 'clickRate',
-//                  title: '点击率'
-//              },
-//              // {
-//              //     data: 'spev',
-//              //     title: '点击次数'
-//              // },
-//              {
-//                  data: 'payrate',
-//                  title: '支付转化率'
-//              },
-//              {
-//                  data: 'p4pAmt',
-//                  title: '直通车参考价'
-//              },
-//          ]
-//     }else{
-//          cols = [
-//              {
-//                  data: 'keyword',
-//                  title: '搜索词'
-//              },
-//              {
-//                  data: 'spev',
-//                  title: '搜索人数'
-//              },
-//              // {
-//              //     data:'spev',
-//              //     title:'搜索次数'
-//              // },
-//              {
-//                  data: 'clickRate',
-//                  title: '点击率'
-//              },
-//              // {
-//              //     data: 'spev',
-//              //     title: '点击人数'
-//              // }, 
-//              // {
-//              //     data: 'spev',
-//              //     title: '点击次数'
-//              // },
-//              {
-//                  data: 'trade',
-//                  title: '交易金额'
-//              },
-//              {
-//                  data: 'payrate',
-//                  title: '支付转化率'
-//              },
-//              {
-//                  data: 'onlineFood',
-//                  title: '在线商品数'
-//              },
-//              {
-//                  data: 'shopClickRate',
-//                  title: '商城点击占比'
-//              },
-//              {
-//                  data: 'p4pAmt',
-//                  title: '直通车参考价'
-//              },
-//             //  {
-//             //      data: 'searchRate',
-//             //      title: '搜索占比'
-//             //  },
-//              {
-//                  data: 'uvPrice',
-//                  title: 'uv价值'
-//              },
-//              {
-//                  data: 'compare',
-//                  title: '竞争力'
-//              },
-//              {
-//                  data: 'shopper',
-//                  title: '购买力'
-//              }
-//          ]
-//     }
-//     var titleName = ['相关搜索词', '关联品牌词', '关联修饰词', '关联热词']
-//    domStructSearch({
-//        data: tableData,
-//        cols:cols
-//    }, titleName[selecType])
-
-// }
 // 搜索分析-结构
 function astructRelatedTable(pagetype){
     if (!isNewVersion()) {
@@ -2965,34 +2683,303 @@ function listProductTable(pageType) {
     })
 
 }
-/**=------方法类----------- */
-function trendKeyJoin(type, idNum) {
-    var trendFont = getSearchParams("allTrend", null, null, 'type');
-    var res = '';
-    if (type == 'brand') {
-        res = '/mc/ci/brand/trend.json?brandId=' + idNum + '&' + trendFont + "&sellerType=-1";
+function productTrendTop(isTrend){
+     if (!isNewVersion()) {
+         return false
+     }
+    var propId = getDetailParam('propertyIds');
+    var propValId = getDetailParam('propertyValueIds');
+    propId=propId.replace(',','|')
+    propValId = propValId.replace(',', '|')
+    var propType = isTrend?'trend':'';
+    var localKey = getSearchParams('mqPropOverview', 1, 10, 'local', {
+        propId: propId,
+        propValId: propValId,
+        type: propType
+    });
+    var localData = localStorage.getItem(localKey);
+    if (!localData) {
+        popTip('获取数据失败');
+        return false;
     }
-    if (type == 'shop') {
-        res = '/mc/ci/shop/trend.json?' + trendFont + "&sellerType=-1&userId=" + idNum;
+    var reduceData = JSON.parse(filterLocalData(localData));
+    console.log(reduceData)
+    var sendData = {}
+    if(isTrend){
+        sendData.tradeIndex = reduceData.tradeIndex
+    }else{
+        sendData.tradeIndex = [reduceData.tradeIndex.value]
     }
-    if (type == 'item') {
-        res = '/mc/ci/shop/trend.json?' + trendFont + "&itemId=" + idNum + "&sellerType=-1";
-    }
-    return res
+    dealIndex({
+        type:'dealTrend',
+        dataType:sendData
+    },function(val){
+        var transData = val.value.tradeIndex;
+        var obj = {};
+        var tableData = [];
+        var month30Days = isTrend? monthDays():'';
+        for (let i = 0; i < transData.length; i++) {
+            var obj = {};
+            if(isTrend){
+                obj.date = month30Days[i]
+            }
+            obj.tradeIndex = transData[i];
+            obj.payOrdCnt = isTrend ? reduceData.payOrdCnt[i]:reduceData.payOrdCnt.value;
+            obj.payItmCnt = isTrend ? reduceData.payItmCnt[i] : reduceData.payItmCnt.value;
+            obj.payByrCnt = isTrend ? reduceData.payByrCnt[i] : reduceData.payByrCnt.value;
+            tableData.push(obj)
+        }
+        var cols = [
+            {
+                title: '交易金额',
+                data: 'tradeIndex'
+            },
+            {
+                title: '支付子订单数',
+                data: 'payOrdCnt'
+            },
+            {
+                title: '支付件数',
+                data: 'payItmCnt'
+            },
+            {
+                title: '支付买家数',
+                data: 'payByrCnt'
+            },
+        ]
+        var titleName = isTrend ? '属性趋势' : '属性趋势总览';
+        if(isTrend){
+            cols.unshift({
+                data:'date',
+                title:'日期'
+            })
+            domStructTrend({
+                data: tableData,
+                cols: cols
+            }, {
+                name: titleName,
+                type:'mqprop'
+            }, month30Days, {
+                payByrCnt: reduceData.payByrCnt,
+                payItmCnt: reduceData.payItmCnt,
+                payOrdCnt: reduceData.payOrdCnt,
+                tradeIndex: transData
+            })
+        }else{
+             domStructMark({
+                 data: tableData,
+                 cols: cols
+             }, titleName)
+        }
+    })
 }
-
-function trendInfoJoin(type, idNum, cateId) {
+function prodRankTrendTop(isTrend) {
+    if (!isNewVersion()) {
+        return false
+    }
+    var spuId = getPropRankIds();
+    var propType = isTrend ? 'trend' : '';
+    var localKey = getSearchParams('mqPropRankOverview', 1, 10, 'local', {
+        spuId: spuId,
+        type: propType
+    });
+    var localData = localStorage.getItem(localKey);
+    if (!localData) {
+        popTip('获取数据失败');
+        return false;
+    }
+    var reduceData = JSON.parse(filterLocalData(localData));
+    console.log(reduceData)
+    var sendData = {}
+    if (isTrend) {
+        sendData.tradeIndex = reduceData.tradeIndex;
+        sendData.uvIndex = reduceData.uvIndex;
+        sendData.cartHits = reduceData.cartHits;
+        sendData.cltHits = reduceData.cltHits;
+        sendData.payByrCntIndex = reduceData.payByrCntIndex;
+        sendData.payRateIndex = reduceData.payRateIndex;
+        sendData.seIpvUvHits = reduceData.seIpvUvHits;
+    } else {
+        sendData.tradeIndex = [reduceData.tradeIndex.value]
+        sendData.uvIndex = [reduceData.uvIndex.value]
+        sendData.cartHits = [reduceData.cartHits.value]
+        sendData.cltHits = [reduceData.cltHits.value]
+        sendData.payByrCntIndex = [reduceData.payByrCntIndex.value]
+        sendData.payRateIndex = [reduceData.payRateIndex.value]
+        sendData.seIpvUvHits = [reduceData.seIpvUvHits.value]
+    }
+    dealIndex({
+        type: 'dealTrend',
+        dataType: sendData
+    }, function (val) {
+        var transData = val.value;
+        var obj = {};
+        var tableData = [];
+        var month30Days = monthDays();
+        var len = transData.tradeIndex.length
+        for (let i = 0; i < len; i++) {
+            var obj = {};
+            if (isTrend) {
+                obj.date = month30Days[i]
+            }
+            obj.tradeIndex = transData.tradeIndex[i];
+            obj.uvIndex = transData.uvIndex[i];
+            obj.seIpvUvHits = transData.seIpvUvHits[i];
+            obj.cltHit = transData.cltHits[i];
+            obj.cartHit = transData.cartHits[i];
+            obj.payByrCntIndex = transData.payByrCntIndex[i];
+            obj.payRateIndex = (transData.payRateIndex[i] * 100).toFixed(2) + '%';
+            obj.kdPrice = formulaRate(transData.tradeIndex[i], obj.payByrCntIndex);
+            obj.uvPrice = formulaRate(transData.tradeIndex[i], obj.uvIndex, 1);
+            obj.searchRate = formulaRate(obj.seIpvUvHits, obj.uvIndex, 1);
+            obj.cltRate = formulaRate(obj.cltHit, obj.uvIndex, 1);
+            obj.carRate = formulaRate(obj.cartHit, obj.uvIndex, 1);
+            obj.payItemCnt = isTrend ? reduceData.payItemCnt[i] : reduceData.payItemCnt.value;
+            obj.paySlrCnt = isTrend ? reduceData.paySlrCnt[i] : reduceData.paySlrCnt.value;
+            obj.slrCnt = isTrend ? reduceData.slrCnt[i] : reduceData.slrCnt.value;
+            tableData.push(obj)
+        }
+        var cols = [
+                {
+                    data: 'tradeIndex',
+                    title: '交易金额'
+                },
+                {
+                    data: 'uvIndex',
+                    title: '访客人数'
+                },
+                {
+                    data: 'seIpvUvHits',
+                    title: '搜索人数'
+                },
+                {
+                    data: 'cltHit',
+                    title: '收藏人数'
+                },
+                {
+                    data: 'cartHit',
+                    title: '加购人数'
+                },
+                {
+                    data: 'payByrCntIndex',
+                    title: '支付人数'
+                },
+                {
+                    data: 'payRateIndex',
+                    title: '支付转化率'
+                },
+                {
+                    data: 'kdPrice',
+                    title: '客单价'
+                },
+                {
+                    data: 'uvPrice',
+                    title: 'uv价值'
+                },
+                {
+                    data: 'searchRate',
+                    title: '搜索占比'
+                },
+                {
+                    data: 'cltRate',
+                    title: '收藏率'
+                },
+                {
+                    data: 'carRate',
+                    title: '加购率'
+                },
+                {
+                    data: 'payItemCnt',
+                    title: '卖家数'
+                },
+                {
+                    data: 'paySlrCnt',
+                    title: '有支付卖家数'
+                },
+                {
+                    data: 'slrCnt',
+                    title: '支付商品数'
+                }
+        ]
+        var titleName = isTrend ? '产品趋势' : '产品趋势总览';
+        if (isTrend) {
+             // 表格数据
+             transData.payItemCnt = reduceData.payItemCnt;
+             transData.paySlrCnt = reduceData.paySlrCnt;
+             transData.slrCnt = reduceData.slrCnt;
+            cols.unshift({
+                data: 'date',
+                title: '日期'
+            })
+            domStructTrend({
+                data: tableData,
+                cols: cols
+            }, {
+                name: titleName,
+                type: 'mqpropRnak'
+            }, month30Days, transData)
+        } else {
+            domStructMark({
+                data: tableData,
+                cols: cols
+            }, titleName)
+        }
+    })
+}
+/**=------方法类----------- */
+// 产品洞察-获取ids funs
+function getPropRankIds(){
+    var loaclId = findcategory().id;
+    var brandListStrify = localStorage.getItem('/mc/mq/product/getBrands.json?cateId=' + loaclId + '&keyword=');
+    var brandList = brandListStrify?JSON.parse(filterLocalData(brandListStrify)):'';
+    if(!brandList){
+        return ''
+    }
+    var seleBrand = $('.op-mc-product-insight-container .op-mc-product-insight-product-filter-area .sycm-common-select-simple-text').eq(0).attr('title');
+    var seleModel = $('.op-mc-product-insight-container .op-mc-product-insight-product-filter-area .sycm-common-select-simple-text').eq(1).attr('title');
+    var brandId = '';
+    for (let i = 0; i < brandList.length; i++) {
+        const element = brandList[i];
+        if (seleBrand == element.brandName){
+            brandId = element.brandId;
+            break;
+        }
+    }
+    if (!brandId) {
+        var urlModelId = getDetailParam('modelId')
+        return urlModelId
+    }
+    var modeLocalkey = '/mc/mq/product/getModels.json?brandId=' + brandId + '&cateId=' + loaclId + '&keyword=';
+    var modelListStrify = localStorage.getItem(modeLocalkey);
+    var modelList = modelListStrify?JSON.parse(filterLocalData(modelListStrify)):'';
+    if (!modelList) {
+        return ''
+    }
+    var modelId = '';
+    for (let i = 0; i < modelList.length; i++) {
+        const element = modelList[i];
+        if (seleModel == element.modelName) {
+            modelId = element.spuId;
+            break;
+        }
+    }
+    return modelId;
+}
+// get params
+function getDetailParam(key){
+    var params = window.location.search;
+    var clearParams = params.split('?')[1];
+    var fitleParams = clearParams.split('&');
     var res = '';
-    if (type == 'brand') {
-        res = '/mc/ci/config/rival/brand/getSingleMonitoredInfo.json?brandId=' + idNum + '&firstCateId=' + cateId + '&rivalType=brand';
+    for (let i = 0; i < fitleParams.length; i++) {
+        const element = fitleParams[i];
+        var keyValue = element.split('=');
+        if (key == keyValue[0]){
+            res = keyValue[1];
+            break;
+        }
     }
-    if (type == 'shop') {
-        res = '/mc/ci/config/rival/shop/getSingleMonitoredInfo.json?firstCateId=' + cateId + '&rivalType=shop&userId=' + idNum;
-    }
-    if (type == 'item') {
-        res = '/mc/ci/config/rival/item/getSingleMonitoredInfo.json?firstCateId=' + cateId + '&itemId=' + idNum + '&rivalType=item';
-    }
-    return res
+    return decodeURIComponent(res);
 }
 function dealCycle(data) {
     if (!data) {
@@ -3010,20 +2997,6 @@ function dealTradeGrowth(data) {
         return '-'
     }
     return Number(data * 100).toFixed(2) + "%"
-}
-// a month date
-function monthDays() {
-    var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text();
-    var spliteTime = timeRnage.split(' ');
-    var splitLen = spliteTime.length;
-    var finalTime = (splitLen == 3 || splitLen == 2) ? spliteTime[1] : splitLen == 4 ? spliteTime[3]:'';
-    var finalDate = new Date(finalTime);
-    var arr = [];
-    for (let i = 0; i < 30; i++) {
-        const ele = formate('yyyy-MM-dd', new Date(finalDate - 86400000 * i))
-        arr.unshift(ele);
-    }
-    return arr;
 }
 // 市场cateid
 function findComcategory() {
@@ -3110,47 +3083,6 @@ function getSearchKeyword(){
         keyItems: keyword,
         key:searchKey1+'|'+searchKey2+'|'+searchKey3
     }
-}
-// 
-function  weekMonthDate(type){
-    var timeRnage = $('.ebase-FaCommonFilter__root .oui-date-picker .oui-date-picker-current-date').text();
-    var spliteTime = timeRnage.split(' ');
-    var splitLen = spliteTime.length;
-    var finalTime = (splitLen == 3 || splitLen == 2) ? spliteTime[1] : splitLen == 4 ? spliteTime[3] : '';
-    var finalDate = new Date(finalTime);
-    var res = [];
-    var year = finalDate.getFullYear();
-    var month = finalDate.getMonth() + 1;
-     if(!type){
-        var date = finalDate.getDate();
-        var curWeek = getYearWeek(year, month, date);
-     }
-     
-     for (let i = 0; i < 12; i++) {
-         var text = ''
-         if(type){
-             var calMonth = month - i < 0 ? (12 + month - i) : (month - i);
-             var calYear = month - i < 0 ? (year - 1) : year;
-            text = calYear + '-' + calMonth;
-         }else{
-            text = year + ' 第' + (curWeek - i) + '周';
-         }
-         res.push(text)
-     }
-     return res
-}
-// 获取一年中的第几周
-function getYearWeek(year, month, date) {
-    /*
-    dateNow是当前日期
-    dateFirst是当年第一天
-    dataNumber是当前日期是今年第多少天
-    用dataNumber + 当前年的第一天的周差距的和在除以7就是本年第几周
-    */
-    let dateNow = new Date(year, parseInt(month) - 1, date);
-    let dateFirst = new Date(year, 0, 1);
-    let dataNumber = Math.round((dateNow.valueOf() - dateFirst.valueOf()) / 86400000);
-    return Math.ceil((dataNumber + ((dateFirst.getDay() + 1) - 1)) / 7);
 }
 /*------市场模块触发事件 ----------*/
 //市场-我的监控-店铺 商品
@@ -3255,6 +3187,14 @@ $(document).on('click', '.op-mc-property-insight-container .oui-card-header-wrap
         propHotRank();
     }
 })
+//属性洞察-属性趋势$('.op-mc-property-insight-container #propertyTrend .oui-card-header-item-pull-left')
+$(document).on('click', '.op-mc-property-insight-container #propertyTrend .oui-card-header-item-pull-left #search', function () {
+    productTrendTop()
+})
+//属性洞察-属性趋势图表$('.op-mc-property-insight-container #propertyTrend .oui-card-header-item-pull-left')
+$(document).on('click', '.op-mc-property-insight-container #propertyTrend .recharts-wrapper #search', function () {
+    productTrendTop('trend')
+})
 // 市场-属性洞察- 趋势分析
 $(document).on('click', '.op-mc-property-insight-container .alife-dt-card-common-table-right-column', function () { //趋势分析
      var chooseTop = $('.op-mc-property-insight-container .oui-tab-switch .oui-tab-switch-item-active').index();
@@ -3263,10 +3203,14 @@ $(document).on('click', '.op-mc-property-insight-container .alife-dt-card-common
         trendTable(trendType)
     }, 500);
 })
-// //属性洞察-属性分析
-// $(document).on('click', '.op-mc-product-insight-container .oui-card-header-wrapper .oui-card-title #search', function () {
-//     productHotRank();
-// })
+//产品洞察-属性趋势
+$(document).on('click', '.op-mc-product-insight-container #productTrend .oui-card-header-item-pull-left #search', function () {
+    prodRankTrendTop()
+})
+//产品洞察-属性趋势图表
+$(document).on('click', '.op-mc-product-insight-container #productTrend .recharts-wrapper #search', function () {
+    prodRankTrendTop('trend')
+})
 //产品洞察-热门属性&&热销榜单
 $(document).on('click', '.op-mc-product-insight-container .oui-card-header-wrapper #search', function () {
     if ($(this).parents('.oui-card-header').prev().text() == '热销榜单') {
@@ -3281,8 +3225,6 @@ $(document).on('click', '.op-mc-product-insight-container .alife-dt-card-common-
         trendTable('item')
     }, 500);
 })
-
-
 // 市场-搜索人群- 切换
 $(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchCity', function () {
     var index = $(this).index();
@@ -3292,7 +3234,6 @@ $(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchCity', function 
     $(this).addClass('active').siblings().removeClass('active');
     searchProvce(remeSelectType.type, index)
 })
-
 // 选择对比
 $(document).on('click', '.op-mc-market-overview-compare-area .common-picker-menu', function () {
    setTimeout(function(){
