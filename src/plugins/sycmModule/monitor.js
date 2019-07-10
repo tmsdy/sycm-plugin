@@ -2553,7 +2553,7 @@ function MonitorItem(pageType) {
                   obj.payRate = res.payRate[i] ? ((res.payRate[i] * 100).toFixed(2) + '%') : "-";
                   obj.payByr = operatcPmpareData(res.uvIndex[i], res.payRate[i], res.tradeIndex[i]).num1;
                   obj.kdPrice = operatcPmpareData(res.uvIndex[i], res.payRate[i], res.tradeIndex[i]).num2;
-                  obj.uvPrice = formulaRate(res.tradeIndex[i], res.uvIndex[i], 1);
+                  obj.uvPrice = formulaRate(res.tradeIndex[i], res.uvIndex[i]);
                   resData.push(obj)
               }
             //   if (resData.length > 2) {
@@ -2569,7 +2569,7 @@ function MonitorItem(pageType) {
                   },
                   {
                       data: 'shop',
-                      title: '店铺信息',
+                      title: '商品信息',
                       class: 'info',
                       render: function (data, type, row, meta) {
                           return '<img src="' + data.url + '"><span>' + data.title + '</span>';

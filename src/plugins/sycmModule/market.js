@@ -1147,7 +1147,7 @@ function bigMarketTable(){
     },function(val){
         var isTrans = val.final?true:false;
         var fianlVal = isTrans?val.final:val;
-        var cols = []
+        // var cols = []
         var obj = {};
         obj.uv = fianlVal.uv.value;
         obj.pv = fianlVal.pv.value;
@@ -1157,7 +1157,7 @@ function bigMarketTable(){
         obj.cartTimes = fianlVal.cartTimes.value;
         obj.cltRate = formulaRate(obj.cltByrCnt, obj.uv, 1);
         obj.carRate = formulaRate(obj.cartByrCnt, obj.uv, 1);
-        cols = [{
+        var cols = [{
                 data: 'uv',
                 title: '访客数',
             },
@@ -1201,37 +1201,13 @@ function bigMarketTable(){
             obj.payRate = (obj.payByrCntIndex / obj.uv*100).toFixed(2)+'%';
             obj.uvPrice = obj.tradeIndex == '超出范围' ? '-' : (obj.tradeIndex / obj.uv).toFixed(2);
             obj.searchRate = indexs.sePvIndex[0] == '超出范围' ? '-' : (indexs.sePvIndex[0] / obj.uv*100).toFixed(2)+'%';
-            cols = [{
-                    data: 'uv',
-                    title: '访客数',
-                },
-                {
-                    data: 'pv',
-                    title: '浏览量',
-                },
+            cols.push(
                 {
                     data: 'seIpvUvHits',
                     title: '搜索人数',
-                },
-                {
+                }, {
                     data: 'sePvIndex',
                     title: '搜索次数',
-                },
-                {
-                    data: 'cltByrCnt',
-                    title: '收藏人数',
-                },
-                {
-                    data: 'cltTimes',
-                    title: '收藏次数',
-                },
-                {
-                    data: 'cartByrCnt',
-                    title: '加购人数',
-                },
-                {
-                    data: 'cartTimes',
-                    title: '加购次数',
                 },
                 {
                     data: 'payByrCntIndex',
@@ -1256,16 +1232,8 @@ function bigMarketTable(){
                 {
                     data: 'payRate',
                     title: '支付转化率',
-                },
-                 {
-                     data: 'cltRate',
-                     title: '收藏率',
-                 }, 
-                 {
-                     data: 'carRate',
-                     title: '加购率',
-                 }
-            ]
+                }
+            )
         }
         domStructMark({
             data: [obj],
