@@ -2521,7 +2521,7 @@ function listPropTable(pageType) {
                  }
              }
              obj.tradeIndex = transData.tradeIndex[j];
-             obj.payRate = transData.payRateIndex[j] ? (transData.payRateIndex[j]*100).toFixed(2):'-';
+             obj.payRate = transData.payRateIndex[j] ? (transData.payRateIndex[j]*100).toFixed(2)+'%':'-';
              obj.payByCut = finaData[j].payItmCnt;
              resData.push(obj)
          }
