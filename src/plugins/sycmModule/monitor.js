@@ -904,7 +904,8 @@ function getCompareBrands(type) {
     var keyword = [];
     var selectList = [];
     var indexName = []
-    var selecIdList = []
+    var selecIdList = [];
+    var diffIds = '';
     var comPara = '';
      if (!mointBrandList) {
          popTip('获取品牌列表为空，请重试！');
@@ -913,6 +914,7 @@ function getCompareBrands(type) {
     for (let i = 0; i < 3; i++) {
         var compareKey = i == 0 ? searchKey1 : i == 1 ? searchKey2 : searchKey3;
         if (!compareKey) {
+            diffIds+=',';
             continue;
         }
         for (var k = 0; k < mointBrandList.length; k++) {
@@ -921,14 +923,17 @@ function getCompareBrands(type) {
                 indexName.push('rivalBrand' + (i+1));
                 selecIdList.push(mointBrandList[k].brandId);
                 selectList.push(mointBrandList[k]);
+                 diffIds += mointBrandList[k].brandId +',';
                 comPara += '&rivalBrand' + (i + 1) + 'Id=' + mointBrandList[k].brandId
                 break;
             }
         }
     }
+    diffIds=diffIds.slice(0,-1);
     return {
         resData: selectList,
         keyword: keyword,
+        diffIds: diffIds,
         indexName: indexName,
         keys: comPara,
         selectIds: selecIdList
@@ -2372,77 +2377,80 @@ function MonitorItem(pageType) {
 }
 // 竞争-入店来源
  function compareResource() {
-      var prodctRes = getProductInfo();
-      if (prodctRes.totalNum < 2) {
-          popTip('请选择比较商品');
-          return false;
-      };
-      var idParams = getproduceIds(prodctRes, dataWrapper);
+    //   var prodctRes = getProductInfo();
+    //   if (prodctRes.totalNum < 2) {
+    //       popTip('请选择比较商品');
+    //       return false;
+    //   };
+    //   var idParams = getproduceIds(prodctRes, dataWrapper);
       var localCache = false;
       var finalKey = '';
+      var selectInfo = getCompareItems();
+      var indexKey = selectInfo.keyword.enkey;
       var itemKey = getSearchParams('monitResource').split('&page')[0];
       var localKey = getSearchParams('monitResource', 0, 0, 'local')
-
-      if (localStorage.getItem(itemKey + idParams)) {
-          finalKey = itemKey + idParams;
+      if (localStorage.getItem(itemKey + selectInfo.keys)) {
+          finalKey = itemKey + selectInfo.keys;
       } else {
-          finalKey = localKey + idParams;
+          finalKey = localKey + selectInfo.keys;
           localCache = true;
       }
       dealIndex({
           type: 'monitResource',
           dataType: finalKey,
+          datakey: indexKey,
         localCache: localCache
       }, function (val) {
-          var findRes = val.value
-          var finaData = val.final
-          var productId = dataWrapper['monitResource'].ids
-          var Length = findRes['selfItem']['payRate'].length
-          var resData = []
-          for (var i = 0; i < Length; i++) {
-              var itemAcct = prodctRes.totalNum
-              var wItem = itemAcct == 2 ? findRes['rivalItem1'] ? 'rivalItem1' : 'rivalItem2' : ''
-              for (var j = 0; j < itemAcct; j++) {
+        var findRes = val.value;
+        var finaData = val.final;
+        var itemsInfo = selectInfo.resData;
+        var chinaKey = selectInfo.keyword.name;
+        // var productId = dataWrapper['monitResource'].ids
+        var topLength = finaData.length
+        var resData = [];
+          for (var i = 0; i < topLength; i++) {
+            //   var itemAcct = prodctRes.totalNum
+            //   var wItem = itemAcct == 2 ? findRes['rivalItem1'] ? 'rivalItem1' : 'rivalItem2' : ''
+              for (var j = 0; j < chinaKey.length; j++) {
                   var obj = {
                       shop: {}
                   }
                   obj.shop = {
-                      url: j == 0 ? prodctRes.selfItem.imgurl : itemAcct == 3 ? prodctRes['rivalItem' + j].imgurl : prodctRes[wItem].imgurl,
-                      title: j == 0 ? prodctRes.selfItem.title : itemAcct == 3 ? prodctRes['rivalItem' + j].title : prodctRes[wItem].title
+                    url: itemsInfo[chinaKey[j]].picUrl ? itemsInfo[chinaKey[j]].picUrl : itemsInfo[chinaKey[j]].pictUrl,
+                    title: itemsInfo[chinaKey[j]].name ? itemsInfo[chinaKey[j]].name : itemsInfo[chinaKey[j]].title
                   }
-                  obj.name = {}
-                  obj.name = j == 0 ? {
-                      name: '本店商品',
-                      class: ''
-                  } : itemAcct == 3 ? {
-                      name: ('竞品' + j),
-                      class: 'red'
-                  } : {
-                      name: ('竞品' + wItem.slice(-1)),
-                      class: 'red'
-                  };
-                  var selfId = j == 0 ? productId.selfItemId : itemAcct == 3 ? productId['rivalItem' + j + 'Id'] : productId[wItem + 'Id'];
-                  obj.cateRank = selfId ? selfId : '-';
-                  obj.pageName = finaData[i].pageName ? finaData[i].pageName.value : '-';
-                  var tradeIndex = j == 0 ? findRes.selfItem.tradeIndex[i] : itemAcct == 3 ? findRes['rivalItem' + j].tradeIndex[i] : findRes[wItem].tradeIndex[i];
-                  var payByr = j == 0 ? findRes.selfItem.payByr[i] : itemAcct == 3 ? findRes['rivalItem' + j].payByr[i] : findRes[wItem].payByr[i];
-                  var uv = j == 0 ? findRes.selfItem.uvIndex[i] : itemAcct == 3 ? findRes['rivalItem' + j].uvIndex[i] : findRes[wItem].uvIndex[i];
-                  var payRate = j == 0 ? findRes.selfItem.payRate[i] : itemAcct == 3 ? findRes['rivalItem' + j].payRate[i] : findRes[wItem].payRate[i];
-                  obj.tradeIndex = Math.round(tradeIndex)
-                  obj.uvIndex = uv ? Math.round(uv) : '-'
-                  obj.payRate = (payRate*100).toFixed(2) + '%'
-                  obj.payByr = Math.round(payByr)
-                  obj.kdPrice = formula(delePoint(tradeIndex), delePoint(payByr), 1)
-                  obj.uvPrice = formula(delePoint(tradeIndex), delePoint(uv), 1)
+                  obj.name = chinaKey[j];
+                //   obj.name = j == 0 ? {
+                //       name: '本店商品',
+                //       class: ''
+                //   } : itemAcct == 3 ? {
+                //       name: ('竞品' + j),
+                //       class: 'red'
+                //   } : {
+                //       name: ('竞品' + wItem.slice(-1)),
+                //       class: 'red'
+                //   };
+                obj.cateRank = itemsInfo[chinaKey[j]].itemId;
+                obj.pageName = finaData[i].pageName ? finaData[i].pageName.value : '-';
+                obj.tradeIndex = findRes.tradeIndex[i];
+                obj.payByr = findRes.payByr[i];
+                obj.uvIndex = findRes.uvIndex[i];
+                  var payRate = findRes.payRate[i];
+                //   obj.tradeIndex = Math.round(tradeIndex)
+                //   obj.uvIndex = uv ? Math.round(uv) : '-'
+                  obj.payRate = payRate?(payRate * 100).toFixed(2) + '%':'-';
+                //   obj.payByr = Math.round(payByr)
+                  obj.kdPrice = formula(delePoint(obj.tradeIndex), delePoint(obj.payByr), 1);
+                  obj.uvPrice = formula(delePoint(obj.tradeIndex), delePoint(obj.uvIndex), 1);
                   resData.push(obj)
               }
           }
           var cols = [{
                   data: 'name',
                   title: '类别',
-                  render: function (data, type, row, meta) {
-                      return '<p class="btn ' + data.class + '">' + data.name + '</p>';
-                  }
+                //   render: function (data, type, row, meta) {
+                //       return '<p class="btn ' + data.class + '">' + data.name + '</p>';
+                //   }
               },
               {
                   data: 'shop',
@@ -2489,71 +2497,75 @@ function MonitorItem(pageType) {
 }
 // 竞争-竞品对比
  function compareItem(){
-      var prodctItem = getProductInfo();
-      if (prodctItem.totalNum < 2) {
-          popTip('请选择比较商品');
-          return false
-      };
-      var idParams = getproduceIds(prodctItem, dataWrapper);
+    //   var prodctItem = getProductInfo();
+    //   if (prodctItem.totalNum < 2) {
+    //       popTip('请选择比较商品');
+    //       return false
+    //   };
+    //   var idParams = getproduceIds(prodctItem, dataWrapper);
        var localCache = false;
        var finalKey = '';
+       var selectInfo = getCompareItems();
        var itemKey = getSearchParams('monitCompareFood').split('&page')[0];
        var localKey = getSearchParams('monitCompareFood', 0, 0, 'local')
 
-       if (localStorage.getItem(itemKey + idParams)) {
-           finalKey = itemKey + idParams;
+       if (localStorage.getItem(itemKey +selectInfo.keys)) {
+           finalKey = itemKey + selectInfo.keys;
        } else {
-           finalKey = localKey + idParams;
+           finalKey = localKey + selectInfo.keys;
            localCache = true;
        }
       dealIndex({
-              type: 'monitCompareFood',
-               dataType: finalKey,
-                localCache: localCache
+            type: 'monitCompareFood',
+            dataType: finalKey,
+            localCache: localCache
           },
           function (res) {
-              var resData = []
-              var length = prodctItem.totalNum
+              var resData = [];
+              var itemsInfo = selectInfo.resData;
+              var indexKey = selectInfo.keyword.enkey;
+              var chinaKey = selectInfo.keyword.name;
+              var length = indexKey.length;
               for (var i = 0; i < length; i++) {
                   var obj = {
                       shop: {}
                   }
                   obj.shop = {
-                      url: i == 0 ? prodctItem.selfItem.imgurl : prodctItem["rivalItem" + (i)].imgurl ? prodctItem["rivalItem" + (i)].imgurl : prodctItem["rivalItem" + (i + 1)].imgurl,
-                      title: i == 0 ? prodctItem.selfItem.title : prodctItem["rivalItem" + (i)].title ? prodctItem["rivalItem" + (i)].title : prodctItem["rivalItem" + (i + 1)].title
+                      url: itemsInfo[chinaKey[i]].picUrl ? itemsInfo[chinaKey[i]].picUrl : itemsInfo[chinaKey[i]].pictUrl,
+                      title: itemsInfo[chinaKey[i]].name ? itemsInfo[chinaKey[i]].name : itemsInfo[chinaKey[i]].title
                   }
-                  obj.name = {}
-                  obj.name = i == 0 ? {
-                          name: '本店商品',
-                          class: ''
-                      } :
-                      prodctItem["rivalItem" + (i)].title ? {
-                          name: ('竞品' + i),
-                          class: 'red'
-                      } : {
-                          name: ('竞品' + (i + 1)),
-                          class: 'red'
-                      };
-                  var rateNum = Number(res.payRate[i]);
-                  var isNumber = isNaN(rateNum);
-                  obj.tradeIndex = Math.round(res.tradeIndex[i]);
-                  obj.uvIndex = Math.round(res.uvIndex[i]);
-                  obj.payRate = !isNumber ? ((rateNum*100).toFixed(2) + '%') : "-";
+                  obj.name = chinaKey[i];
+                //   obj.name = i == 0 ? {
+                //           name: '本店商品',
+                //           class: ''
+                //       } :
+                //       prodctItem["rivalItem" + (i)].title ? {
+                //           name: ('竞品' + i),
+                //           class: 'red'
+                //       } : {
+                //           name: ('竞品' + (i + 1)),
+                //           class: 'red'
+                //       };
+                //   var rateNum = Number(res.payRate[i]);
+                //   var isNumber = isNaN(rateNum);
+                  obj.tradeIndex = res.tradeIndex[i];
+                  obj.uvIndex = res.uvIndex[i];
+                  obj.payRate = res.payRate[i] ? ((res.payRate[i] * 100).toFixed(2) + '%') : "-";
                   obj.payByr = operatcPmpareData(res.uvIndex[i], res.payRate[i], res.tradeIndex[i]).num1;
                   obj.kdPrice = operatcPmpareData(res.uvIndex[i], res.payRate[i], res.tradeIndex[i]).num2;
-                  obj.uvPrice = formula(res.tradeIndex[i], res.uvIndex[i], 1);
+                  obj.uvPrice = formulaRate(res.tradeIndex[i], res.uvIndex[i], 1);
                   resData.push(obj)
               }
-              if (resData.length > 2) {
-                  resData.splice(2, 0, resData[0])
-              }
+            //   if (resData.length > 2) {
+            //       resData.splice(2, 0, resData[0])
+            //   }
 
               var cols = [{
                       data: 'name',
                       title: '类别',
-                      render: function (data, type, row, meta) {
-                          return '<p class="btn ' + data.class + '">' + data.name + '</p>';
-                      }
+                    //   render: function (data, type, row, meta) {
+                    //       return '<p class="btn ' + data.class + '">' + data.name + '</p>';
+                    //   }
                   },
                   {
                       data: 'shop',
@@ -2574,13 +2586,16 @@ function MonitorItem(pageType) {
                   {
                       data: 'payRate',
                       title: '支付转化率',
-                  }, {
+                  }, 
+                  {
                       data: 'payByr',
                       title: '支付人数',
-                  }, {
+                  }, 
+                  {
                       data: 'kdPrice',
                       title: '客单价',
-                  }, {
+                  }, 
+                  {
                       data: 'uvPrice',
                       title: 'UV价值',
                   },
@@ -3506,14 +3521,14 @@ function brandPersonAll() {
     }
     LoadingPop('show')
     var selectInfo = getCompareBrands(1);
-     var diffBrandId = selectInfo.selectIds.slice(0);
-     diffBrandId.length = 3;
-     diffBrandId = diffBrandId.join(',');
+    //  var diffBrandId = selectInfo.selectIds.slice(0);
+    //  diffBrandId.length = 3;
+    //  diffBrandId = diffBrandId.join(',');
     $('#completeShopPortrait .mc-Portrait .ant-radio-wrapper').eq(0).click();
     cycleFindPerson( {
         step: 0,
         res: {},
-        diffBrandId: diffBrandId,
+        diffBrandId: selectInfo.diffIds,
         selectInfo: selectInfo
     })
 }
@@ -3652,12 +3667,12 @@ function brandProvce(type, selectItem) { //属性分析-city-prov
     }
     var typeItems = ['payByrCntIndex', 'payByrCntRate', 'tradeIndex', 'payRateIndex'];
     var curAttrType = typeItems[tabSelect];
-    var diffBrandId = selectInfo.selectIds.slice(0);
-    diffBrandId.length = 3;
-    diffBrandId = diffBrandId.join(',');
+    // var diffBrandId = selectInfo.selectIds.slice(0);
+    // diffBrandId.length = 3;
+    // diffBrandId = diffBrandId.join(',');
     var localKey = getSearchParams('brandPersonAll', 1, 10, 'local', {
         attrType: type,
-        diffId: diffBrandId,
+        diffId: selectInfo.diffIds,
         indexCode: curAttrType
     })
     var localData = localStorage.getItem(localKey);
@@ -3712,7 +3727,7 @@ function brandProvceShow(oriData) {
         }else{
             obj.count = transInfo[i].value;
         }
-        obj.count = isTrans ? transData[i] : transData[i].value ? (oriData[i].value * 100).toFixed(2) + '%' : '-';
+        // obj.count = isTrans ? transData[i] : transData[i].value ? (oriData[i].value * 100).toFixed(2) + '%' : '-';
         tableData.push(obj)
     }
     var whre = oriData.type == 'prov' ? '省份' : "城市";

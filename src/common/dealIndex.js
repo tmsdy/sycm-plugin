@@ -410,65 +410,80 @@ function jsonFoodParse(val, type) {
  // 竞品来源入口
  function filterMoinRes(data, produceData) {
      var sourceIndex = {
-         'selfItem': {
              payRate: [],
              tradeIndex: [],
              payByr: [],
              uvIndex: []
-         }
      }
-     if (produceData.rivalItem1Id) {
-         sourceIndex['rivalItem1'] = {
-             payRate: [],
-             tradeIndex: [],
-             payByr: [],
-             uvIndex: []
+     var topLen = data.length;
+     var Len = produceData.length;
+     for (let i = 0; i < topLen; i++) {
+         for (let j = 0; j < Len; j++) {
+             var item = data[i];
+             var item1 = item[produceData[j]+'PayRateIndex'];
+             var item2 = item[produceData[j] + 'TradeIndex'] ;
+             var item3 = item[produceData[j] + 'PayByrCntIndex'] ;
+             var item4 = item[produceData[j] + 'Uv'] ;
+             sourceIndex.payRate.push(item1 ? item1.value : 0);
+             sourceIndex.tradeIndex.push(item2 ? item2.value : 0);
+             sourceIndex.payByr.push(item3 ? item3.value : 0);
+             sourceIndex.uvIndex.push(item4 ? item4.value : 0);
          }
+         
      }
-     if (produceData.rivalItem2Id) {
-         sourceIndex['rivalItem2'] = {
-             payRate: [],
-             tradeIndex: [],
-             payByr: [],
-             uvIndex: []
-         }
-     }
-     if (data) {
-         data.forEach(function (item) {
-             var selfBox = sourceIndex.selfItem
-             var item1 = item.selfItemPayRateIndex ? item.selfItemPayRateIndex.value : 0
-             var item2 = item.selfItemTradeIndex ? item.selfItemTradeIndex.value : 0
-             var item3 = item.selfItemPayByrCntIndex ? item.selfItemPayByrCntIndex.value : 0
-             var item4 = item.selfItemUv ? item.selfItemUv.value : 0
-             selfBox.payRate.push(item1);
-             selfBox.tradeIndex.push(item2);
-             selfBox.payByr.push(item3);
-             selfBox.uvIndex.push(item4);
-             if (produceData.rivalItem1Id) {
-                 var rivalBox = sourceIndex.rivalItem1
-                 var itemb1 = item.rivalItem1PayRateIndex ? item.rivalItem1PayRateIndex.value : 0
-                 var itemb2 = item.rivalItem1TradeIndex ? item.rivalItem1TradeIndex.value : 0
-                 var itemb3 = item.rivalItem1PayByrCntIndex ? item.rivalItem1PayByrCntIndex.value : 0
-                 var itemb4 = item.rivalItem1Uv ? item.rivalItem1Uv.value : 0
-                 rivalBox.payRate.push(itemb1);
-                 rivalBox.tradeIndex.push(itemb2);
-                 rivalBox.payByr.push(itemb3);
-                 rivalBox.uvIndex.push(itemb4);
-             }
-             if (produceData.rivalItem2Id) {
-                 var rival2Box = sourceIndex.rivalItem2
-                 var itemc1 = item.rivalItem2PayRateIndex ? item.rivalItem2PayRateIndex.value : 0
-                 var itemc2 = item.rivalItem2TradeIndex ? item.rivalItem2TradeIndex.value : 0
-                 var itemc3 = item.rivalItem2PayByrCntIndex ? item.rivalItem2PayByrCntIndex.value : 0
-                 var itemc4 = item.rivalItem2Uv ? item.rivalItem2Uv.value : 0
-                 rival2Box.payRate.push(itemc1);
-                 rival2Box.tradeIndex.push(itemc2);
-                 rival2Box.payByr.push(itemc3);
-                 rival2Box.uvIndex.push(itemc4);
-             }
 
-         })
-     }
+    //  if (produceData.rivalItem1Id) {
+    //      sourceIndex['rivalItem1'] = {
+    //          payRate: [],
+    //          tradeIndex: [],
+    //          payByr: [],
+    //          uvIndex: []
+    //      }
+    //  }
+    //  if (produceData.rivalItem2Id) {
+    //      sourceIndex['rivalItem2'] = {
+    //          payRate: [],
+    //          tradeIndex: [],
+    //          payByr: [],
+    //          uvIndex: []
+    //      }
+    //  }
+    //  if (data) {
+    //      data.forEach(function (item) {
+    //          var selfBox = sourceIndex.selfItem
+    //          var item1 = item.selfItemPayRateIndex ? item.selfItemPayRateIndex.value : 0
+    //          var item2 = item.selfItemTradeIndex ? item.selfItemTradeIndex.value : 0
+    //          var item3 = item.selfItemPayByrCntIndex ? item.selfItemPayByrCntIndex.value : 0
+    //          var item4 = item.selfItemUv ? item.selfItemUv.value : 0
+    //          selfBox.payRate.push(item1);
+    //          selfBox.tradeIndex.push(item2);
+    //          selfBox.payByr.push(item3);
+    //          selfBox.uvIndex.push(item4);
+    //          if (produceData.rivalItem1Id) {
+    //              var rivalBox =  .rivalItem1
+    //              var itemb1 = item.rivalItem1PayRateIndex ? item.rivalItem1PayRateIndex.value : 0
+    //              var itemb2 = item.rivalItem1TradeIndex ? item.rivalItem1TradeIndex.value : 0
+    //              var itemb3 = item.rivalItem1PayByrCntIndex ? item.rivalItem1PayByrCntIndex.value : 0
+    //              var itemb4 = item.rivalItem1Uv ? item.rivalItem1Uv.value : 0
+    //              rivalBox.payRate.push(itemb1);
+    //              rivalBox.tradeIndex.push(itemb2);
+    //              rivalBox.payByr.push(itemb3);
+    //              rivalBox.uvIndex.push(itemb4);
+    //          }
+    //          if (produceData.rivalItem2Id) {
+    //              var rival2Box = sourceIndex.rivalItem2
+    //              var itemc1 = item.rivalItem2PayRateIndex ? item.rivalItem2PayRateIndex.value : 0
+    //              var itemc2 = item.rivalItem2TradeIndex ? item.rivalItem2TradeIndex.value : 0
+    //              var itemc3 = item.rivalItem2PayByrCntIndex ? item.rivalItem2PayByrCntIndex.value : 0
+    //              var itemc4 = item.rivalItem2Uv ? item.rivalItem2Uv.value : 0
+    //              rival2Box.payRate.push(itemc1);
+    //              rival2Box.tradeIndex.push(itemc2);
+    //              rival2Box.payByr.push(itemc3);
+    //              rival2Box.uvIndex.push(itemc4);
+    //          }
+
+    //      })
+    //  }
      return sourceIndex
  }
  // 监控店铺过滤
@@ -664,19 +679,19 @@ export function dealIndex(request, sendResponse, dataWrapper) {
                return false;
            }
            var moniResData = jsonParse(saveData3, request.localCache)
-            var itemIds = dataWrapper['monitResource'].ids
-            var resouceIndex = filterMoinRes(moniResData, itemIds)
-            var ajaxNum = Object.keys(resouceIndex).length == 2 ? 6 : 9
-            responseData['selfItem'] = {}
-            responseData['rivalItem1'] = {}
-            responseData['rivalItem2'] = {}
+            // var itemIds = dataWrapper['monitResource'].ids
+            var resouceIndex = filterMoinRes(moniResData, request.datakey);
+            var ajaxNum = Object.keys(resouceIndex).length == 2 ? 6 : 9;
+            // responseData['selfItem'] = {}
+            // responseData['rivalItem1'] = {}
+            // responseData['rivalItem2'] = {}
             for (var key in resouceIndex) {
-                responseData[key]['uvIndex'] = resouceIndex[key]['uvIndex']
-                for (var j in resouceIndex[key]) {
-                    if (j != 'uvIndex') {
-                        getAjax(resouceIndex[key][j], j, sendResponse, ajaxNum, 'monitResource', moniResData, key)
+                responseData['uvIndex'] = resouceIndex['uvIndex']
+                // for (var j in resouceIndex[key]) {
+                    if (key != 'uvIndex') {
+                        getAjax(resouceIndex[key], key, sendResponse, Object.keys(resouceIndex).length - 1, 'monitResource', moniResData)
                     }
-                }
+                // }
             }
 
         } else if (request.type == 'monitshop' || request.type == 'monititem' || request.type == 'monitbrand') {

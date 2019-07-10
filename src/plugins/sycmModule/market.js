@@ -1155,6 +1155,8 @@ function bigMarketTable(){
         obj.cltTimes = fianlVal.cltTimes.value;
         obj.cartByrCnt = fianlVal.cartByrCnt.value;
         obj.cartTimes = fianlVal.cartTimes.value;
+        obj.cltRate = formulaRate(obj.cltByrCnt, obj.uv, 1);
+        obj.carRate = formulaRate(obj.cartByrCnt, obj.uv, 1);
         cols = [{
                 data: 'uv',
                 title: '访客数',
@@ -1178,6 +1180,14 @@ function bigMarketTable(){
             {
                 data: 'cartTimes',
                 title: '加购次数',
+            },
+            {
+                data: 'cltRate',
+                title: '收藏率',
+            },
+            {
+                data: 'carRate',
+                title: '加购率',
             }
         ]
         // index transform
@@ -1186,7 +1196,9 @@ function bigMarketTable(){
             obj.seIpvUvHits = indexs.seIpv[0];
             obj.payByrCntIndex = indexs.payByr[0];
             obj.sePvIndex = indexs.sePvIndex[0];
-            obj.tradeIndex = indexs.tradeIndex[0] == '超出范围,请使用插件最高支持7.8亿' ? '超出范围' : indexs.tradeIndex[0];
+            obj.tradeIndex =  indexs.tradeIndex[0];
+            obj.kdPrice = formulaRate(obj.tradeIndex, obj.payByrCntIndex);
+            obj.payRate = (obj.payByrCntIndex / obj.uv*100).toFixed(2)+'%';
             obj.uvPrice = obj.tradeIndex == '超出范围' ? '-' : (obj.tradeIndex / obj.uv).toFixed(2);
             obj.searchRate = indexs.sePvIndex[0] == '超出范围' ? '-' : (indexs.sePvIndex[0] / obj.uv*100).toFixed(2)+'%';
             cols = [{
@@ -1236,7 +1248,23 @@ function bigMarketTable(){
                 {
                     data: 'uvPrice',
                     title: 'UV价值',
-                }
+                },
+                {
+                    data: 'kdPrice',
+                    title: '客单价',
+                },
+                {
+                    data: 'payRate',
+                    title: '支付转化率',
+                },
+                 {
+                     data: 'cltRate',
+                     title: '收藏率',
+                 }, 
+                 {
+                     data: 'carRate',
+                     title: '加购率',
+                 }
             ]
         }
         domStructMark({
@@ -1247,49 +1275,77 @@ function bigMarketTable(){
     })
 }
 // 市场大盘-行业趋势
-function bigMarketTrendTable(){
+function getAllbigPanData(){
     if (!isNewVersion()) {
+        LoadingPop()
         return false
     }
+    $('.op-mc-market-overview-container #cateTrend .alife-one-design-sycm-indexes-trend-index-item-multiple-line-selectable').eq(0).click()
      var selectType = $('.op-mc-market-overview-container #cateTrend .oui-card-switch .oui-card-switch-item-container-active').index(); //0-对比行业，1-对比本店，2-对比周期
-     var selectIndexType = $('.op-mc-market-overview-container #cateTrend .index-area-multiple-root-container .active .oui-index-cell').attr('value');
      var dayIndex = $('.oui-date-picker .ant-btn-primary').text();
      var compareType = selectType == 1 ? 'self' : selectType == 2 ? 'cycle' : "cate";
-     var rootCateInfo = findcategory();//本店目录选择
+     var rootCateInfo = findcategory(); //本店目录选择
      var comCateInfo = findComcategory(); //对比目录选择
      var diffCate = selectType ? '' : comCateInfo['id'] ? ('&diffCateId=' + comCateInfo['id']) : ''; //对比类目选择
-     var trendKey = getSearchParams('bigMarket', 0, 0, 'local', {
-         selectIndex: selectIndexType,
-         compareType: compareType,
-         diffCate: diffCate,
-         localCateId: rootCateInfo.id
-     });
-     var transList = 'seIpvUvHits,sePvIndex,payByrCntIndex,tradeIndex';
-      var storageVal = localStorage.getItem(trendKey);
-      if (!storageVal) {
-          popTip('获取数据失败！');
-          return false;
-      }
-      var typeNames = getShowTableName(rootCateInfo.name, remeSelectType.name, selectType, selectIndexType)
-      var reductData = JSON.parse(filterLocalData(storageVal));
-      var selfData = selectType == 1 ? reductData.self[selectIndexType] : selectType == 2 ? reductData.cate[selectIndexType] : reductData.self[selectIndexType];
-      var cateData = selectType == 1 ? reductData.cate[selectIndexType] : selectType == 2 ? reductData.cycle[selectIndexType] : reductData.cate ? reductData.cate[selectIndexType] : '';
-     if (transList.indexOf(selectIndexType)==-1){
-       bigMarketShowData(selfData, cateData, dayIndex, typeNames)
-     }else{
-         var sendData = cateData ? selfData.concat(cateData) : selfData;
-        dealIndex({
-            type: 'industryTrendChart',
-            dataType: selectIndexType,
-            sendData: sendData
-        }, function (val) {
-            var selfData = val.value[selectIndexType].slice(0,30);
-            var cateDataTran = cateData ? val.value[selectIndexType].slice(30) : '';
-            bigMarketShowData(selfData, cateDataTran, dayIndex, typeNames)
-        })
-     }
+     var selectIndexType = $('.op-mc-market-overview-container #cateTrend .index-area-multiple-root-container .active .oui-index-cell').attr('value');
+     COUNT = 0;
+     cycleBigPanData(selectIndexType, {
+         selectType, dayIndex, compareType, rootCateInfo, comCateInfo, diffCate
+     }, {
+         step: 0,
+         saveData: {}
+     })
 }
-function bigMarketShowData(selfData, cateData, selectIndexType, typeNames) {
+function cycleBigPanData(selectIndexType, sendInfo,processInfo) {
+    var trendKey = getSearchParams('bigMarket', 0, 0, 'local', {
+        selectIndex: selectIndexType,
+        compareType: sendInfo.compareType,
+        diffCate: sendInfo.diffCate,
+        localCateId: sendInfo.rootCateInfo.id
+    });
+    var storageVal = localStorage.getItem(trendKey);
+    if (!storageVal) {
+        if (COUNT>10){
+             popTip('获取数据失败！');
+             LoadingPop
+             return false;
+        }else{
+            setTimeout(function(){
+                cycleBigPanData(selectIndexType, sendInfo, processInfo)
+            },500)
+        }
+    }else{
+        COUNT = 0;
+        var reductData = JSON.parse(filterLocalData(storageVal));
+        var selfData = sendInfo.selectType == 1 ? reductData.self[selectIndexType] : sendInfo.selectType == 2 ? reductData.cate[selectIndexType] : reductData.self[selectIndexType];
+        var cateData = sendInfo.selectType == 1 ? reductData.cate[selectIndexType] : sendInfo.selectType == 2 ? reductData.cycle[selectIndexType] : reductData.cate ? reductData.cate[selectIndexType] : '';
+        processInfo.saveData[selectIndexType] = cateData ? selfData.concat(cateData) : selfData;
+        var nextStep = processInfo.step+1;
+        processInfo.step = nextStep;
+        var nextClickDom = $('.op-mc-market-overview-container #cateTrend .alife-one-design-sycm-indexes-trend-index-item-multiple-line-selectable').eq(nextStep)
+        if (!nextClickDom.length) {
+             var proSaveData = processInfo.saveData;
+             var typeNames = getShowTableName(sendInfo.rootCateInfo.name, remeSelectType.name, sendInfo.selectType, selectIndexType);
+            if (nextStep>6){
+                var sendData = {};
+                sendData.seIpvUvHits = proSaveData.seIpvUvHits;
+                sendData.sePvIndex = proSaveData.sePvIndex;
+                sendData.payByrCntIndex = proSaveData.payByrCntIndex;
+                sendData.tradeIndex = proSaveData.tradeIndex;
+                dealIndex({type:'dealTrend',dataType:sendData},function(val){
+                    bigMarketShowData(proSaveData, val.value, sendInfo.dayIndex, typeNames, 1)
+                })
+            }else{
+                bigMarketShowData(proSaveData, {}, sendInfo.dayIndex, typeNames)
+            }
+            return false;
+        }
+        nextClickDom.click();
+        var selectIndexType2 = $('.op-mc-market-overview-container #cateTrend .index-area-multiple-root-container .active .oui-index-cell').attr('value');
+        cycleBigPanData(selectIndexType2, sendInfo, processInfo)
+    }
+}
+function bigMarketShowData(fianlVal, indexs, selectIndexType, typeNames, type) {
     var yearMonthDays = '';
     if (selectIndexType=='周'){
         yearMonthDays = weekMonthDate('',12)
@@ -1299,53 +1355,115 @@ function bigMarketShowData(selfData, cateData, selectIndexType, typeNames) {
         yearMonthDays = monthDays()
     }
     var len = yearMonthDays.length;
+    var itemLen = fianlVal.uv.length > len ? 2 : 1;
      var resData = [];
      for (let j = 0; j < len; j++) {
-         var obj = {};
-         obj.self = selfData[j];
-         obj.cate = cateData ? cateData[j] : '';
-         obj.date = yearMonthDays[j];
-         resData.push(obj)
+         for (let k = 0; k < itemLen; k++) {
+            var obj = {};
+            var cot = k*len+j;
+            obj.date = yearMonthDays[j];
+            obj.categroy = k ? typeNames.cateName : typeNames.selfName;
+            obj.uv = fianlVal.uv[cot];
+            obj.pv = fianlVal.pv[cot];
+            obj.cltByrCnt = fianlVal.cltByrCnt[cot];
+            obj.cltTimes = fianlVal.cltTimes[cot];
+            obj.cartByrCnt = fianlVal.cartByrCnt[cot];
+            obj.cartTimes = fianlVal.cartTimes[cot];
+            obj.cltRate = formulaRate(obj.cltByrCnt, obj.uv, 1);
+            obj.carRate = formulaRate(obj.cartByrCnt, obj.uv, 1);
+            if(type){
+                obj.seIpvUvHits = indexs.seIpvUvHits[cot];
+                obj.payByrCntIndex = indexs.payByrCntIndex[cot];
+                obj.sePvIndex = indexs.sePvIndex[cot];
+                obj.tradeIndex = indexs.tradeIndex[cot];
+                obj.kdPrice = formulaRate(obj.tradeIndex, obj.payByrCntIndex);
+                obj.payRate = formulaRate(obj.payByrCntIndex, obj.uv, 1);
+                obj.uvPrice = formulaRate(obj.tradeIndex, obj.uv, 1) ;
+                obj.searchRate = formulaRate(indexs.sePvIndex[0], obj.uv, 1);
+            }
+            resData.push(obj)
+         }
      }
-     var cols =[];
-     if (cateData){
-        cols = [{
-                data: 'date',
-                title: '日期',
-            },
-            {
-                data: 'self',
-                title: typeNames.selfName,
-            },
-            {
-                data: 'cate',
-                title: typeNames.cateName,
-            },
-        ]
-     }else{
-        cols = [
-            {
+     var cols = [
+             {
+                 data: 'categroy',
+                 title: '类别',
+             },
+             {
                  data: 'date',
                  title: '日期',
              },
              {
-                 data: 'self',
-                 title: typeNames.selfName,
+                 data: 'uv',
+                 title: '访客数',
+             },
+             {
+                 data: 'pv',
+                 title: '浏览量',
+             },
+             {
+                 data: 'cltByrCnt',
+                 title: '收藏人数',
+             },
+             {
+                 data: 'cltTimes',
+                 title: '收藏次数',
+             },
+             {
+                 data: 'cartByrCnt',
+                 title: '加购人数',
+             },
+             {
+                 data: 'cartTimes',
+                 title: '加购次数',
+             },
+             {
+                 data: 'cltRate',
+                 title: '收藏率',
+             },
+             {
+                 data: 'carRate',
+                 title: '加购率',
              }
-         ]
+         ];
+     if (type) {
+        cols.push(
+            {
+                data: 'seIpvUvHits',
+                title: '搜索人数',
+            }, {
+                data: 'sePvIndex',
+                title: '搜索次数',
+            },
+            {
+                data: 'payByrCntIndex',
+                title: '支付人数',
+            },
+            {
+                data: 'tradeIndex',
+                title: '交易金额',
+            },
+            {
+                data: 'searchRate',
+                title: '搜索占比',
+            },
+            {
+                data: 'uvPrice',
+                title: 'UV价值',
+            },
+            {
+                data: 'kdPrice',
+                title: '客单价',
+            },
+            {
+                data: 'payRate',
+                title: '支付转化率',
+            })
      }
-     
-     domStructTrend({
+     domStructMark({
          data: resData,
          cols: cols
-     }, {
-         name: typeNames.tabName,
-         type: 'dapan'
-     }, yearMonthDays, {
-         self: selfData,
-         cate: cateData,
-         typeNames: typeNames
-     })
+     }, '行业趋势总览')
 }
 // 搜索排行
 function searchRankTable(){
@@ -2724,9 +2842,9 @@ function productTrendTop(isTrend){
                 obj.date = month30Days[i]
             }
             obj.tradeIndex = transData[i];
-            obj.payOrdCnt = isTrend ? reduceData.payOrdCnt[i]:reduceData.payOrdCnt.value;
-            obj.payItmCnt = isTrend ? reduceData.payItmCnt[i] : reduceData.payItmCnt.value;
-            obj.payByrCnt = isTrend ? reduceData.payByrCnt[i] : reduceData.payByrCnt.value;
+            obj.payOrdCnt = isTrend ? reduceData.payOrdCnt[i] : reduceData.payOrdCnt.value ? reduceData.payOrdCnt.value:'-';
+            obj.payItmCnt = isTrend ? reduceData.payItmCnt[i] : reduceData.payItmCnt.value ? reduceData.payItmCnt.value:'-';
+            obj.payByrCnt = isTrend ? reduceData.payByrCnt[i] : reduceData.payByrCnt.value ? reduceData.payByrCnt.value:'-';
             tableData.push(obj)
         }
         var cols = [
@@ -2830,13 +2948,13 @@ function prodRankTrendTop(isTrend) {
             obj.payByrCntIndex = transData.payByrCntIndex[i];
             obj.payRateIndex = (transData.payRateIndex[i] * 100).toFixed(2) + '%';
             obj.kdPrice = formulaRate(transData.tradeIndex[i], obj.payByrCntIndex);
-            obj.uvPrice = formulaRate(transData.tradeIndex[i], obj.uvIndex, 1);
+            obj.uvPrice = formulaRate(transData.tradeIndex[i], obj.uvIndex);
             obj.searchRate = formulaRate(obj.seIpvUvHits, obj.uvIndex, 1);
             obj.cltRate = formulaRate(obj.cltHit, obj.uvIndex, 1);
             obj.carRate = formulaRate(obj.cartHit, obj.uvIndex, 1);
-            obj.payItemCnt = isTrend ? reduceData.payItemCnt[i] : reduceData.payItemCnt.value;
-            obj.paySlrCnt = isTrend ? reduceData.paySlrCnt[i] : reduceData.paySlrCnt.value;
-            obj.slrCnt = isTrend ? reduceData.slrCnt[i] : reduceData.slrCnt.value;
+            obj.payItemCnt = isTrend ? reduceData.payItemCnt[i] : reduceData.payItemCnt.value ? reduceData.payItemCnt.value:'-';
+            obj.paySlrCnt = isTrend ? reduceData.paySlrCnt[i] : reduceData.paySlrCnt.value ? reduceData.paySlrCnt.value:'-';
+            obj.slrCnt = isTrend ? reduceData.slrCnt[i] : reduceData.slrCnt.value ? reduceData.slrCnt.value:'-';
             tableData.push(obj)
         }
         var cols = [
@@ -3027,32 +3145,32 @@ function findComcategory() {
 function getShowTableName(rootName,comName,selType,typeVal){
     var firName = '',
     secName = '';
-    var typeToWord = {
-        seIpvUvHits: '搜索人数',
-        sePvIndex: '搜索热度',
-        uv: '访客数',
-        pv: '浏览量',
-        cltByrCnt: '收藏人数',
-        cltTimes: '收藏次数',
-        cartByrCnt: '加购人数',
-        cartTimes: '加购次数',
-        payByrCntIndex: '支付人数',
-        tradeIndex: '交易金额'
-    }
+    // var typeToWord = {
+    //     seIpvUvHits: '搜索人数',
+    //     sePvIndex: '搜索热度',
+    //     uv: '访客数',
+    //     pv: '浏览量',
+    //     cltByrCnt: '收藏人数',
+    //     cltTimes: '收藏次数',
+    //     cartByrCnt: '加购人数',
+    //     cartTimes: '加购次数',
+    //     payByrCntIndex: '支付人数',
+    //     tradeIndex: '交易金额'
+    // }
     if(selType==1){
-        firName = '本店' + rootName + typeToWord[typeVal];
-        secName = rootName + typeToWord[typeVal];
+        firName = '本店' + rootName ;
+        secName = rootName ;
     } else if (selType == 2) {
-        firName = '本周期' + typeToWord[typeVal];
-        secName = '上一周期' + typeToWord[typeVal];
+        firName = '本周期' ;
+        secName = '上一周期' ;
     }else{
-        firName = rootName + typeToWord[typeVal];
-        secName = comName ? (comName+typeToWord[typeVal]):'';
+        firName = rootName ;
+        secName = comName ? (comName):'';
     }
     return {
         selfName: firName,
         cateName:secName,
-        tabName: typeToWord[typeVal]
+        // tabName: typeToWord[typeVal]
     }
 
 }
@@ -3118,7 +3236,9 @@ $(document).on('click', '.op-mc-market-overview-container #cateTrend .cardHeader
 })
 // 市场-市场排行- 市场大盘-hangye
 $(document).on('click', '.op-mc-market-overview-container #cateTrend .op-mc-market-overview-compare-area #search', function () {
-    bigMarketTrendTable()
+    // bigMarketTrendTable()
+    LoadingPop('show')
+    getAllbigPanData()
 })
 // 市场-市场排行- 市场大盘-hangye
 $(document).on('click', '.op-mc-search-rank-container .oui-card-header-wrapper #search', function () {

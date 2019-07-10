@@ -1760,7 +1760,7 @@ function getTopItem(category, itemInfo, localCateId, selfCoreData) {
         var topItem = findFirstItme(resData);
         var dayRange = setDateRange(nowTime, 'day');
         var topItemId = topItem.itemId.value;
-        var finaTrendlUrl = 'https://sycm.taobao.com/mc/ci/item/trend.json?dateType=day&dateRange=' + dayRange + '&cateId=' + localCateId + '&itemId=' + topItemId + '&device=0&sellerType=-1&indexCode=uvIndex%2CpayRateIndex%2CtradeIndex%2CpayByrCntIndex'
+        var finaTrendlUrl = 'https://sycm.taobao.com/mc/ci/item/trend.json?dateType=day&dateRange=' + dayRange + '&cateId=' + category + '&itemId=' + topItemId + '&device=0&sellerType=-1&indexCode=uvIndex%2CpayRateIndex%2CtradeIndex%2CpayByrCntIndex'
         getHttpRquest(finaTrendlUrl, function (res2) {
             if (!res2.data) {
                 popTip('获取数据失败请重试')
@@ -1848,7 +1848,7 @@ function getCompareData(resData, resultWrap, itemInfo) {
                 tradeIndex: val2.value.tradeIndex
             }
             requestData.topItem = {
-                tradeIndex: val2.value.tradeIndex,
+                tradeIndex: val2.value.tradeIndexTop,
                 payItemCnt: val2.value.payByrCntIndexTop,
             }
             requestData.version = 1.1;
