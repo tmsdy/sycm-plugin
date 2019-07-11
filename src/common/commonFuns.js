@@ -362,7 +362,7 @@ export function getSearchParams(key, page, pagesize, dealType, extra) {
         var indexCode = extra.type ? '&indexCode=' : '';
         return '/mc/rivalBrand/analysis/getCore' + mainType + '.json?cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + indexCode + extra.userId + '&sellerType=' + sellType
     } else if (key == 'compBrandTopItems') { //品牌分析-关键指标
-        var indexCode = extra.topType=='trade' ? 'tradeIndex' : 'uvIndex';
+        var indexCode = extra.topType == 'trade' ? (extra.isSingle ? 'tradeIndex,tradeGrowthRange,payRateIndex' : 'tradeIndex') : (extra.isSingle ? 'uvIndex,seIpvUvHits,tradeIndex' : 'uvIndex');
         var category = extra.categroy?'Shops':'Items';
         return '/mc/rivalBrand/analysis/getTop' + category + '.json?brandId=' + extra.brandId + '&cateId=' + localCateId + '&dateRange=' + finalTime + '&dateType=' + dateType + '&device=' + device + '&indexCode=' + indexCode + '&order=desc&page=1&pageSize=10&sellerType=' + sellType + '&topType=' + extra.topType;
     } else if (key == 'BrandCustonerTrend') { //品牌客群-关键指标-趋势
@@ -634,4 +634,18 @@ export function trendInfoJoin(type, idNum, cateId) {
         res = '/mc/ci/config/rival/item/getSingleMonitoredInfo.json?firstCateId=' + cateId + '&itemId=' + idNum + '&rivalType=item';
     }
     return res
+}
+function popTip(text, options) {
+    var st = '';
+    var tm = 500;
+    if (options) {
+        st = options ? options.style : '';
+        tm = options ? options.time : tm;
+    }
+    $('#app').append('<div class="small-alert" style="' + st + '">' + text + '</div>');
+    setTimeout(function () {
+        $('#app .small-alert').fadeOut(300, function () {
+            $('#app .small-alert').remove();
+        })
+    }, tm)
 }

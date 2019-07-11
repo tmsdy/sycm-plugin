@@ -1,23 +1,22 @@
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
     'http://118.25.153.205:8090';
 chrome.storage.local.get(['chaqz_token', 'compareProduceData'], function (valueArray) {
-    var local = localStorage.getItem('token');
+    var local = localStorage.getItem('saveToken');
     var newLoacal = valueArray.chaqz_token;
-    // var hasSetToken = localStorage.getItem('pluginHasSetToken')
+    local = local ? JSON.parse(local) : "";
     if (newLoacal) {
-        // if (local != newLoacal ) {
-            console.log(window.location.href)
-        // if (local != newLoacal && hasSetToken != newLoacal) {
-        if (local != newLoacal ) {
-            localStorage.setItem('token', valueArray.chaqz_token);
-            // localStorage.setItem('pluginHasSetToken', valueArray.chaqz_token);
-            var url = window.location.href
-            if (url.indexOf('plugin') != -1) {
-                // window.location.href = BASE_URL + "/vipInfo?from=plugin"
+        // 获取token发生时间
+        var localTime = local ? local.expiration : 0;
+        var enjoyTime = newLoacal.expiration;
+        if (local != newLoacal && enjoyTime > localTime) {
+            // 设置最新token
+            localStorage.setItem('token', newLoacal.token);
+            localStorage.setItem('saveToken', JSON.stringify(newLoacal));
+            var isLogin = getUrlParam();
+            if (isLogin) { //判断是否在login页面以及是否有重定向
+                window.location.href = BASE_URL + isLogin
+            } else {
                 window.location.reload();
-            }
-            if (url.indexOf('privilgeEscala') != -1) {
-                window.location.href = BASE_URL + "/privilgeEscala"
             }
         }
     }
@@ -27,13 +26,11 @@ chrome.storage.local.get(['chaqz_token', 'compareProduceData'], function (valueA
     }
 })
 $(function () {
-    $('#app').on('DOMNodeInserted', function (e) {
-        if (e.target.className == 'operat') {
-            var newToken = localStorage.getItem('token')
-            chrome.storage.local.set({
-                'chaqz_token': newToken
-            }, function () {});
-        }
+    window.addEventListener("listenTokenChange", function (event) {
+        var newToken = event.detail;
+        chrome.storage.local.set({
+            'chaqz_token': newToken
+        }, function () {});
     })
     $(document).on('click', '.tools-main .is-all-true', function () {
         var keywords = $(this).attr('data-value');
@@ -53,3 +50,20 @@ chrome.runtime.onMessage.addListener(
             sessionStorage.setItem('CoreWordResolve', request.searchAnalysis)
         }
     })
+
+function getUrlParam(para) {
+    var url = window.location.search;
+    var serchs = url.split('?')[1];
+    if (!serchs) {
+        return ''
+    }
+    var res = '';
+    var filteArr = serchs.split('&');
+    for (let i = 0; i < filteArr.length; i++) {
+        const element = filteArr[i].split('=');
+        if (element[0] == 'redirect') {
+            res = element[1];
+        }
+    }
+    return decodeURIComponent(res)
+}

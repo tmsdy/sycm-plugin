@@ -1346,7 +1346,7 @@ function bigMarketShowData(fianlVal, indexs, selectIndexType, typeNames, type) {
                 obj.tradeIndex = indexs.tradeIndex[cot];
                 obj.kdPrice = formulaRate(obj.tradeIndex, obj.payByrCntIndex);
                 obj.payRate = formulaRate(obj.payByrCntIndex, obj.uv, 1);
-                obj.uvPrice = formulaRate(obj.tradeIndex, obj.uv, 1) ;
+                obj.uvPrice = formulaRate(obj.tradeIndex, obj.uv) ;
                 obj.searchRate = formulaRate(indexs.sePvIndex[0], obj.uv, 1);
             }
             resData.push(obj)

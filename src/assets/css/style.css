@@ -1075,6 +1075,11 @@
 .op-mc-search-analyze-container .chaqz-btns.btnsItem1 {
     float: left;
 }
+.mc-brandCustomer .mc-Portrait .chaqz-btns.btnsItem1 {
+    float: none;
+    display: inline-block;
+    margin-left: 20px;
+}
 
 #chaqz-table-trend .bstr {
     background: rgba(75, 146, 236, 0.5);

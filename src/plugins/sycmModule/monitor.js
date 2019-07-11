@@ -2550,10 +2550,16 @@ function MonitorItem(pageType) {
                 //   var isNumber = isNaN(rateNum);
                   obj.tradeIndex = res.tradeIndex[i];
                   obj.uvIndex = res.uvIndex[i];
+                  obj.seIpvUvHits = res.seIpv[i];
+                  obj.cltHit = res.cltHit[i];
+                  obj.cartHit = res.cartHit[i];
                   obj.payRate = res.payRate[i] ? ((res.payRate[i] * 100).toFixed(2) + '%') : "-";
                   obj.payByr = operatcPmpareData(res.uvIndex[i], res.payRate[i], res.tradeIndex[i]).num1;
                   obj.kdPrice = operatcPmpareData(res.uvIndex[i], res.payRate[i], res.tradeIndex[i]).num2;
                   obj.uvPrice = formulaRate(res.tradeIndex[i], res.uvIndex[i]);
+                  obj.searchRate = formulaRate(res.seIpv[i], res.uvIndex[i], 1);
+                  obj.cltRate = formulaRate(res.cltHit[i], res.uvIndex[i], 1);
+                  obj.carRate = formulaRate(res.cartHit[i], res.uvIndex[i], 1);
                   resData.push(obj)
               }
             //   if (resData.length > 2) {
@@ -2583,14 +2589,35 @@ function MonitorItem(pageType) {
                       data: 'uvIndex',
                       title: '访客人数',
                   },
+                   {
+                       data: 'payByr',
+                       title: '支付人数',
+                   },
                   {
                       data: 'payRate',
                       title: '支付转化率',
                   }, 
-                  {
-                      data: 'payByr',
-                      title: '支付人数',
-                  }, 
+                   {
+                       data: 'seIpvUvHits',
+                       title: '搜索人数'
+                   },
+                {
+                    data: 'cltHit',
+                    title: '收藏人数'
+                }, {
+                    data: 'cartHit',
+                    title: '加购人数'
+                },
+                {
+                    data: 'searchRate',
+                    title: '搜索占比'
+                }, {
+                    data: 'cltRate',
+                    title: '收藏率'
+                }, {
+                    data: 'carRate',
+                    title: '加购率'
+                },
                   {
                       data: 'kdPrice',
                       title: '客单价',
@@ -3306,10 +3333,12 @@ function compBrandTop10(paramId, index, cateType) {
      var tabsId = cateType ? '#brandAnalysisShops' : '#brandAnalysisItems';
      var tabsSelect = $('.op-mc-brand-analysis ' + tabsId + ' .oui-tab-switch-item-active').index(); //热销流量选择
      var topType = tabsSelect?'flow':'trade';
+     var isSinle = chinaName.length>1?0:1;
      var localKey = getSearchParams('compBrandTopItems', 1, 10, 'local', {
          brandId: curBrandId,
          topType: topType,
-         categroy: cateType
+         categroy: cateType,
+         isSingle: isSinle
      })
      var localData = localStorage.getItem(localKey);
      if (!localData) {

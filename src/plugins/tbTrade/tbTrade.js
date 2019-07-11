@@ -163,7 +163,7 @@ var anyDom = {
          } else {
              var memInfo = SAVE_MEMBER;
              // var bindInfo = SAVE_BIND;
-             if (memInfo.token) {
+             if (memInfo.member) {
                  // this.infoDom(memInfo, bindInfo)
                  anyDom.infoDom(memInfo)
              } else {

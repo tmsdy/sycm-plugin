@@ -10,7 +10,8 @@ module.exports = {
   entry: {
     // content-scripts
     'sycmContent.js': ['./src/plugins/sycmModule/index.js', './src/plugins/sycmModule/variableAnaly.js'],
-    'sycmContent1.js': ['./src/plugins/sycmModule/monitor.js', './src/plugins/sycmModule/market.js'],
+    'sycmContent1.js': './src/plugins/sycmModule/monitor.js',
+    'sycmContent2.js':  './src/plugins/sycmModule/market.js',
     'contentScript.js': './src/plugins/sycmModule/contentScript.js',
     
     'chaqz_web.js': './src/plugins/chaqzModule/chaqz_web.js',

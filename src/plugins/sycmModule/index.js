@@ -118,7 +118,7 @@ interceptRequest();
 chrome.storage.local.get('chaqz_token', function (valueArray) {
     var tok = valueArray.chaqz_token;
     if (tok) {
-        localStorage.setItem('chaqz_token', tok);
+        localStorage.setItem('chaqz_token', tok.token);
         isLogin = true;
         // window.isLogin = true;
     } else {
@@ -151,7 +151,7 @@ $(function () {
     }, SET_WAIT_TIME)
     /**竞争模块添加事件 */
     $('#app').on('DOMNodeInserted', function (e) {
-        console.log(e.target.id, ',', e.target.className)
+        // console.log(e.target.id, ',', e.target.className)
         if (e.target.className == 'oui-index-picker') { //竞争-监控店铺
             $('.mc-shopMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
         } else if (e.target.className == 'oui-index-picker-group') { //竞争-监控商品
@@ -292,7 +292,6 @@ function userInfoRes() {
         return false;
     }
     var saveToke = localStorage.getItem('chaqz_token');
-    // anyDom.getShopBind();
     chrome.runtime.sendMessage({
         key: 'getData',
         options: {
@@ -309,14 +308,12 @@ function userInfoRes() {
             res.member.expireAt = res.member.expire_at;
             SAVE_MEMBER = res;
             window.SAVE_MEMBER2 = res;
-            // window.isLogin = true;
             isLogin = true;
             changeLoginStatus()
         } else {
             LogOut()
         }
     })
-   
 }
 // 判断版本
 function judgeCor() {

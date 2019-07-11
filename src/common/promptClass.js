@@ -318,8 +318,12 @@ export function LogOut() {
                 localStorage.setItem('chaqz_token', token);
                 // SAVE_MEMBER = member;
                 window.SAVE_MEMBER2 = member;
+                var saveToke = {
+                    expiration: val.data.expire,
+                    token: token
+                }
                 chrome.storage.local.set({
-                    'chaqz_token': token,
+                    'chaqz_token': saveToke,
                     'chaqzShopInfo': member
                 }, function () {});
                 isLogin = true;
@@ -399,7 +403,7 @@ export function LogOut() {
         } else {
             var memInfo = SAVE_MEMBER2;
             // var bindInfo = SAVE_BIND;
-            if (memInfo.token) {
+            if (memInfo.member) {
                 // this.infoDom(memInfo, bindInfo)
                 this.infoDom(memInfo)
             } else {
