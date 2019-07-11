@@ -11,7 +11,7 @@ chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray)
     var tok = valueArray.chaqz_token;
     SAVE_MEMBER = valueArray.chaqzShopInfo?valueArray.chaqzShopInfo:{};
     if (tok) {
-        localStorage.setItem('chaqz_token', tok);
+        localStorage.setItem('chaqz_token', tok.token);
         isLogin = true;
     } else {
         isLogin = false;
@@ -72,8 +72,12 @@ var anyDom = {
             if (val.code == 200) {
                 var token = val.data.token;
                 localStorage.setItem('chaqz_token', token);
+                var saveToke = {
+                    expiration: val.data.expire,
+                    token: token
+                }
                 chrome.storage.local.set({
-                    'chaqz_token': token
+                    'chaqz_token': saveToke
                 }, function () {});
                 SAVE_MEMBER = val.data;
                 isLogin = true;
@@ -216,7 +220,7 @@ var anyDom = {
 function logOut(){
     isLogin = false;
     SAVE_MEMBER = {};
-    chrome.storage.local.remove(['chaqz_token', 'chaqzShopInfo'], function () {});
+    chrome.storage.local.remove([ 'chaqzShopInfo'], function () {});
     localStorage.removeItem('chaqz_token');
 }
   // 个人信息

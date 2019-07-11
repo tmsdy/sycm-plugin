@@ -252,7 +252,7 @@ export function changeLoginStatus(type) {
 export function LogOut() {
     isLogin = false;
     changeLoginStatus('out');
-    chrome.storage.local.remove(['chaqz_token', 'compareProduceData'], function () {});
+    chrome.storage.local.remove(['compareProduceData'], function () {});
     localStorage.removeItem('chaqz_token');
     LoadingPop();
     $('#caseBlanche').remove();//词根管理弹窗
