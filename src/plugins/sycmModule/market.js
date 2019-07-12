@@ -616,7 +616,7 @@ var rememberPropId = '';
     var hotType = chooseItem == 1 ? 'hotsearch' : chooseItem == 2 ? 'hotpurpose' : 'hotsale';
     var rankType = chooseList == 1 ? 'item' : chooseList == 2 ? 'brand' : 'shop';
     var itemKey = getSearchParams(hotType)
-    var localData = JSON.parse(localStorage.getItem(rankType + '/' + itemKey))
+    var localData = JSON.parse(sessionStorage.getItem(rankType + '/' + itemKey))
     var totalCont = localData.length;
     var marketData = localData.slice((curPage - 1) * curPageSize, curPage * curPageSize)
     dealIndex({

@@ -432,7 +432,7 @@ var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
                      var dataTypes = getParamsItem(baseUrl,'passCateid')
                      var rankKey = marketRankType(baseUrl)
                      var saveData = bubbleSort(finaData)
-                     localStorage.setItem(rankKey + '/' + k + dataTypes, saveData)
+                     sessionStorage.setItem(rankKey + '/' + k + dataTypes, saveData)
                  } else if (k == 'allTrend') {
                      var rankKey = marketRankType(baseUrl)
                      var dataTypes = getParamsItem(baseUrl, 'trend', rankKey)

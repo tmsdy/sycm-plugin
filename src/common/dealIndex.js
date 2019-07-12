@@ -1,4 +1,3 @@
-//  import {BASE_URL} from './constState';
  import {
      formula,
      integer, filterLocalData
@@ -26,92 +25,17 @@
      cartByrCntIndex: []
  };
 
-// //  指数转化请求
-//  function getAjax(data, type, sendResponse, num, fType, lastData, compareItem) {
-//      var filterType = (type == 'payRate' || type == 'payRateIndex') ? 1 : type == 'tradeIndex' ? 2 : (type == 'payByr' || type == 'payByrCntIndex') ?
-//          3 : type == 'uvIndex' ? 4 : (type == 'seIpv' || type == 'seIpvUvHits') ? 5 : (type == 'cartHit' || type == 'cartHits') ? 6 : (type == 'cltHit' || type == 'cltHits') ? 7 : '';
-//      var saveToke = localStorage.getItem('chaqz_token')
-//      chrome.runtime.sendMessage({
-//              key: "getData",
-//              options: {
-//                  url: BASE_URL + '/api/v1/plugin/flowFormula?type=' + filterType,
-//                  type: "POST",
-//                  contentType: "application/json,charset=utf-8",
-//                  headers: {
-//                      Authorization: "Bearer " + saveToke
-//                  },
-//                  data: JSON.stringify({
-//                      exponent: data
-//                  })
-//              }
-//          },
-//          function (val) {
-//              requestNum++
-//              if (val.code == 200) {
-//                  if (!compareItem) {
-//                      responseData[type] = val.data
-//                  } else {
-//                      responseData[compareItem][type] = val.data
-//                  }
-//              } else if (val.code == 2030) {
-//                  popTip('登录过期，请重新登录！');
-//                  LogOut()
-//                  requestNum = 0
-//              }
-//              if (requestNum > num - 1) {
-//                  var resData = fType == 'monitShop' ? moinShopTable(lastData) : fType == 'monitFood' ? moinFoodTable(lastData) : fType == 'monitCompareFood' ? responseData : fType == 'monitResource' ? {
-//                      value: responseData,
-//                      final: lastData
-//                  } : fType == 'marketShop' ? {
-//                      value: responseData,
-//                      final: lastData
-//                  } : fType == 'marketHotShop' ? {
-//                      value: responseData,
-//                      final: lastData
-//                  }: fType == 'inclueOrgin' ? {
-//                     value: responseData,
-//                     final: lastData
-//                 } : {
-//                 value: responseData
-//                  };
-//                  requestNum = 0
-//                  sendResponse(resData)
-//              }
-//          })
-//  }
 //  指数转化请求
  function getAjax(data, type, sendResponse, num, fType, lastData, compareItem) {
      var filterType = (type == 'payRate' || type == 'payRateIndex') ? 1 : type == 'tradeIndex' ? 2 : (type == 'payByr' || type == 'payByrCntIndex') ?
          3: type == 'uvIndex' ? 4 : (type == 'seIpv' || type == 'seIpvUvHits') ? 5 : (type == 'cartHit' || type == 'cartHits') ? 6 : (type == 'cltHit' || type == 'cltHits') ? 7 : type == 'sePvIndex' ? 8 : '';
-    //  var saveToke = localStorage.getItem('chaqz_token')
        var val = getAllIndex(filterType,data)
-    //  chrome.runtime.sendMessage({
-    //          key: "getData",
-    //          options: {
-    //              url: BASE_URL + '/api/v1/plugin/flowFormula?type=' + filterType,
-    //              type: "POST",
-    //              contentType: "application/json,charset=utf-8",
-    //              headers: {
-    //                  Authorization: "Bearer " + saveToke
-    //              },
-    //              data: JSON.stringify({
-    //                  exponent: data
-    //              })
-    //          }
-    //      },
-        //  function (val) {
              requestNum++
-            //  if (val.code == 200) {
                  if (!compareItem) {
                      responseData[type] = val
                  } else {
                      responseData[compareItem][type] = val
                  }
-            //  } else if (val.code == 2030) {
-            //      popTip('登录过期，请重新登录！');
-            //      LogOut()
-            //      requestNum = 0
-            //  }
              if (requestNum > num - 1) {
                  var resData = fType == 'monitShop' ? moinShopTable(lastData) : fType == 'monitFood' ? moinFoodTable(lastData) : fType == 'monitCompareFood' ? responseData : fType == 'monitResource' ? {
                      value: responseData,
@@ -131,7 +55,6 @@
                  requestNum = 0
                  sendResponse(resData)
              }
-        //  })
  }
  function getAllIndex(type,data){
      if(!data){
@@ -202,7 +125,7 @@
              return indexTrans.rangRate2(num)
          } else if (num >= 70 && num < 100) {
              return indexTrans.rangRate3(num)
-         } else if (num >= 100 && num < 3693) {
+         } else if (num >= 100 && num <= 3693.5) {
              return indexTrans.rangRate4(num)
          } else {
              return '超出范围'
@@ -429,61 +352,7 @@ function jsonFoodParse(val, type) {
              sourceIndex.payByr.push(item3 ? item3.value : 0);
              sourceIndex.uvIndex.push(item4 ? item4.value : 0);
          }
-         
      }
-
-    //  if (produceData.rivalItem1Id) {
-    //      sourceIndex['rivalItem1'] = {
-    //          payRate: [],
-    //          tradeIndex: [],
-    //          payByr: [],
-    //          uvIndex: []
-    //      }
-    //  }
-    //  if (produceData.rivalItem2Id) {
-    //      sourceIndex['rivalItem2'] = {
-    //          payRate: [],
-    //          tradeIndex: [],
-    //          payByr: [],
-    //          uvIndex: []
-    //      }
-    //  }
-    //  if (data) {
-    //      data.forEach(function (item) {
-    //          var selfBox = sourceIndex.selfItem
-    //          var item1 = item.selfItemPayRateIndex ? item.selfItemPayRateIndex.value : 0
-    //          var item2 = item.selfItemTradeIndex ? item.selfItemTradeIndex.value : 0
-    //          var item3 = item.selfItemPayByrCntIndex ? item.selfItemPayByrCntIndex.value : 0
-    //          var item4 = item.selfItemUv ? item.selfItemUv.value : 0
-    //          selfBox.payRate.push(item1);
-    //          selfBox.tradeIndex.push(item2);
-    //          selfBox.payByr.push(item3);
-    //          selfBox.uvIndex.push(item4);
-    //          if (produceData.rivalItem1Id) {
-    //              var rivalBox =  .rivalItem1
-    //              var itemb1 = item.rivalItem1PayRateIndex ? item.rivalItem1PayRateIndex.value : 0
-    //              var itemb2 = item.rivalItem1TradeIndex ? item.rivalItem1TradeIndex.value : 0
-    //              var itemb3 = item.rivalItem1PayByrCntIndex ? item.rivalItem1PayByrCntIndex.value : 0
-    //              var itemb4 = item.rivalItem1Uv ? item.rivalItem1Uv.value : 0
-    //              rivalBox.payRate.push(itemb1);
-    //              rivalBox.tradeIndex.push(itemb2);
-    //              rivalBox.payByr.push(itemb3);
-    //              rivalBox.uvIndex.push(itemb4);
-    //          }
-    //          if (produceData.rivalItem2Id) {
-    //              var rival2Box = sourceIndex.rivalItem2
-    //              var itemc1 = item.rivalItem2PayRateIndex ? item.rivalItem2PayRateIndex.value : 0
-    //              var itemc2 = item.rivalItem2TradeIndex ? item.rivalItem2TradeIndex.value : 0
-    //              var itemc3 = item.rivalItem2PayByrCntIndex ? item.rivalItem2PayByrCntIndex.value : 0
-    //              var itemc4 = item.rivalItem2Uv ? item.rivalItem2Uv.value : 0
-    //              rival2Box.payRate.push(itemc1);
-    //              rival2Box.tradeIndex.push(itemc2);
-    //              rival2Box.payByr.push(itemc3);
-    //              rival2Box.uvIndex.push(itemc4);
-    //          }
-
-    //      })
-    //  }
      return sourceIndex
  }
  // 监控店铺过滤
@@ -577,17 +446,14 @@ function jsonFoodParse(val, type) {
          payRate: [],
          tradeIndex: [],
          payByr: [],
-         // uvIndex: []
      }
      data.forEach(function (item) {
          var itemb1 = item.selfItemPayRateIndex ? item.selfItemPayRateIndex.value : 0
          var itemb2 = item.selfItemTradeIndex ? item.selfItemTradeIndex.value : 0
          var itemb3 = item.selfItemPayByrCntIndex ? item.selfItemPayByrCntIndex.value : 0
-         // var itemb4 = item.rivalItem1Uv ? item.rivalItem1Uv.value : 0
          res.payRate.push(itemb1);
          res.tradeIndex.push(itemb2);
          res.payByr.push(itemb3);
-         // rivalBox.uvIndex.push(itemb4);
      })
      return res
  }
@@ -679,19 +545,13 @@ export function dealIndex(request, sendResponse, dataWrapper) {
                return false;
            }
            var moniResData = jsonParse(saveData3, request.localCache)
-            // var itemIds = dataWrapper['monitResource'].ids
             var resouceIndex = filterMoinRes(moniResData, request.datakey);
             var ajaxNum = Object.keys(resouceIndex).length == 2 ? 6 : 9;
-            // responseData['selfItem'] = {}
-            // responseData['rivalItem1'] = {}
-            // responseData['rivalItem2'] = {}
             for (var key in resouceIndex) {
                 responseData['uvIndex'] = resouceIndex['uvIndex']
-                // for (var j in resouceIndex[key]) {
-                    if (key != 'uvIndex') {
-                        getAjax(resouceIndex[key], key, sendResponse, Object.keys(resouceIndex).length - 1, 'monitResource', moniResData)
-                    }
-                // }
+                if (key != 'uvIndex') {
+                    getAjax(resouceIndex[key], key, sendResponse, Object.keys(resouceIndex).length - 1, 'monitResource', moniResData)
+                }
             }
 
         } else if (request.type == 'monitshop' || request.type == 'monititem' || request.type == 'monitbrand') {
