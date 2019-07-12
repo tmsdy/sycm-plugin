@@ -6,10 +6,17 @@ chrome.storage.local.get(['chaqz_token', 'compareProduceData'], function (valueA
     local = local ? JSON.parse(local) : "";
     if (newLoacal) {
         // 获取token发生时间
-        var localTime = local ? local.expiration : 0;
+        var bendiTime = new Date().getTime();
+        var localTime = local ? local.expiration : bendiTime/1000;
         var enjoyTime = newLoacal.expiration;
+        var remeSaveTime = localStorage.getItem('prevSaveTime');
+        remeSaveTime = remeSaveTime ? remeSaveTime:0;
+        if (bendiTime - remeSaveTime < 2000){
+             return false;
+        }
         if (local != newLoacal && enjoyTime > localTime) {
             // 设置最新token
+            localStorage.setItem('prevSaveTime', bendiTime);
             localStorage.setItem('token', newLoacal.token);
             localStorage.setItem('saveToken', JSON.stringify(newLoacal));
             var isLogin = getUrlParam();

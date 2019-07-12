@@ -939,6 +939,7 @@ function findFirstItme(arr,type) {
         if (type == 1) {
             firNum = arr[i].tradeIndex.value > firNum ? arr[i].tradeIndex.value : firNum;
             secNum = arr[i].payRateIndex.value > secNum ? arr[i].payRateIndex.value : secNum;
+            console.log(firNum,secNum)
         }else if(type == 2){
             firNum = arr[i].uvIndex.value > firNum ? arr[i].uvIndex.value : firNum;
             secNum = arr[i].seIpvUvHits.value > secNum ? arr[i].seIpvUvHits.value : secNum;
@@ -1767,6 +1768,8 @@ function weightParsing(rivald, category, itemInfo, localCateId) {
          return false;
      }
      var resData = JSON.parse(Decrypt(res.data)).rivalItem1;
+     console.log('类目categroy', category)
+     console.log('获取竞品自身数据', resData)
     getTopItem(category, itemInfo, localCateId, resData)
    })
 }
@@ -1774,8 +1777,7 @@ function weightParsing(rivald, category, itemInfo, localCateId) {
 function getTopItem(category, itemInfo, localCateId, selfCoreData) {
     var nowTime = getCurrentTime('moreDay');
     var dateRange = setDateRange(nowTime, 'recent7');
-    var finalUrl = "https://sycm.taobao.com/mc/mq/mkt/rank/item/hotsale.json?dateRange=" + dateRange + "&dateType=recent7&pageSize=100&page=2&order=desc&orderBy=tradeIndex&cateId=" + category + "&device=0&sellerType=-1&indexCode=cateRankId%2CtradeIndex%2CtradeGrowthRange%2CpayRateIndex";
-    var vlutrItem={}
+    var finalUrl = "https://sycm.taobao.com/mc/mq/mkt/rank/item/hotsale.json?dateRange=" + dateRange + "&dateType=recent7&pageSize=10&page=1&order=desc&orderBy=tradeIndex&cateId=" + category + "&device=0&sellerType=-1&indexCode=tradeIndex%2CtradeGrowthRange%2CpayRateIndex";
     getHttpRquest(finalUrl, function (res) {
         if (!res.data) {
             popTip('获取数据失败请重试')
@@ -1803,6 +1805,7 @@ function getTopItem(category, itemInfo, localCateId, selfCoreData) {
                  var hotpurData = JSON.parse(Decrypt(res3.data));
                  var top3Item = findFirstItme(hotpurData);
                  var finalRes = Object.assign(top1Item, top2Item, top3Item)
+                 console.log('获取top商品数据', finalRes)
                  getCompareData(selfCoreData, finalRes,itemInfo)
              })
         })
@@ -1852,6 +1855,7 @@ function getCompareData(resData, resultWrap, itemInfo) {
             }
             requestData.topItem = '';
             requestData.version = '1.0';
+             console.log('出到后台数据', requestData)
             var saveToke = localStorage.getItem('chaqz_token')
             chrome.runtime.sendMessage({
                 key: 'getData',
@@ -1871,6 +1875,7 @@ function getCompareData(resData, resultWrap, itemInfo) {
                         data: val3.data
                     }))
                     domStructweightPars(itemInfo, val3.data)
+                    console.log('接收后台处理数据', val3.data)
                 } else if (val3.code == 2030) {
                     LogOut()
                 } else {
