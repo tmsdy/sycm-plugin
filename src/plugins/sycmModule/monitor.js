@@ -3443,11 +3443,11 @@ function brandCustomer(){
      var tabSelectDom = $('.mc-brandCustomer #sycmMqBrandCunstomer .ant-radio-checked');//选择项
      var selIndex = tabSelectDom.find('.ant-radio-input').val();
      var selectInfo = getCompareBrands(1);
-     var diffBrandId = selectInfo.selectIds;
-     diffBrandId.length = 3;
-     diffBrandId = diffBrandId.join(',');
+    //  var diffBrandId = selectInfo.selectIds;
+    //  diffBrandId.length = 3;
+    //  diffBrandId = diffBrandId.join(',');
      var localKey = getSearchParams('BrandCustonerTrend', 1, 10, 'local', {
-         diffId: diffBrandId,
+         diffId: selectInfo.diffIds,
          indexCode: selIndex
      })
      var localData = localStorage.getItem(localKey);
