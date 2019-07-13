@@ -11,7 +11,7 @@ export function getTimeNode() {
         }
     }
     if (!dateBox) {
-        return ''
+        return {}
     }
     var res = JSON.parse(dateBox).split("|")[1];
     return JSON.parse(res).value._d;
@@ -182,9 +182,9 @@ export function getCurrentTime(dayType) {
     var upTime = updataTime.updateNDay;
     var up1Time = updataTime.update1Day;
     var sureDate = dayType == 'moreDay' ? upTime : up1Time;
-    var saveTime = sureDate ? (new Date(sureDate).getTime()) : localStorage.getItem('currentDate') ? JSON.parse(localStorage.getItem('currentDate')).data.timestamp : '';
+    var saveTime = sureDate ? (new Date(sureDate).getTime()) : localStorage.getItem('currentDate') ? (JSON.parse(localStorage.getItem('currentDate')).data.timestamp - 86400000) : '';
     if (!saveTime) {
-        return new Date().getTime()
+        return (new Date().getTime() - 86400000)
     }
     return saveTime
 }
