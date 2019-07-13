@@ -20,7 +20,7 @@ chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray)
 // $(function () {
     var haset = true;
     $(document).on('DOMNodeInserted', '.ww-light.ww-large', function (e) {
-        console.log(e.target.id, ',', e.target.className)
+        // console.log(e.target.id, ',', e.target.className)
         if (e.target.className.indexOf('ww-inline')!=-1) {
             if (haset) {
                 $('.item-mod__trade-order___2LnGB .buyer-mod__buyer___3NRwJ').parent().append('<button id="chaqzSearch" class="tbtrade-btn">点击查黑号</button>');

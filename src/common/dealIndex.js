@@ -182,11 +182,11 @@
             return indexTrans.rang10(num)
         } else if (num >= 2000000 && num < 5000000) {
             return indexTrans.rang11(num)
-        } else if (num >= 50000000 && num < 80000000) {
+        } else if (num >= 5000000 && num < 8000000) {
             return indexTrans.rang12(num)
-        } else if (num >= 80000000 && num < 120000000) {
+        } else if (num >= 8000000 && num < 12000000) {
             return indexTrans.rang13(num)
-        } else if (num >= 120000000 && num < 17000000) {
+        } else if (num >= 12000000 && num < 17000000) {
             return indexTrans.rang14(num)
         } else {
             return '超出范围'
