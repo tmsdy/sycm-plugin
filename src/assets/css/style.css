@@ -1079,6 +1079,8 @@
     float: none;
     display: inline-block;
     margin-left: 20px;
+    position: relative;
+    z-index: 10;
 }
 
 #chaqz-table-trend .bstr {
