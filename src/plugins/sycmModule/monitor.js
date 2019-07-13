@@ -2683,7 +2683,7 @@ function compareItemTrend(){
                 obj.cartHit = transData.cartHits[cot];
                 obj.payByrCntIndex = reductData[keyName[j]].payItemCnt[i];
                 obj.payRateIndex = (transData.payRateIndex[cot] * 100).toFixed(2) + '%';
-                obj.kdPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.payByrCntIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.payByrCntIndex[cot]).toFixed(2);
+                obj.kdPrice = (transData.tradeIndex[cot] == '超出范围' || !obj.payByrCntIndex) ? '-' : (transData.tradeIndex[cot] / obj.payByrCntIndex).toFixed(2);
                 obj.uvPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.uvIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.uvIndex[cot]).toFixed(2);
                 obj.searchRate = transData.uvIndex[cot] ? (transData.seIpvUvHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
                 obj.cltRate = transData.uvIndex[cot] ? (transData.cltHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
@@ -3443,11 +3443,11 @@ function brandCustomer(){
      var tabSelectDom = $('.mc-brandCustomer #sycmMqBrandCunstomer .ant-radio-checked');//选择项
      var selIndex = tabSelectDom.find('.ant-radio-input').val();
      var selectInfo = getCompareBrands(1);
-     var diffBrandId = selectInfo.selectIds;
-     diffBrandId.length = 3;
-     diffBrandId = diffBrandId.join(',');
+    //  var diffBrandId = selectInfo.selectIds;
+    //  diffBrandId.length = 3;
+    //  diffBrandId = diffBrandId.join(',');
      var localKey = getSearchParams('BrandCustonerTrend', 1, 10, 'local', {
-         diffId: diffBrandId,
+         diffId: selectInfo.diffIds,
          indexCode: selIndex
      })
      var localData = localStorage.getItem(localKey);

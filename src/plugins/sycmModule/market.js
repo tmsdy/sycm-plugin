@@ -2775,8 +2775,8 @@ function productTrendTop(isTrend){
      }
     var propId = getDetailParam('propertyIds');
     var propValId = getDetailParam('propertyValueIds');
-    propId=propId.replace(',','|')
-    propValId = propValId.replace(',', '|')
+    propId=propId.replace(/,/ig,'|')
+    propValId = propValId.replace(/,/ig, '|')
     var propType = isTrend?'trend':'';
     var localKey = getSearchParams('mqPropOverview', 1, 10, 'local', {
         propId: propId,
