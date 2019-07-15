@@ -26,7 +26,7 @@
  };
 
 //  指数转化请求
- function getAjax(data, type, sendResponse, num, fType, lastData, compareItem) {
+ export function getAjax(data, type, sendResponse, num, fType, lastData, compareItem) {
      var filterType = (type == 'payRate' || type == 'payRateIndex') ? 1 : type == 'tradeIndex' ? 2 : (type == 'payByr' || type == 'payByrCntIndex') ?
          3: type == 'uvIndex' ? 4 : (type == 'seIpv' || type == 'seIpvUvHits') ? 5 : (type == 'cartHit' || type == 'cartHits') ? 6 : (type == 'cltHit' || type == 'cltHits') ? 7 : type == 'sePvIndex' ? 8 : '';
        var val = getAllIndex(filterType,data)
@@ -105,11 +105,11 @@
             return indexTrans.rang10(num)
         } else if (num >= 2000000 && num < 5000000) {
             return indexTrans.rang11(num)
-        } else if (num >= 50000000 && num < 80000000) {
+        } else if (num >= 5000000 && num < 8000000) {
             return indexTrans.rang12(num)
-        } else if (num >= 80000000 && num < 120000000) {
+        } else if (num >= 8000000 && num < 12000000) {
             return indexTrans.rang13(num)
-        } else if (num >= 120000000 && num < 17000000) {
+        } else if (num >= 12000000 && num < 17000000) {
             return indexTrans.rang14(num)
         } else {
             return '超出范围'
@@ -626,6 +626,16 @@ export function dealIndex(request, sendResponse, dataWrapper) {
                  getAjax(request.sendData[key], key, sendResponse, 3)
             }
            
+        } else if (request.type == 'driectIndex'){
+             var dealTrend = request.sendData;
+             if (!dealTrend) {
+                 popTip('获取数据失败，请刷新')
+                 return false;
+             }
+             for (var key in dealTrend) {
+                 getAjax(dealTrend[key], key, sendResponse, Object.keys(dealTrend).length, 'dealTrend')
+             }
+             return responseData;
         }
         return true;
     }

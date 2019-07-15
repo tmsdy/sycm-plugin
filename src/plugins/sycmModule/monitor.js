@@ -1,4 +1,7 @@
-import {dealIndex} from '../../common/dealIndex'
+import {
+    dealIndex,
+    getAjax
+} from '../../common/dealIndex'
 import {
     BASE_URL
 } from '../../common/constState'
@@ -14,6 +17,7 @@ import {
      getDateRange,
      formulaRate,
      getCurrentTime,
+     setDateRange,
      filterLocalData,
      getSelfShopInfo,
      filterSearchRank,
@@ -31,7 +35,8 @@ import {
  } from '../../common/promptClass'
 var tableInstance = null; //table实例对象
 var echartsInstance = null; //echarts实例对象   
-var PLAN_LIST = [];
+// var PLAN_LIST = [];
+// var PLAN_LIST = [];
 var COMP_ITEM_INFO = '';
 var COUNT=0;
  //竞争模块table
@@ -842,7 +847,7 @@ function getCompareShops() {
      return JSON.parse(filterLocalData(localSelf))
  }
 // 获取竞品对比选项
-function getCompareItems() {
+function getCompareItems(type) {
     var searchItemWrap = $('.op-mc-item-analysis .sycm-common-select-wrapper .alife-dt-card-sycm-common-select');
     var searchKey1 = searchItemWrap.eq(0).find('.sycm-common-select-selected-title').length ? searchItemWrap.eq(0).find('.sycm-common-select-selected-title').text() : '';
     var searchKey2 = searchItemWrap.eq(1).find('.sycm-common-select-selected-title').length ? searchItemWrap.eq(1).find('.sycm-common-select-selected-title').text() : '';
@@ -854,6 +859,7 @@ function getCompareItems() {
     var indexKey = [];
     var selfPara = '';
     var comPara = '';
+    var titleList = [];
      if (!selfFoodList || !mointFoodList) {
          popTip('获取竞店列表为空，请重试！');
          return false
@@ -869,6 +875,7 @@ function getCompareItems() {
                     selfPara = '&selfItemId=' + selfFoodList[j].itemId;
                     keyword.push('本店商品');
                     indexKey.push('selfItem');
+                    type == 'title' ? titleList.push(compareKey) : '';
                     selectList['本店商品'] = selfFoodList[j];
                     break;
                 }
@@ -879,7 +886,8 @@ function getCompareItems() {
                     keyword.push('竞品'+i);
                     indexKey.push('rivalItem' + i);
                     selectList['竞品' + i] = mointFoodList[k];
-                    comPara += '&rivalItem' + i + 'Id=' + mointFoodList[k].itemId
+                    type == 'title' ? titleList.push(compareKey) : '';
+                    comPara += '&rivalItem' + i + 'Id=' + mointFoodList[k].itemId;
                     break;
                 }
             }
@@ -891,7 +899,8 @@ function getCompareItems() {
             name:keyword,
             enkey: indexKey
         },
-        keys: comPara+selfPara
+        keys: comPara+selfPara,
+        titleList
     }
 }
 // 获取品牌对比选项
@@ -940,171 +949,171 @@ function getCompareBrands(type) {
     }
 }
 //  加权计划方法
-function getDay(prodctDay, key, planName,  localCache) {
-    var timer = null;
-    var countNum = 0;
-    dealIndex({
-        type: 'monitCompareFood',
-        dataType: key,
-        localCache:  localCache
-    }, function (res) {
-        $(".oui-date-picker .oui-canary-btn:contains('日')").click()
-        // 判断屏幕高度以及是否要滑动
-        var cltHeight = window.innerHeight;
-        var remianHei = 900 - cltHeight;
-        if (remianHei > 0) {
-            $(document).scrollTop(remianHei)
-        }
-        var wordsIds = getproduceIds(prodctDay, dataWrapper, 'idObj')
-        var keyWrap = $('.op-mc-item-analysis #itemAnalysisKeyword')
-        if (!keyWrap.length) {
-            return false
-        }
-        $("#itemAnalysisKeyword .oui-tab-switch-item:contains('成交关键词')").click()
-        var wordsfontKey = getSearchParams('getKeywords', 1, 20).split('&page')[0];
-        var fontLocalKey = getSearchParams('getKeywords', 1, 20, 'local');
-        var itemWho = wordsIds.item1.itemId ? 'item1' : 'item2';
-        var dayParam = itemWho == 'item1' ? ('&itemId=' + wordsIds.item1.itemId) : ('&itemId=' + wordsIds.item2.itemId);
-        var dayKey = wordsfontKey + dayParam;
-        var localKey = fontLocalKey.replace('itemNum', dayParam)
-        if (localStorage.getItem(dayKey)) {
-            sendResponseData(wordsIds, itemWho, res, localStorage.getItem(dayKey), planName)
-        } else if (localStorage.getItem(localKey)) {
-            var keywordData = filterLocalData(localStorage.getItem(localKey));
-            sendResponseData(wordsIds, itemWho, res, keywordData, planName)
-        } else {
-            timer = setInterval(function () {
-                countNum++;
-                if (localStorage.getItem(dayKey)) {
-                    clearInterval(timer)
-                    timer = null;
-                    sendResponseData(wordsIds, itemWho, res, localStorage.getItem(dayKey), planName)
-                } else if (countNum > 10) {
-                    clearInterval(timer)
-                    timer = null;
-                    popTip('获取关键词失败！', 'top:10%;')
-                    LoadingPop()
-                }
-            }, 500)
-        }
-    })
-}
-function sendResponseData(wordsIds, itemWho, res, dayKey, planName) {
-    var keywordsList = {}
-    keywordsList.selfItem = wordsIds.self ? wordsIds.self : {};
-    keywordsList.item = wordsIds[itemWho]
-    var indexData = vestingFuns.filterData(res)
-    if (indexData.count == 1) {
-        for (var k in indexData.item0) {
-            keywordsList.item[k] = indexData.item0[k]
-        }
-    } else {
-        for (var k in indexData.item0) {
-            keywordsList.selfItem[k] = indexData.item0[k]
-        }
-        for (var j in indexData.item1) {
-            keywordsList.item[j] = indexData.item1[j]
-        }
-    }
-    keywordsList.keywords = vestingFuns.filterKeywords(JSON.parse(dayKey))
-    keywordsList.plan_id = planName.plan_id
-    keywordsList.plan_name = planName.title
-    keywordsList.day = 7
-    if (!keywordsList.keywords.length) {
-        chrome.storage.local.set({
-            'compareProduceData': keywordsList
-        }, function () {
-            $('.chaqz-info-wrapper.pop').fadeOut(100)
-            window.open(BASE_URL + '/privilgeEscala')
-        })
-        LoadingPop()
-        return false;
-    }
-    var saveToke = localStorage.getItem('chaqz_token')
-    chrome.runtime.sendMessage({
-        key: 'getData',
-        options: {
-            url: BASE_URL + '/api/v1/plugin/planData',
-            type: "PUT",
-            headers: {
-                Authorization: "Bearer " + saveToke
-            },
-            contentType: "application/json,charset=utf-8",
-            data: JSON.stringify(keywordsList)
-        }
-    }, function (val) {
-        if (val.code == 200) {
-            chrome.storage.local.set({
-                'compareProduceData': keywordsList
-            }, function () {
-                $('.chaqz-info-wrapper.pop').fadeOut(100)
-                window.open(BASE_URL + '/privilgeEscala')
-            })
-        } else if (val.code == 2030) {
-            LogOut()
-        } else {
-            popTip('上传数据失败请重试')
-        }
-        LoadingPop()
-    })
-}
-var vestingFuns = {
-    checkRepeat: function (data, name) {
-        //判断是否创建过的计划
-        if (!data) {
-            return false
-        }
-        var isHas = false
-        data.forEach(function (item) {
-            if (item.title == name) {
-                isHas = true
-            }
-        })
-        return isHas
-    },
-    filterKeywords: function (data) {
-        //关键词筛选
-        if (!data) {
-            return []
-        }
-        var resBox = []
-        data.forEach(function (item) {
-            if (item.tradeIndex.value > 100 && item.tradeIndex.value < 450) {
-                resBox.push(item.keyword.value)
-            }
-        })
-        return resBox
-    },
-    chosePlan: function (data, aim) {
-        //选择计划项
-        if (!data) {
-            return {}
-        }
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].title == aim) {
-                return data[i]
-            }
-        }
+// function getDay(prodctDay, key, planName,  localCache) {
+//     var timer = null;
+//     var countNum = 0;
+//     dealIndex({
+//         type: 'monitCompareFood',
+//         dataType: key,
+//         localCache:  localCache
+//     }, function (res) {
+//         $(".oui-date-picker .oui-canary-btn:contains('日')").click()
+//         // 判断屏幕高度以及是否要滑动
+//         var cltHeight = window.innerHeight;
+//         var remianHei = 900 - cltHeight;
+//         if (remianHei > 0) {
+//             $(document).scrollTop(remianHei)
+//         }
+//         var wordsIds = getproduceIds(prodctDay, dataWrapper, 'idObj')
+//         var keyWrap = $('.op-mc-item-analysis #itemAnalysisKeyword')
+//         if (!keyWrap.length) {
+//             return false
+//         }
+//         $("#itemAnalysisKeyword .oui-tab-switch-item:contains('成交关键词')").click()
+//         var wordsfontKey = getSearchParams('getKeywords', 1, 20).split('&page')[0];
+//         var fontLocalKey = getSearchParams('getKeywords', 1, 20, 'local');
+//         var itemWho = wordsIds.item1.itemId ? 'item1' : 'item2';
+//         var dayParam = itemWho == 'item1' ? ('&itemId=' + wordsIds.item1.itemId) : ('&itemId=' + wordsIds.item2.itemId);
+//         var dayKey = wordsfontKey + dayParam;
+//         var localKey = fontLocalKey.replace('itemNum', dayParam)
+//         if (localStorage.getItem(dayKey)) {
+//             sendResponseData(wordsIds, itemWho, res, localStorage.getItem(dayKey), planName)
+//         } else if (localStorage.getItem(localKey)) {
+//             var keywordData = filterLocalData(localStorage.getItem(localKey));
+//             sendResponseData(wordsIds, itemWho, res, keywordData, planName)
+//         } else {
+//             timer = setInterval(function () {
+//                 countNum++;
+//                 if (localStorage.getItem(dayKey)) {
+//                     clearInterval(timer)
+//                     timer = null;
+//                     sendResponseData(wordsIds, itemWho, res, localStorage.getItem(dayKey), planName)
+//                 } else if (countNum > 10) {
+//                     clearInterval(timer)
+//                     timer = null;
+//                     popTip('获取关键词失败！', 'top:10%;')
+//                     LoadingPop()
+//                 }
+//             }, 500)
+//         }
+//     })
+// }
+// function sendResponseData(wordsIds, itemWho, res, dayKey, planName) {
+//     var keywordsList = {}
+//     keywordsList.selfItem = wordsIds.self ? wordsIds.self : {};
+//     keywordsList.item = wordsIds[itemWho]
+//     var indexData = vestingFuns.filterData(res)
+//     if (indexData.count == 1) {
+//         for (var k in indexData.item0) {
+//             keywordsList.item[k] = indexData.item0[k]
+//         }
+//     } else {
+//         for (var k in indexData.item0) {
+//             keywordsList.selfItem[k] = indexData.item0[k]
+//         }
+//         for (var j in indexData.item1) {
+//             keywordsList.item[j] = indexData.item1[j]
+//         }
+//     }
+//     keywordsList.keywords = vestingFuns.filterKeywords(JSON.parse(dayKey))
+//     keywordsList.plan_id = planName.plan_id
+//     keywordsList.plan_name = planName.title
+//     keywordsList.day = 7
+//     if (!keywordsList.keywords.length) {
+//         chrome.storage.local.set({
+//             'compareProduceData': keywordsList
+//         }, function () {
+//             $('.chaqz-info-wrapper.pop').fadeOut(100)
+//             window.open(BASE_URL + '/privilgeEscala')
+//         })
+//         LoadingPop()
+//         return false;
+//     }
+//     var saveToke = localStorage.getItem('chaqz_token')
+//     chrome.runtime.sendMessage({
+//         key: 'getData',
+//         options: {
+//             url: BASE_URL + '/api/v1/plugin/planData',
+//             type: "PUT",
+//             headers: {
+//                 Authorization: "Bearer " + saveToke
+//             },
+//             contentType: "application/json,charset=utf-8",
+//             data: JSON.stringify(keywordsList)
+//         }
+//     }, function (val) {
+//         if (val.code == 200) {
+//             chrome.storage.local.set({
+//                 'compareProduceData': keywordsList
+//             }, function () {
+//                 $('.chaqz-info-wrapper.pop').fadeOut(100)
+//                 window.open(BASE_URL + '/privilgeEscala')
+//             })
+//         } else if (val.code == 2030) {
+//             LogOut()
+//         } else {
+//             popTip('上传数据失败请重试')
+//         }
+//         LoadingPop()
+//     })
+// }
+// var vestingFuns = {
+//     checkRepeat: function (data, name) {
+//         //判断是否创建过的计划
+//         if (!data) {
+//             return false
+//         }
+//         var isHas = false
+//         data.forEach(function (item) {
+//             if (item.title == name) {
+//                 isHas = true
+//             }
+//         })
+//         return isHas
+//     },
+//     filterKeywords: function (data) {
+//         //关键词筛选
+//         if (!data) {
+//             return []
+//         }
+//         var resBox = []
+//         data.forEach(function (item) {
+//             if (item.tradeIndex.value > 100 && item.tradeIndex.value < 450) {
+//                 resBox.push(item.keyword.value)
+//             }
+//         })
+//         return resBox
+//     },
+//     chosePlan: function (data, aim) {
+//         //选择计划项
+//         if (!data) {
+//             return {}
+//         }
+//         for (var i = 0; i < data.length; i++) {
+//             if (data[i].title == aim) {
+//                 return data[i]
+//             }
+//         }
 
-    },
-    filterData: function (data) {
-        var result = {
-            item0: {},
-            item1: {}
-        }
-        for (var key in data) {
-            var len = data.payRate.length
-            result.count = len
-            data[key].forEach(function (item, index) {
-                if (key == 'payRate') {
-                    item = item ? item / 100 : ''
-                }
-                result['item' + index][key] = item ? item : ''
-            })
-        }
-        return result
-    }
-}
+//     },
+//     filterData: function (data) {
+//         var result = {
+//             item0: {},
+//             item1: {}
+//         }
+//         for (var key in data) {
+//             var len = data.payRate.length
+//             result.count = len
+//             data[key].forEach(function (item, index) {
+//                 if (key == 'payRate') {
+//                     item = item ? item / 100 : ''
+//                 }
+//                 result['item' + index][key] = item ? item : ''
+//             })
+//         }
+//         return result
+//     }
+// }
 
 /**event addListen --------------------*/
 //竞争-监控店铺
@@ -1309,94 +1318,94 @@ $(document).on('click', '#vesting', function () {
         }
     })
 })
-$(document).on('click', '.chaqz-info-wrapper.pop .hides', function () {
-    //c创建计划弹窗
-    var hidePlan = $('.chaqz-info-wrapper.pop').find('#giveupPlan')
-    if (hidePlan.length) {
-        popUp.init("selectPlan", PLAN_LIST)
-        return false
-    }
-    $('.chaqz-info-wrapper.pop').hide()
-})
-$(document).on('click', '.chaqz-info-wrapper.pop .planBtn', function () { //生成计划
-    var planName = $('.chaqz-info-wrapper.pop .editor').val();
-    var purpose = $('.chaqz-info-wrapper.pop .selcet').val();
-    var hasCreatePlan = PLAN_LIST
-    var isExist = vestingFuns.checkRepeat(PLAN_LIST, planName)
-    if (!planName || !purpose) {
-        popTip('请填写计划')
-        return false
-    }
-    if (isExist) {
-        popTip('计划名已存在')
-        return false
-    }
-    var saveToke = localStorage.getItem('chaqz_token')
-    chrome.runtime.sendMessage({
-        key: 'getData',
-        options: {
-            url: BASE_URL + '/api/v1/plugin/planData',
-            type: "POST",
-            headers: {
-                Authorization: "Bearer " + saveToke
-            },
-            contentType: "application/json,charset=utf-8",
-            data: JSON.stringify({
-                "title": planName,
-                "type": 1,
-            })
-        }
-    }, function (val) {
-        if (val.code == 200) {
-            hasCreatePlan.unshift(val.data)
-            popUp.init("selectPlan", hasCreatePlan)
-        } else if (val.code == 2030) {
-            LogOut()
-        } else {
-            popTip('计划生成失败！')
-        }
-    })
-})
-$(document).on('click', '.chaqz-info-wrapper.pop #vestBtn', function () { //加权计划
-    LoadingPop('show')
-    var planName = $('.chaqz-info-wrapper.pop .form-list .selcet').val()
-    var selectPlan = vestingFuns.chosePlan(PLAN_LIST, planName)
-    if (planName == 0) {
-        LoadingPop()
-        popTip('请选择计划', 'top:10%;')
-        return false
-    }
-    var timer = null;
-    var countNum = 0;
-    $(".oui-date-picker .oui-canary-btn:contains('7天')").click()
-    var prodctVes = getProductInfo()
-    var idParams = getproduceIds(prodctVes, dataWrapper)
-    var localCache = false;
-    var itemKey = getSearchParams('monitCompareFood').split('&page')[0] + idParams;
-    var localKey = getSearchParams('monitCompareFood', 0, 0, 'local') + idParams;
-    // 判断本地是否缓存
-    if (localStorage.getItem(itemKey)) {
-        getDay(prodctVes, itemKey, selectPlan);
-    } else if (localStorage.getItem(localKey)) {
-        localCache = true;
-        getDay(prodctVes, localKey, selectPlan, localCache);
-    } else {
-        timer = setInterval(function () {
-            countNum++;
-            if (localStorage.getItem(itemKey)) {
-                clearInterval(timer)
-                timer = null;
-                getDay(prodctVes, itemKey, selectPlan)
+// $(document).on('click', '.chaqz-info-wrapper.pop .hides', function () {
+//     //c创建计划弹窗
+//     var hidePlan = $('.chaqz-info-wrapper.pop').find('#giveupPlan')
+//     if (hidePlan.length) {
+//         popUp.init("selectPlan", PLAN_LIST)
+//         return false
+//     }
+//     $('.chaqz-info-wrapper.pop').hide()
+// })
+// $(document).on('click', '.chaqz-info-wrapper.pop .planBtn', function () { //生成计划
+//     var planName = $('.chaqz-info-wrapper.pop .editor').val();
+//     var purpose = $('.chaqz-info-wrapper.pop .selcet').val();
+//     var hasCreatePlan = PLAN_LIST
+//     var isExist = vestingFuns.checkRepeat(PLAN_LIST, planName)
+//     if (!planName || !purpose) {
+//         popTip('请填写计划')
+//         return false
+//     }
+//     if (isExist) {
+//         popTip('计划名已存在')
+//         return false
+//     }
+//     var saveToke = localStorage.getItem('chaqz_token')
+//     chrome.runtime.sendMessage({
+//         key: 'getData',
+//         options: {
+//             url: BASE_URL + '/api/v1/plugin/planData',
+//             type: "POST",
+//             headers: {
+//                 Authorization: "Bearer " + saveToke
+//             },
+//             contentType: "application/json,charset=utf-8",
+//             data: JSON.stringify({
+//                 "title": planName,
+//                 "type": 1,
+//             })
+//         }
+//     }, function (val) {
+//         if (val.code == 200) {
+//             hasCreatePlan.unshift(val.data)
+//             popUp.init("selectPlan", hasCreatePlan)
+//         } else if (val.code == 2030) {
+//             LogOut()
+//         } else {
+//             popTip('计划生成失败！')
+//         }
+//     })
+// })
+// $(document).on('click', '.chaqz-info-wrapper.pop #vestBtn', function () { //加权计划
+//     LoadingPop('show')
+//     var planName = $('.chaqz-info-wrapper.pop .form-list .selcet').val()
+//     var selectPlan = vestingFuns.chosePlan(PLAN_LIST, planName)
+//     if (planName == 0) {
+//         LoadingPop()
+//         popTip('请选择计划', 'top:10%;')
+//         return false
+//     }
+//     var timer = null;
+//     var countNum = 0;
+//     $(".oui-date-picker .oui-canary-btn:contains('7天')").click()
+//     var prodctVes = getProductInfo()
+//     var idParams = getproduceIds(prodctVes, dataWrapper)
+//     var localCache = false;
+//     var itemKey = getSearchParams('monitCompareFood').split('&page')[0] + idParams;
+//     var localKey = getSearchParams('monitCompareFood', 0, 0, 'local') + idParams;
+//     // 判断本地是否缓存
+//     if (localStorage.getItem(itemKey)) {
+//         getDay(prodctVes, itemKey, selectPlan);
+//     } else if (localStorage.getItem(localKey)) {
+//         localCache = true;
+//         getDay(prodctVes, localKey, selectPlan, localCache);
+//     } else {
+//         timer = setInterval(function () {
+//             countNum++;
+//             if (localStorage.getItem(itemKey)) {
+//                 clearInterval(timer)
+//                 timer = null;
+//                 getDay(prodctVes, itemKey, selectPlan)
 
-            } else if (countNum > 10) {
-                clearInterval(timer)
-                timer = null;
-                popTip('获取指数数据失败！', 'top:10%;')
-                LoadingPop()
-            }
-        }, 500)
-    }
-})
+//             } else if (countNum > 10) {
+//                 clearInterval(timer)
+//                 timer = null;
+//                 popTip('获取指数数据失败！', 'top:10%;')
+//                 LoadingPop()
+//             }
+//         }, 500)
+//     }
+// })
 /**table Data  --------------------*/
 // 监控店铺
  function shopTable(){
@@ -3793,4 +3802,295 @@ function brandProvceShow(oriData) {
             tabs: oriData.tabs
         }, '品牌:' + oriData.word)
     }
+}
+
+// request funs
+function getHttpRquest(finalUrl, cb) {
+    var sessionKey = sessionStorage.getItem('transitId');
+    $.ajax({
+        url: finalUrl,
+        type: 'GET',
+        headers: {
+            "transit-id": sessionKey
+        },
+        error: function () {
+            popTip('获取数据失败请重试！')
+            LoadingPop()
+        },
+        success: function (res) {
+            if(!res.data){
+                popTip('获取数据失败请重试！')
+                LoadingPop()
+                return false;
+            }
+            cb && cb(res)
+        }
+    })
+}
+// request funs
+function getBackgroundRquest(idNum, cb) {
+   var saveToke = localStorage.getItem('chaqz_token')
+   chrome.runtime.sendMessage({
+       key: 'getData',
+       options: {
+           url: BASE_URL + '/py/api/v1/item?id=' + idNum,
+           type: "GET",
+           headers: {
+               Authorization: "Bearer " + saveToke
+           }
+       }
+   }, function (val) {
+       if (val.code == 200) {
+            cb && cb(res)
+       } else if (val.code == 2030) {
+           LogOut();
+           LoadingPop();
+       } else {
+        //    tips.html('校验失败！<a class="contactService">请联系客服</a>')
+        //    $('.chaqz-info-wrapper.pop .good-tips').addClass('alert');
+           LoadingPop();
+       }
+   })
+}
+// request title match rate
+function titleMatchRateRquest(titleInfo, cb) {
+   var saveToke = localStorage.getItem('chaqz_token')
+   chrome.runtime.sendMessage({
+       key: 'getData',
+       options: {
+           url: BASE_URL + '/py/api/v1/chat',
+           type: "POST",
+           headers: {
+               Authorization: "Bearer " + saveToke
+           },
+            data: JSON.stringify({
+                title1: titleInfo[0],
+                title2: titleInfo[1],
+                type: 2,
+            })
+       }
+   }, function (val) {
+       if (val.code == 200) {
+            cb && cb(res)
+       } else if (val.code == 2030) {
+           LogOut();
+           LoadingPop();
+       } else {
+        //    tips.html('校验失败！<a class="contactService">请联系客服</a>')
+        //    $('.chaqz-info-wrapper.pop .good-tips').addClass('alert');
+        popTip('标题匹配失败')
+        LoadingPop();
+       }
+   })
+}
+// 累加
+function cumulative(arr){
+    var len = arr.length;
+    var res = 0;
+    for (let i = 0; i < len; i++) {
+        res += arr[0]
+    }
+    return res;
+}
+function hotPurposSort(data,selfTitle) {
+    if (!data) {
+        return []
+    }
+    var arr = data;
+    var len = arr.length;
+    var selfIndex = null;
+    var res = [];
+    for (var i = 0; i < len; i++) {
+        for (var j = 0; j < len - 1 - i; j++) {
+            if (arr[j].item.title == selfTitle){
+                selfIndex = j;
+            }
+            if (arr[j].tradeIndex.value < arr[j + 1].tradeIndex.value) {
+                var temp = arr[j]
+                arr[j] = arr[j + 1]
+                arr[j + 1] = temp
+                if (arr[j+1].item.title == selfTitle){
+                     selfIndex = j+1;
+                }
+            }
+        }
+    }
+    if(selfIndex&&selfIndex>100){
+        res = arr.slice(0,100);
+    }
+    res = selfIndex ? selfIndex > 100 ? arr.slice(0, 100) : arr.slice(selfIndex) : '';
+    var titleLen = res.length;
+    var nameList = [];
+    for (let k = 0; k < titleLen; k++) {
+        const element = res[k];
+        nameList.push(element.item.title)
+    }
+    return {
+        oriData: res,
+        nameList
+    };
+}
+//竞争-分析竞品一键加权
+$(document).on('click', '#vesting', function () {
+    if (!isNewVersion()) {
+        return false
+    }
+    var selectInfo = getCompareItems();
+    if (selectInfo.keyword.enkey[0] != 'selfItem'){
+        popTip('请选择本店商品')
+        return false;
+    } else if (selectInfo.keyword.endKey.length==3){
+        popTip('竞品请选择一项')
+        return false;
+    }
+    COMP_ITEM_INFO = {}
+    COMP_ITEM_INFO.itemInfo = selectInfo
+    popUp.init('wantPromptTitle')
+    // var prodctv = getProductInfo()
+    // if (prodctv.rivalItem1.title && prodctv.rivalItem2.title) {
+    //     popUp.init('onlyOne')
+    //     return false
+    // }
+    // if (!prodctv.rivalItem1.title && !prodctv.rivalItem2.title) {
+    //     popUp.init('emptyChoose')
+    //     return false
+    // }
+    // var saveToke = localStorage.getItem('chaqz_token')
+    // chrome.runtime.sendMessage({
+    //     key: 'getData',
+    //     options: {
+    //         url: BASE_URL + '/api/v1/plugin/planData',
+    //         type: "GET",
+    //         headers: {
+    //             Authorization: "Bearer " + saveToke
+    //         }
+    //     },
+    // }, function (val) {
+    //     if (val.code == 200) {
+    //         popUp.init("selectPlan", val.data)
+    //         PLAN_LIST = val.data
+    //     } else if (val.code == 4001) {
+    //         popUp.init("selectPlan")
+    //     } else if (val.code == 2030) {
+    //         LogOut()
+    //     } else {
+    //         popTip('获取计划列表失败，请重试')
+    //     }
+    // })
+})
+$(document).on('click', '.chaqz-info-wrapper.pop .jugdeItem',function(){
+    var itemInfo = COMP_ITEM_INFO.itemInfo;
+    var itemList = itemInfo.resData;
+    var itemKeys = itemInfo.keyword.name;
+    var selfItem = itemList[itemKeys[0]];
+    var titltInfo = itemInfo.titleList;
+    getBackgroundRquest(selfItem.itemId,function(selfRes){//获取本身宝贝的信息以及数据
+        var selfCateId = selfRes.data.categoryId;
+        var selfPrice = selfRes.data.max_price;
+        var nowTime = getCurrentTime('moreDay');
+        var dateRange = setDateRange(nowTime, 'recent7');
+        var localCateId = getFirstCateId();
+        var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=" + device + "&cateId=" + localCateId + "&selfItemId=" + selfItem.itemId;
+        getHttpRquest(finalUrl,function(comPRes){
+            var selfCoreTrendData = JSON.parse(Decrypt(comPRes.data)).selfItem;
+             var chooseLast7Self = selfCoreTrendData.tradeIndex.slice(-7); //近7天交易指数
+             var selfTransData = dealIndex({
+                 type: 'driectIndex',
+                 sendData: {
+                     tradeIndex: chooseLast7Self
+                 }
+             })
+            // 是否选择竞品
+            if (itemKeys.length < 2) {
+                // 没有选择
+                return false
+            }
+            var compItem = itemList[itemKeys[0]];
+            if (!compItem){
+                popTip('获取竞品信息失败')
+                return false
+            }
+            getBackgroundRquest(compItem.itemId, function (selfRes2) {
+                var comPCateId = selfRes.data.categoryId;
+                var comPPrice = selfRes.data.max_price;
+                // 判断宝贝与竞品类目是否一致
+                if (selfCateId != comPCateId){
+
+                    return false
+                }
+                var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=" + device + "&cateId=" + localCateId + "&rivalItem1Id=" + compItem.itemId;
+                getHttpRquest(finalUrl, function (comPRes2) {
+                    var comPCoreTrendData = JSON.parse(Decrypt(comPRes2.data)).rivalItem1;
+                    // var chooseLast7Self = selfCoreTrendData.tradeIndex.slice(-7);
+                    var chooseLast7Comp = comPCoreTrendData.tradeIndex.slice(-7);
+                    var compTransData = dealIndex({
+                        type: 'driectIndex',
+                        sendData: {
+                            tradeIndex: chooseLast7Comp
+                        }
+                    })
+                    var selfTotalTrade = cumulative(selfTransData.tradeIndex.slice(0, 7));
+                    var compTotalTrade = cumulative(compTransData.tradeIndex.slice(7));
+                    // 判断交易额竞品宝贝比较
+                    if (selfTotalTrade >= compTotalTrade) {
+
+                        return false;
+                    }
+                    titleMatchRateRquest(titltInfo, function (rateRes) {
+                        if (rateRes.data[0].data.ratio < 0.4) {
+                            // 进入搜索
+                            HighIntention({
+                                dateRange,
+                                categoryId: selfCateId
+                            }, {
+                                title: titltInfo[0],
+                                tradeTotal: selfTotalTrade
+                            })
+                        } else {
+
+                        }
+                    })
+                })
+            })
+        })
+    })
+})
+function HighIntention(categroy, selfInfo) {
+    var hotPurposUrl = 'https://sycm.taobao.com/mc/mq/mkt/rank/item/hotpurpose.json?dateRange=' + categroy.dateRange + '&dateType=recent7&pageSize=10&page=1&order=desc&orderBy=cartHits&cateId=' + categroy.categoryId + '&device=0&sellerType=-1&indexCode=cltHits%2CcartHits%2CtradeIndex';
+     getHttpRquest(hotPurposUrl, function (res) {
+         var hotpurData = JSON.parse(Decrypt(res.data));
+         var hotList = hotPurposSort(hotpurData, selfInfo.title);
+         titleMatchRateRquest(hotList.nameList, function (rateRes) {
+            var ratioList = rateRes.data;
+            var resLength = hotList.nameList.length
+            var eachSize = resLength>5?Math.floor(resLength / 5):0;
+            var len = resLength > 5 ? 5 : 1;
+            var selectItem = [];
+            for (let i = 0; i < len; i++) {
+                var starSize = i*eachSize;
+                var endSize = (i > 3 || len == 1) ? resLength : (starSize + eachSize);
+                for (let j = starSize; j < endSize; j++) {
+                    if(ratioList.ratio>0.4){
+                        selectItem.push(j);
+                        break;
+                    }
+                }
+            }
+            var selectLen = selectItem.length;
+            var finalList = [];
+            for (let k = 0; k < selectLen; k++) {
+                var ele = hotList.oriData[selectItem[k]];
+                var trans = dealIndex({
+                    type: 'driectIndex',
+                    sendData: {
+                        tradeIndex: [ele.tradeIndex.value]
+                    }
+                })
+                if (trans > selfInfo.selfTotalTrade){
+                    finalList.push(ele)
+                }
+            }
+            showSelectList(finalList)
+         })
+     })
 }
