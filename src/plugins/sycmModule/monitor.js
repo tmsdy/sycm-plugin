@@ -1,6 +1,5 @@
 import {
-    dealIndex,
-    getAjax
+    dealIndex
 } from '../../common/dealIndex'
 import {
     BASE_URL
@@ -11,8 +10,6 @@ import {
      getSearchParams,
      delePoint,
      operatcPmpareData,
-     getProductInfo,
-     getproduceIds,
      getFirstCateId,
      getDateRange,
      formulaRate,
@@ -22,9 +19,12 @@ import {
      getSelfShopInfo,
      filterSearchRank,
      monthDays,
+     Decrypt,
+     removeDuplicates,
      weekMonthDate,
      trendKeyJoin,
-     trendInfoJoin
+     trendInfoJoin,
+     babelSort
  } from '../../common/commonFuns'
  import {
      LoadingPop,
@@ -948,172 +948,6 @@ function getCompareBrands(type) {
         selectIds: selecIdList
     }
 }
-//  加权计划方法
-// function getDay(prodctDay, key, planName,  localCache) {
-//     var timer = null;
-//     var countNum = 0;
-//     dealIndex({
-//         type: 'monitCompareFood',
-//         dataType: key,
-//         localCache:  localCache
-//     }, function (res) {
-//         $(".oui-date-picker .oui-canary-btn:contains('日')").click()
-//         // 判断屏幕高度以及是否要滑动
-//         var cltHeight = window.innerHeight;
-//         var remianHei = 900 - cltHeight;
-//         if (remianHei > 0) {
-//             $(document).scrollTop(remianHei)
-//         }
-//         var wordsIds = getproduceIds(prodctDay, dataWrapper, 'idObj')
-//         var keyWrap = $('.op-mc-item-analysis #itemAnalysisKeyword')
-//         if (!keyWrap.length) {
-//             return false
-//         }
-//         $("#itemAnalysisKeyword .oui-tab-switch-item:contains('成交关键词')").click()
-//         var wordsfontKey = getSearchParams('getKeywords', 1, 20).split('&page')[0];
-//         var fontLocalKey = getSearchParams('getKeywords', 1, 20, 'local');
-//         var itemWho = wordsIds.item1.itemId ? 'item1' : 'item2';
-//         var dayParam = itemWho == 'item1' ? ('&itemId=' + wordsIds.item1.itemId) : ('&itemId=' + wordsIds.item2.itemId);
-//         var dayKey = wordsfontKey + dayParam;
-//         var localKey = fontLocalKey.replace('itemNum', dayParam)
-//         if (localStorage.getItem(dayKey)) {
-//             sendResponseData(wordsIds, itemWho, res, localStorage.getItem(dayKey), planName)
-//         } else if (localStorage.getItem(localKey)) {
-//             var keywordData = filterLocalData(localStorage.getItem(localKey));
-//             sendResponseData(wordsIds, itemWho, res, keywordData, planName)
-//         } else {
-//             timer = setInterval(function () {
-//                 countNum++;
-//                 if (localStorage.getItem(dayKey)) {
-//                     clearInterval(timer)
-//                     timer = null;
-//                     sendResponseData(wordsIds, itemWho, res, localStorage.getItem(dayKey), planName)
-//                 } else if (countNum > 10) {
-//                     clearInterval(timer)
-//                     timer = null;
-//                     popTip('获取关键词失败！', 'top:10%;')
-//                     LoadingPop()
-//                 }
-//             }, 500)
-//         }
-//     })
-// }
-// function sendResponseData(wordsIds, itemWho, res, dayKey, planName) {
-//     var keywordsList = {}
-//     keywordsList.selfItem = wordsIds.self ? wordsIds.self : {};
-//     keywordsList.item = wordsIds[itemWho]
-//     var indexData = vestingFuns.filterData(res)
-//     if (indexData.count == 1) {
-//         for (var k in indexData.item0) {
-//             keywordsList.item[k] = indexData.item0[k]
-//         }
-//     } else {
-//         for (var k in indexData.item0) {
-//             keywordsList.selfItem[k] = indexData.item0[k]
-//         }
-//         for (var j in indexData.item1) {
-//             keywordsList.item[j] = indexData.item1[j]
-//         }
-//     }
-//     keywordsList.keywords = vestingFuns.filterKeywords(JSON.parse(dayKey))
-//     keywordsList.plan_id = planName.plan_id
-//     keywordsList.plan_name = planName.title
-//     keywordsList.day = 7
-//     if (!keywordsList.keywords.length) {
-//         chrome.storage.local.set({
-//             'compareProduceData': keywordsList
-//         }, function () {
-//             $('.chaqz-info-wrapper.pop').fadeOut(100)
-//             window.open(BASE_URL + '/privilgeEscala')
-//         })
-//         LoadingPop()
-//         return false;
-//     }
-//     var saveToke = localStorage.getItem('chaqz_token')
-//     chrome.runtime.sendMessage({
-//         key: 'getData',
-//         options: {
-//             url: BASE_URL + '/api/v1/plugin/planData',
-//             type: "PUT",
-//             headers: {
-//                 Authorization: "Bearer " + saveToke
-//             },
-//             contentType: "application/json,charset=utf-8",
-//             data: JSON.stringify(keywordsList)
-//         }
-//     }, function (val) {
-//         if (val.code == 200) {
-//             chrome.storage.local.set({
-//                 'compareProduceData': keywordsList
-//             }, function () {
-//                 $('.chaqz-info-wrapper.pop').fadeOut(100)
-//                 window.open(BASE_URL + '/privilgeEscala')
-//             })
-//         } else if (val.code == 2030) {
-//             LogOut()
-//         } else {
-//             popTip('上传数据失败请重试')
-//         }
-//         LoadingPop()
-//     })
-// }
-// var vestingFuns = {
-//     checkRepeat: function (data, name) {
-//         //判断是否创建过的计划
-//         if (!data) {
-//             return false
-//         }
-//         var isHas = false
-//         data.forEach(function (item) {
-//             if (item.title == name) {
-//                 isHas = true
-//             }
-//         })
-//         return isHas
-//     },
-//     filterKeywords: function (data) {
-//         //关键词筛选
-//         if (!data) {
-//             return []
-//         }
-//         var resBox = []
-//         data.forEach(function (item) {
-//             if (item.tradeIndex.value > 100 && item.tradeIndex.value < 450) {
-//                 resBox.push(item.keyword.value)
-//             }
-//         })
-//         return resBox
-//     },
-//     chosePlan: function (data, aim) {
-//         //选择计划项
-//         if (!data) {
-//             return {}
-//         }
-//         for (var i = 0; i < data.length; i++) {
-//             if (data[i].title == aim) {
-//                 return data[i]
-//             }
-//         }
-
-//     },
-//     filterData: function (data) {
-//         var result = {
-//             item0: {},
-//             item1: {}
-//         }
-//         for (var key in data) {
-//             var len = data.payRate.length
-//             result.count = len
-//             data[key].forEach(function (item, index) {
-//                 if (key == 'payRate') {
-//                     item = item ? item / 100 : ''
-//                 }
-//                 result['item' + index][key] = item ? item : ''
-//             })
-//         }
-//         return result
-//     }
-// }
 
 /**event addListen --------------------*/
 //竞争-监控店铺
@@ -1273,139 +1107,6 @@ $(document).on('click', '.chaqz-wrapper  .chaqz-top-tabs .switchBrandCity', func
     $(this).addClass('active').siblings().removeClass('active');
     brandProvce(COMP_ITEM_INFO.type, index)
 })
-
-//竞争-分析竞品一键加权
-$(document).on('click', '#vesting', function () {
-    var reg = /https:\/\/sycm\.taobao\.com\/mc\/ci\/item\/analysis/;
-    var currentUrl = window.location.href
-    var matchUrl = reg.test(currentUrl)
-    if (!matchUrl) { // 判断是否为精品分析页面
-        popUp.init('goChoose')
-        return false
-    }
-    if (!isNewVersion()) {
-        return false
-    }
-    var prodctv = getProductInfo()
-    if (prodctv.rivalItem1.title && prodctv.rivalItem2.title) {
-        popUp.init('onlyOne')
-        return false
-    }
-    if (!prodctv.rivalItem1.title && !prodctv.rivalItem2.title) {
-        popUp.init('emptyChoose')
-        return false
-    }
-    var saveToke = localStorage.getItem('chaqz_token')
-    chrome.runtime.sendMessage({
-        key: 'getData',
-        options: {
-            url: BASE_URL + '/api/v1/plugin/planData',
-            type: "GET",
-            headers: {
-                Authorization: "Bearer " + saveToke
-            }
-        },
-    }, function (val) {
-        if (val.code == 200) {
-            popUp.init("selectPlan", val.data)
-            PLAN_LIST = val.data
-        } else if (val.code == 4001) {
-            popUp.init("selectPlan")
-        } else if (val.code == 2030) {
-            LogOut()
-        } else {
-            popTip('获取计划列表失败，请重试')
-        }
-    })
-})
-// $(document).on('click', '.chaqz-info-wrapper.pop .hides', function () {
-//     //c创建计划弹窗
-//     var hidePlan = $('.chaqz-info-wrapper.pop').find('#giveupPlan')
-//     if (hidePlan.length) {
-//         popUp.init("selectPlan", PLAN_LIST)
-//         return false
-//     }
-//     $('.chaqz-info-wrapper.pop').hide()
-// })
-// $(document).on('click', '.chaqz-info-wrapper.pop .planBtn', function () { //生成计划
-//     var planName = $('.chaqz-info-wrapper.pop .editor').val();
-//     var purpose = $('.chaqz-info-wrapper.pop .selcet').val();
-//     var hasCreatePlan = PLAN_LIST
-//     var isExist = vestingFuns.checkRepeat(PLAN_LIST, planName)
-//     if (!planName || !purpose) {
-//         popTip('请填写计划')
-//         return false
-//     }
-//     if (isExist) {
-//         popTip('计划名已存在')
-//         return false
-//     }
-//     var saveToke = localStorage.getItem('chaqz_token')
-//     chrome.runtime.sendMessage({
-//         key: 'getData',
-//         options: {
-//             url: BASE_URL + '/api/v1/plugin/planData',
-//             type: "POST",
-//             headers: {
-//                 Authorization: "Bearer " + saveToke
-//             },
-//             contentType: "application/json,charset=utf-8",
-//             data: JSON.stringify({
-//                 "title": planName,
-//                 "type": 1,
-//             })
-//         }
-//     }, function (val) {
-//         if (val.code == 200) {
-//             hasCreatePlan.unshift(val.data)
-//             popUp.init("selectPlan", hasCreatePlan)
-//         } else if (val.code == 2030) {
-//             LogOut()
-//         } else {
-//             popTip('计划生成失败！')
-//         }
-//     })
-// })
-// $(document).on('click', '.chaqz-info-wrapper.pop #vestBtn', function () { //加权计划
-//     LoadingPop('show')
-//     var planName = $('.chaqz-info-wrapper.pop .form-list .selcet').val()
-//     var selectPlan = vestingFuns.chosePlan(PLAN_LIST, planName)
-//     if (planName == 0) {
-//         LoadingPop()
-//         popTip('请选择计划', 'top:10%;')
-//         return false
-//     }
-//     var timer = null;
-//     var countNum = 0;
-//     $(".oui-date-picker .oui-canary-btn:contains('7天')").click()
-//     var prodctVes = getProductInfo()
-//     var idParams = getproduceIds(prodctVes, dataWrapper)
-//     var localCache = false;
-//     var itemKey = getSearchParams('monitCompareFood').split('&page')[0] + idParams;
-//     var localKey = getSearchParams('monitCompareFood', 0, 0, 'local') + idParams;
-//     // 判断本地是否缓存
-//     if (localStorage.getItem(itemKey)) {
-//         getDay(prodctVes, itemKey, selectPlan);
-//     } else if (localStorage.getItem(localKey)) {
-//         localCache = true;
-//         getDay(prodctVes, localKey, selectPlan, localCache);
-//     } else {
-//         timer = setInterval(function () {
-//             countNum++;
-//             if (localStorage.getItem(itemKey)) {
-//                 clearInterval(timer)
-//                 timer = null;
-//                 getDay(prodctVes, itemKey, selectPlan)
-
-//             } else if (countNum > 10) {
-//                 clearInterval(timer)
-//                 timer = null;
-//                 popTip('获取指数数据失败！', 'top:10%;')
-//                 LoadingPop()
-//             }
-//         }, 500)
-//     }
-// })
 /**table Data  --------------------*/
 // 监控店铺
  function shopTable(){
@@ -3805,7 +3506,7 @@ function brandProvceShow(oriData) {
 }
 
 // request funs
-function getHttpRquest(finalUrl, cb) {
+function getHttpRquest(finalUrl, cb,type) {
     var sessionKey = sessionStorage.getItem('transitId');
     $.ajax({
         url: finalUrl,
@@ -3815,12 +3516,12 @@ function getHttpRquest(finalUrl, cb) {
         },
         error: function () {
             popTip('获取数据失败请重试！')
-            LoadingPop()
+            textLoading();
         },
         success: function (res) {
             if(!res.data){
-                popTip('获取数据失败请重试！')
-                LoadingPop()
+                type == 3 ? popTip('添加监控失败') : type == 1 ?popUp.init('addMointored'): popTip('获取数据失败请重试！');
+                textLoading();
                 return false;
             }
             cb && cb(res)
@@ -3841,14 +3542,14 @@ function getBackgroundRquest(idNum, cb) {
        }
    }, function (val) {
        if (val.code == 200) {
-            cb && cb(res)
+            cb && cb(val)
        } else if (val.code == 2030) {
+           popTip('登录过期')
            LogOut();
-           LoadingPop();
+           textLoading();
        } else {
-        //    tips.html('校验失败！<a class="contactService">请联系客服</a>')
-        //    $('.chaqz-info-wrapper.pop .good-tips').addClass('alert');
-           LoadingPop();
+        popTip('检验宝贝信息失败')
+        textLoading();
        }
    })
 }
@@ -3860,26 +3561,47 @@ function titleMatchRateRquest(titleInfo, cb) {
        options: {
            url: BASE_URL + '/py/api/v1/chat',
            type: "POST",
-           headers: {
-               Authorization: "Bearer " + saveToke
-           },
-            data: JSON.stringify({
-                title1: titleInfo[0],
-                title2: titleInfo[1],
-                type: 2,
-            })
+           contentType: "application/json",
+        //    headers: {
+        //        Authorization: "Bearer " + saveToke
+        //    },
+            data: JSON.stringify(titleInfo)
        }
    }, function (val) {
        if (val.code == 200) {
-            cb && cb(res)
+            cb && cb(val)
        } else if (val.code == 2030) {
            LogOut();
-           LoadingPop();
+           textLoading();
        } else {
-        //    tips.html('校验失败！<a class="contactService">请联系客服</a>')
-        //    $('.chaqz-info-wrapper.pop .good-tips').addClass('alert');
         popTip('标题匹配失败')
-        LoadingPop();
+        textLoading();
+       }
+   })
+}
+// request 分词接口
+function manyWordRquest(titleInfo, cb) {
+   var saveToke = localStorage.getItem('chaqz_token')
+   chrome.runtime.sendMessage({
+       key: 'getData',
+       options: {
+           url: BASE_URL + '/api/v1/plugin/chat',
+           type: "POST",
+           contentType: "application/json",
+           headers: {
+               Authorization: "Bearer " + saveToke
+           },
+            data: JSON.stringify(titleInfo)
+       }
+   }, function (val) {
+       if (val.code == 200) {
+            cb && cb(val)
+       } else if (val.code == 2030) {
+           LogOut();
+           textLoading();
+       } else {
+        popTip('获取分词失败')
+        textLoading();
        }
    })
 }
@@ -3888,10 +3610,11 @@ function cumulative(arr){
     var len = arr.length;
     var res = 0;
     for (let i = 0; i < len; i++) {
-        res += arr[0]
+        res += arr[i]
     }
     return res;
 }
+// 意向商品满足条件过滤排序
 function hotPurposSort(data,selfTitle) {
     if (!data) {
         return []
@@ -3918,7 +3641,7 @@ function hotPurposSort(data,selfTitle) {
     if(selfIndex&&selfIndex>100){
         res = arr.slice(0,100);
     }
-    res = selfIndex ? selfIndex > 100 ? arr.slice(0, 100) : arr.slice(selfIndex) : '';
+    res = selfIndex ? selfIndex > 100 ? arr.slice(0, 100) : arr.slice(selfIndex) : arr.slice(0, 100);
     var titleLen = res.length;
     var nameList = [];
     for (let k = 0; k < titleLen; k++) {
@@ -3930,95 +3653,200 @@ function hotPurposSort(data,selfTitle) {
         nameList
     };
 }
+// 计算预估价格
+function forecastRage(val){
+    var res = 0;
+    if (0 < val <= 100){
+        res = 10
+    } else if (100 < val <= 200) {
+        res = 11
+    } else if (200 < val <= 300) {
+        res = 12
+    } else if (300 < val <= 400) {
+        res = 13
+    } else if (400 < val <= 500) {
+        res = 14
+    } else if (500 < val <= 600) {
+        res = 15
+    } else if (600 < val <= 800) {
+        res = 17
+    } else if (800 < val <= 1000) {
+        res = 19
+    } else if (1000 < val <= 1200) {
+        res = 21
+    } else if (1200 < val <= 1500) {
+        res = 24
+    } else if (1500 < val <= 2000) {
+        res = 27
+    } else if (2000 < val <= 2500) {
+        res = 30
+    } else if (2500 < val <= 3000) {
+        res = 33
+    } else if (3000 < val <= 3500) {
+        res = 36
+    } else if (3500 < val <= 4000) {
+         res = 38
+    } else if (4000 < val <= 5000) {
+         res = 44
+    } else if (5000 < val <= 6000) {
+        res = 49
+    } else if (6000 < val <= 7000) {
+        res = 55
+    } else if (7000 < val <= 8000) {
+        res = 60
+    } else if (8000 < val <= 9000) {
+        res = 66
+    } else if (9000 < val <= 10000) {
+        res = 72
+    } else {
+        res=undefined;
+    }
+    return res;
+}
+// 推荐竞品推荐信息合拼
+function mergeRecomItems(oriData,fliterData){
+    var len = oriData.length;
+    // var secLen = fliterData.length;
+    var res = [];
+    for (let i = 0; i < len; i++) {
+        const element = oriData[i];
+        for (let j = 0; j < len; j++) {
+           var obj = {};
+           if (element.itemId == fliterData[j].itemId.value){
+               obj.name = fliterData[j].item.title
+               obj.pic = fliterData[j].item.pictUrl
+               obj.paybr = oriData[j].paybr
+               obj.payRate = oriData[j].payRate
+               obj.forecastPrice = oriData[j].forecastPrice
+               obj.itemId = element.itemId
+               obj.price = element.price
+               obj.url = fliterData[j].item.detailUrl
+               res.push(obj)
+           }
+        }
+    }
+    return res;
+}
+// loading
+function textLoading(text, statu) {
+    if (!statu) {
+        $('#caseBlanche').remove();
+    } else {
+        var deText = text ? text : '获取数据中，请稍等…';
+        var hasSave = $('#caseBlanche').length;
+        if (hasSave) {
+            $('#caseBlanche .text').text(text);
+        } else {
+            $('body').append('<div id="caseBlanche"><div id="load"><p id="rond"></p><p class="text">' + deText + '</p></div></div>');
+        }
+    }
+}
+// 获取高相似度前五info
+function findHeightRatio(titles,data){
+    var len = titles.length;
+    var dataLen = data.length;
+    var res = []
+    for (let i = 0; i < len; i++) {
+        const element = titles[i].title;
+        for (let j = 0; j < dataLen; j++) {
+            if (element == data[j].item.title) {
+                res.push(data[j])
+            }
+        }
+    }
+    return res
+}
+
 //竞争-分析竞品一键加权
 $(document).on('click', '#vesting', function () {
     if (!isNewVersion()) {
         return false
     }
-    var selectInfo = getCompareItems();
+    var selectInfo = getCompareItems('title');
     if (selectInfo.keyword.enkey[0] != 'selfItem'){
         popTip('请选择本店商品')
         return false;
-    } else if (selectInfo.keyword.endKey.length==3){
-        popTip('竞品请选择一项')
+    } else if (selectInfo.keyword.enkey.length==3){
+        popTip('竞品仅可以选择一项')
         return false;
     }
     COMP_ITEM_INFO = {}
+    COUNT = 0;
     COMP_ITEM_INFO.itemInfo = selectInfo
     popUp.init('wantPromptTitle')
-    // var prodctv = getProductInfo()
-    // if (prodctv.rivalItem1.title && prodctv.rivalItem2.title) {
-    //     popUp.init('onlyOne')
-    //     return false
-    // }
-    // if (!prodctv.rivalItem1.title && !prodctv.rivalItem2.title) {
-    //     popUp.init('emptyChoose')
-    //     return false
-    // }
-    // var saveToke = localStorage.getItem('chaqz_token')
-    // chrome.runtime.sendMessage({
-    //     key: 'getData',
-    //     options: {
-    //         url: BASE_URL + '/api/v1/plugin/planData',
-    //         type: "GET",
-    //         headers: {
-    //             Authorization: "Bearer " + saveToke
-    //         }
-    //     },
-    // }, function (val) {
-    //     if (val.code == 200) {
-    //         popUp.init("selectPlan", val.data)
-    //         PLAN_LIST = val.data
-    //     } else if (val.code == 4001) {
-    //         popUp.init("selectPlan")
-    //     } else if (val.code == 2030) {
-    //         LogOut()
-    //     } else {
-    //         popTip('获取计划列表失败，请重试')
-    //     }
-    // })
 })
 $(document).on('click', '.chaqz-info-wrapper.pop .jugdeItem',function(){
+    $('.chaqz-info-wrapper.pop').hide();
+    textLoading('宝贝、竞品分析中，请耐心等待', 1)
     var itemInfo = COMP_ITEM_INFO.itemInfo;
     var itemList = itemInfo.resData;
     var itemKeys = itemInfo.keyword.name;
     var selfItem = itemList[itemKeys[0]];
     var titltInfo = itemInfo.titleList;
+    COMP_ITEM_INFO.selfTitle = titltInfo[0];
     getBackgroundRquest(selfItem.itemId,function(selfRes){//获取本身宝贝的信息以及数据
         var selfCateId = selfRes.data.categoryId;
         var selfPrice = selfRes.data.max_price;
         var nowTime = getCurrentTime('moreDay');
         var dateRange = setDateRange(nowTime, 'recent7');
+        var dayRange = setDateRange(nowTime, 'day');
+        COMP_ITEM_INFO.day = dayRange;
         var localCateId = getFirstCateId();
-        var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=" + device + "&cateId=" + localCateId + "&selfItemId=" + selfItem.itemId;
+        COMP_ITEM_INFO.recent7 = dateRange;
+        COMP_ITEM_INFO.localCateId = localCateId;
+        var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + localCateId + "&selfItemId=" + selfItem.itemId;
         getHttpRquest(finalUrl,function(comPRes){
             var selfCoreTrendData = JSON.parse(Decrypt(comPRes.data)).selfItem;
+            COMP_ITEM_INFO.selfItemInfo = {
+                itemId: selfItem.itemId,
+                price: selfPrice,
+                indexData: selfCoreTrendData
+            }
              var chooseLast7Self = selfCoreTrendData.tradeIndex.slice(-7); //近7天交易指数
              var selfTransData = dealIndex({
                  type: 'driectIndex',
                  sendData: {
                      tradeIndex: chooseLast7Self
                  }
-             })
+             },function(){})
+             var selfTotalTrade = cumulative(selfTransData.tradeIndex);
+             console.log('宝贝的信息指数', selfTotalTrade)
             // 是否选择竞品
             if (itemKeys.length < 2) {
+                console.log('未选择竞品，去获取推荐')
                 // 没有选择
+                HighIntention({
+                    dateRange,
+                    categoryId: selfCateId
+                }, {
+                    title: titltInfo[0],
+                    tradeTotal: selfTotalTrade
+                })
                 return false
             }
-            var compItem = itemList[itemKeys[0]];
+            var compItem = itemList[itemKeys[1]];
             if (!compItem){
-                popTip('获取竞品信息失败')
+                popTip('获取竞品信息失败');
+                textLoading();
                 return false
             }
-            getBackgroundRquest(compItem.itemId, function (selfRes2) {
-                var comPCateId = selfRes.data.categoryId;
-                var comPPrice = selfRes.data.max_price;
+            console.log('竞品选择')
+            getBackgroundRquest(compItem.itemId, function (selfRes2) { //获取竞品的信息以及数据
+                var comPCateId = selfRes2.data.categoryId;
+                var comPPrice = selfRes2.data.max_price;
                 // 判断宝贝与竞品类目是否一致
                 if (selfCateId != comPCateId){
-
-                    return false
+                    console.log('宝贝竞品类目不一致')
+                    HighIntention({
+                        dateRange,
+                        categoryId: selfCateId
+                    }, {
+                        title: titltInfo[0],
+                        tradeTotal: selfTotalTrade
+                    })
+                    return false;
                 }
-                var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=" + device + "&cateId=" + localCateId + "&rivalItem1Id=" + compItem.itemId;
+                var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + localCateId + "&rivalItem1Id=" + compItem.itemId;
                 getHttpRquest(finalUrl, function (comPRes2) {
                     var comPCoreTrendData = JSON.parse(Decrypt(comPRes2.data)).rivalItem1;
                     // var chooseLast7Self = selfCoreTrendData.tradeIndex.slice(-7);
@@ -4028,16 +3856,30 @@ $(document).on('click', '.chaqz-info-wrapper.pop .jugdeItem',function(){
                         sendData: {
                             tradeIndex: chooseLast7Comp
                         }
-                    })
-                    var selfTotalTrade = cumulative(selfTransData.tradeIndex.slice(0, 7));
-                    var compTotalTrade = cumulative(compTransData.tradeIndex.slice(7));
+                    },
+                    function () {})
+                    var compTotalTrade = cumulative(compTransData.tradeIndex);
                     // 判断交易额竞品宝贝比较
-                    if (selfTotalTrade >= compTotalTrade) {
-
+                    console.log('竞品的信息指数', compTotalTrade)
+                    if (selfTotalTrade > compTotalTrade) {
+                        console.log('指数比较失败')
+                         // 进入搜索
+                         HighIntention({
+                             dateRange,
+                             categoryId: selfCateId
+                         }, {
+                             title: titltInfo[0],
+                             tradeTotal: selfTotalTrade
+                         })
                         return false;
                     }
-                    titleMatchRateRquest(titltInfo, function (rateRes) {
-                        if (rateRes.data[0].data.ratio < 0.4) {
+                    titleMatchRateRquest({
+                                "title1": titltInfo[0],
+                                "title2": [titltInfo[1]],
+                                "type": 2
+                            }, function (rateRes) {
+                        if (rateRes.data[0].data.ratio < 0.3) {//判断自身宝贝与竞品标题相似度大于0.4，true则去获取主刷词，false去推荐
+                            console.log('宝贝竞品相似度小于0.4')
                             // 进入搜索
                             HighIntention({
                                 dateRange,
@@ -4047,7 +3889,13 @@ $(document).on('click', '.chaqz-info-wrapper.pop .jugdeItem',function(){
                                 tradeTotal: selfTotalTrade
                             })
                         } else {
-
+                            console.log('宝贝竞品相似度大雨0.4')
+                             COMP_ITEM_INFO.compItemInfo = {
+                                 itemId: compItem.itemId,
+                                 price: comPPrice,
+                                 indexData: comPCoreTrendData
+                             }
+                            gotoFindMainWord(compItem.itemId)
                         }
                     })
                 })
@@ -4055,12 +3903,18 @@ $(document).on('click', '.chaqz-info-wrapper.pop .jugdeItem',function(){
         })
     })
 })
+// 市场意向获取意商品
 function HighIntention(categroy, selfInfo) {
     var hotPurposUrl = 'https://sycm.taobao.com/mc/mq/mkt/rank/item/hotpurpose.json?dateRange=' + categroy.dateRange + '&dateType=recent7&pageSize=10&page=1&order=desc&orderBy=cartHits&cateId=' + categroy.categoryId + '&device=0&sellerType=-1&indexCode=cltHits%2CcartHits%2CtradeIndex';
-     getHttpRquest(hotPurposUrl, function (res) {
+     getHttpRquest(hotPurposUrl, function (res) {//获取意向商品
          var hotpurData = JSON.parse(Decrypt(res.data));
-         var hotList = hotPurposSort(hotpurData, selfInfo.title);
-         titleMatchRateRquest(hotList.nameList, function (rateRes) {
+         var hotList = hotPurposSort(hotpurData, selfInfo.title);//满足条件商品
+         console.log('满足条件去标题匹配的推荐商品',hotList)
+         titleMatchRateRquest({//商品与宝贝标题相似度匹配
+                     "title1": selfInfo.title,
+                     "title2": hotList.nameList,
+                     "type": 2
+                 }, function (rateRes) {
             var ratioList = rateRes.data;
             var resLength = hotList.nameList.length
             var eachSize = resLength>5?Math.floor(resLength / 5):0;
@@ -4070,27 +3924,416 @@ function HighIntention(categroy, selfInfo) {
                 var starSize = i*eachSize;
                 var endSize = (i > 3 || len == 1) ? resLength : (starSize + eachSize);
                 for (let j = starSize; j < endSize; j++) {
-                    if(ratioList.ratio>0.4){
+                    if(ratioList.ratio>0.3){
                         selectItem.push(j);
                         break;
                     }
                 }
             }
+            console.log('相似度为0.3的高意向商品', selectItem)
             var selectLen = selectItem.length;
             var finalList = [];
-            for (let k = 0; k < selectLen; k++) {
-                var ele = hotList.oriData[selectItem[k]];
-                var trans = dealIndex({
-                    type: 'driectIndex',
-                    sendData: {
-                        tradeIndex: [ele.tradeIndex.value]
+            if (selectLen){
+                for (let k = 0; k < selectLen; k++) {
+                    var ele = hotList.oriData[selectItem[k]];
+                    var trans = dealIndex({
+                        type: 'driectIndex',
+                        sendData: {
+                            tradeIndex: [ele.tradeIndex.value]
+                        }
+                    },
+                    function () {})
+                    if (trans > selfInfo.selfTotalTrade){
+                        finalList.push(ele)
                     }
-                })
-                if (trans > selfInfo.selfTotalTrade){
-                    finalList.push(ele)
                 }
+            }else{
+                // 未找到满足条件商品取相似度最高五项
+                var ratioSortList = babelSort(ratioList, 'data', 'ratio');
+                finalList = findHeightRatio(ratioSortList.slice(0, 5), hotList.oriData) ;
             }
-            showSelectList(finalList)
+            console.log('交易额大于竞品的高意向商品', finalList)
+            getSelectShowData(finalList, categroy)
          })
      })
+}
+// 展示推荐竞品
+function getSelectShowData(finalList, categroy) {
+    // 获取选取推荐商品的价格以及交易指数
+    var len = finalList.length;
+    COUNT = 0;
+    var hotpurInfo = [];
+     var dayRange = COMP_ITEM_INFO.day;
+    for (let i = 0; i < len; i++) {
+        let itemId = finalList[i].itemId.value;
+        console.log('循环获取推荐商品信息',i,itemId)
+       setTimeout(function(){//请求间隔300
+            var hotPurTrendUrl = 'https://sycm.taobao.com/mc/ci/item/trend.json?dateType=day&dateRange=' + dayRange + '&cateId=' + categroy.categoryId + '&itemId=' + itemId + '&device=0&sellerType=-1&indexCode=uvIndex%2CpayRateIndex%2CtradeIndex%2CpayByrCntIndex';
+            getHttpRquest(hotPurTrendUrl, function (res) {
+                var hotPoseData = JSON.parse(Decrypt(res.data));
+                var hotTransData = dealIndex({
+                        type: 'driectIndex',
+                        sendData: {
+                            payByrCntIndex: hotPoseData.payByrCntIndex.slice(-7),
+                            payRateIndex: hotPoseData.payRateIndex.slice(-7)
+                        }
+                    },
+                    function () {})
+                var hotTotalpaybr = cumulative(hotTransData.payByrCntIndex);
+                var hotTotalpayRate = cumulative(hotTransData.payRateIndex);
+                getBackgroundRquest(itemId, function (selfRes2) {
+                    var hotpurPrice = selfRes2.data.min_price;
+                    COUNT++;
+                    var itemInfo = {};
+                    itemInfo.itemId = itemId;
+                    itemInfo.paybr = Math.floor(hotTotalpaybr / 7);
+                    itemInfo.payRate = hotTotalpayRate ? (hotTotalpayRate / 7 * 100).toFixed(2) : '-';
+                    itemInfo.forecastPrice = Math.floor(hotTotalpaybr / 7 * forecastRage(hotpurPrice));
+                    itemInfo.price = hotpurPrice;
+                    hotpurInfo.push(itemInfo)
+                    if (COUNT > len - 1) {
+                        showSelectList(hotpurInfo, finalList)
+                        return false;
+                    }
+                })
+            })
+       },i*300)
+    }
+
+}
+// 展示推荐宝贝信息弹窗
+function showSelectList(hotpurInfo, finalList) {
+    console.log('hebing ', hotpurInfo, finalList)
+    var showList = mergeRecomItems(hotpurInfo, finalList);
+    console.log('mergeEnding', showList)
+     var wrapper = '<div class="chaqz-wrapper"><div class="content"><div class="cha-box"><div class="head"><div class="title"><span class="chaqz-table-title">已为你推荐以下优秀同类竞品，请选择</span></div></div><div class="table-box"><table id="chaqz-table" style="width:100%"></table></div><div class="recommed-btns"><button class="canceRecommond">取消</button><button class="sureRecommond">确定</button></div></div><span class="chaqz-close">×</span></div></div>'
+     $('#app').append(wrapper);
+     var tableData = [];
+     for (let i = 0; i < showList.length; i++) {
+         const element = showList[i];
+         var obj = {};
+         obj.boby = {
+             url: element.pic,
+             title: element.name,
+             href: element.url
+         }
+         obj.paybr = element.paybr;
+         obj.payRate = element.payRate;
+         obj.forCase = element.forecastPrice;
+         obj.operator = element.itemId + '/' + element.price ;
+         tableData.push(obj)
+     }
+      var cols = [
+          {
+              data: 'boby',
+              title: '宝贝',
+              class: 'info',
+              render: function (data, type, row, meta) {
+                  return '<img src="' + data.url + '"><a href="' + data.href+ '" target="_blank">' + data.title + '</a>';
+              }
+          },
+          {
+              data: 'paybr',
+              title: '支付人数'
+          },
+          {
+              data: 'payRate',
+              title: '支付转化率'
+          },
+          {
+              data: 'forCase',
+              title: '预估每天成本'
+          },
+          {
+              data: 'operator',
+              title: '操作',
+            render: function (data, type, row, meta) {
+                return '<label for="'+data+'" class="propt-chose"></label><input type="checkbox" id="'+data+'" class="recommendItem" value="' + data+ '" hidden>';
+            }
+          },
+      ];
+      $('#chaqz-table').DataTable({
+          data: tableData,
+          columns: cols,
+          language: {
+              "paginate": {
+                  "next": "&gt;",
+                  "previous": "&lt;"
+              },
+              "sEmptyTable": '数据为空...'
+          },
+          searching: false,
+          ordering: false,
+          info: false,
+          "paging": false,
+      });
+      textLoading()
+    //   推荐取消
+      $('.chaqz-wrapper').on('click', '.canceRecommond',function(){
+          $('.chaqz-wrapper').remove();
+      })
+    //   推荐确定
+      $('.chaqz-wrapper').on('click', '.sureRecommond', function () {
+        var inptVal =  $('.chaqz-wrapper input:checked').val();
+        console.log(inptVal);
+        if(!inptVal){
+            popTip('请选择一项商品')
+            return false;
+        }
+        var idPrice = inptVal.split('/')
+        COMP_ITEM_INFO.compId = idPrice[0];
+        COMP_ITEM_INFO.compPrice = idPrice[1];
+        console.log('选择推荐项信息',idPrice)
+        gotoFindMainWord(idPrice[0]);
+      })
+}
+// 添加监控
+$(document).on('click', '.addMointored',function(){
+    var firstCateId = COMP_ITEM_INFO.localCateId;
+    var itemId = COMP_ITEM_INFO.compId;
+    var addMointorUrl = 'https://sycm.taobao.com/mc/ci/config/rival/item/addToMonitored.json?itemId=' + itemId + '&rivalType=item&firstCateId=' + firstCateId;
+    getHttpRquest(addMointorUrl,function(res){
+        $('.chaqz-info-wrapper.pop').hide();
+        gotoFindMainWord(itemId);
+    },3)
+})
+// 竞品推荐项选择
+$(document).on('click', '.propt-chose', function () {
+    if ($(this).hasClass('active')){return false;}
+    $(this).addClass('active').parent().parent().siblings().find('label').removeClass('active');
+    $(this).parent().parent().siblings().find('input').prop("checked", false);
+})
+// 获取竞品关键词数据
+function gotoFindMainWord(itmeId) { 
+    var selfTitle = COMP_ITEM_INFO.selfTitle;
+    var dayRange = COMP_ITEM_INFO.day;
+    var localCateId = COMP_ITEM_INFO.localCateId;
+    COMP_ITEM_INFO.chooseId = itmeId;//保存竞品id
+    var endType = '&topType=trade&indexCode=tradeIndex';
+    var hotPurTrendUrl = 'https://sycm.taobao.com/mc/rivalItem/analysis/getKeywords.json?dateRange=' + dayRange + '&dateType=day&pageSize=20&page=1&device=2&sellerType=0&cateId=' + localCateId + '&itemId=' + itmeId + endType;
+    getHttpRquest(hotPurTrendUrl,function(res){//竞品成交关键词获取
+         $('.chaqz-wrapper').remove();
+         textLoading('获取数据中，请稍等',1);
+        var keyWords = JSON.parse(Decrypt(res.data));
+        console.log('竞品成交关键词列表', keyWords);
+        var endType2 ='&topType=flow&indexCode=uv' ;
+        var hotPurTrendUrl2= 'https://sycm.taobao.com/mc/rivalItem/analysis/getKeywords.json?dateRange=' + dayRange + '&dateType=day&pageSize=20&page=1&device=2&sellerType=0&cateId=' + localCateId + '&itemId=' + itmeId + endType2;
+        getHttpRquest(hotPurTrendUrl2, function (uvRes) { //竞品成交关键词获取
+            var uvkeyWords = JSON.parse(Decrypt(uvRes.data));
+            console.log('竞品引流关键词列表', uvkeyWords);
+            var filterKeyList = keyWords.concat(uvkeyWords);
+            var filterKeyWords = filterSearchRank(filterKeyList, 'keyword', 'value');
+            filterKeyWords = removeDuplicates(filterKeyWords);
+            console.log('符合条件的成交词', filterKeyWords)
+            titleMatchRateRquest({ //竞品关键词与宝贝标题匹配
+                    title1: selfTitle,
+                    title2: filterKeyWords,
+                    type: 2
+                }, function (matRes) {//过滤标题匹配度为1的关键词
+                    var suitKeyWords = matRes.data;
+                    var mayKeyword = suitKeyWords.filter(function (item) {
+                        return item.data.ratio == 1
+                    });
+                    if(mayKeyword.length){
+                         console.log('待确定主刷词', mayKeyword)
+                    marketSearchMainWord(mayKeyword);
+                    return false
+                    }
+                    // 关键词为空，分词宝贝标题
+                    titleMatchRateRquest({
+                        title1: '',
+                        title2: [selfTitle],
+                        type: 2
+                    }, function (cutRes) {
+                        var cutWords = cutRes.data[0];
+                        console.log('分词结果', cutWords)
+                        //  var cutLeng = cutWords.data.chart;
+                        var cutWordList = [];
+                        cutWords.data.chat.map(function (item) {
+                            cutWordList.push({
+                                title: item.chat
+                            })
+                        })
+                        marketSearchMainWord(cutWordList,'boby')
+                    })
+                    // COMP_ITEM_INFO.takeWordType = 3
+            })
+        })
+    },1)
+}
+// 市场搜索进行关键词验证，是否符合
+function marketSearchMainWord(mayKeywords) {
+     var selfTitle = COMP_ITEM_INFO.selfTitle;
+     var dateRange = COMP_ITEM_INFO.recent7;
+     var totalNum = mayKeywords.length;
+     var checkInfo = {
+         mayKeywords,
+         step:0,
+         resData:[],
+         saveTop:[],
+         selfTitle, dateRange, totalNum
+     }
+     cycleFindMainWord(checkInfo)
+}
+function cycleFindMainWord(checkInfo,isSelf) {
+    var curStep = checkInfo.step;
+    var curKeyword = checkInfo.mayKeywords[curStep];
+    console.log('循环市场搜索', curStep, curKeyword)
+     var searchUrl = 'https://sycm.taobao.com/mc/searchword/relatedWord.json?dateRange=' + checkInfo.dateRange + '&dateType=recent7&pageSize=10&page=1&order=desc&orderBy=seIpvUvHits&keyword=' + curKeyword.title + '&device=0&indexCode=seIpvUvHits%2CsePvIndex%2CclickRate%2CclickHits%2CclickHot';
+     getHttpRquest(searchUrl,function(res){// 市场搜索相关分析结果
+         var searchData = JSON.parse(Decrypt(res.data));
+         var searLeng = searchData.length > 100 ? 100 : searchData.length;
+         var filterArr = [];
+         for (let i = 0; i < searLeng; i++) {
+             const element = searchData[i];
+             filterArr.push(element.keyword)
+         }
+        manyWordRquest({
+            "title1": curKeyword.title,
+            "title2": filterArr,
+            "type": 3
+        }, function (cutRes) {
+            console.log('搜索分析传参', curKeyword.title, filterArr, cutRes)
+            var cutResult = cutRes.data;
+            var shortNum = cutResult.short.data;
+            var middleNum = cutResult.medium.data;
+            var longNum = cutResult.long.data;
+            if (shortNum.length > 0 && middleNum.length > 1 && longNum.length > 0){
+                var saveShotList = [shortNum[0].title]
+                var saveMidList = [middleNum[0].title, middleNum[0].title]
+                var saveLongList = [longNum[0].title];
+                var pushData = {
+                    title: curKeyword.title,
+                    sdWord: {
+                        short: saveShotList,
+                        middle: saveMidList,
+                        long: saveLongList,
+                    }
+                }
+                checkInfo.resData.push(pushData);
+                var firstItem = searchData[0];
+                firstItem.curKeyword = pushData;
+                checkInfo.saveTop.push(searchData[0])
+            }
+            var nextStep = curStep+1;
+            checkInfo.step = nextStep;
+            var hasSaveWords = checkInfo.resData;
+            
+            // 判断选取主刷词数量以及是否循环完毕
+            if ((hasSaveWords.length > 4 && !isSelf) || nextStep > checkInfo.totalNum - 1) {
+                console.log('获取主刷词', hasSaveWords)
+                var hasSaveTop = isSelf ? checkInfo.saveTop:'';
+                console.log('自身宝贝分词结果', hasSaveWords, hasSaveTop)
+                getMainWordsResult(hasSaveWords, hasSaveTop)
+            } else {
+                 cycleFindMainWord(checkInfo)
+            }
+        })
+     }) 
+}
+// 获得主刷词结果
+function getMainWordsResult(wordList,isBoby){
+    if(!wordList.length){
+        popTip('未匹配到主刷词')
+        return false;
+    }
+    // 宝贝分词获取的结果
+    if(isBoby){
+        var bobyFilter = getfinalWords(isBoby);
+         console.log('进入最后阶段了self', bobyFilter)
+    }
+    console.log('进入最后阶段了', wordList)
+    if(COMP_ITEM_INFO.compItemInfo){
+        indexFilter({
+             itemId: COMP_ITEM_INFO.selfItemInfo.itemId,
+            price: COMP_ITEM_INFO.selfItemInfo.price,
+            indexData: COMP_ITEM_INFO.selfItemInfo.indexData
+        } ,{
+             itemId: COMP_ITEM_INFO.compItemInfo.itemId,
+            price: COMP_ITEM_INFO.compItemInfo.price,
+            indexData: COMP_ITEM_INFO.compItemInfo.indexData
+        })
+    }else{
+        var dateRange = COMP_ITEM_INFO.recent7;
+        var localCateId = COMP_ITEM_INFO.localCateId;
+         var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + localCateId + "&rivalItem1Id=" + COMP_ITEM_INFO.compId;
+         getHttpRquest(finalUrl, function (comPRes) {
+             var comPCoreTrendData = JSON.parse(Decrypt(comPRes.data)).rivalItem1;
+             indexFilter({
+                  itemId: COMP_ITEM_INFO.selfItemInfo.itemId,
+                 price: COMP_ITEM_INFO.selfItemInfo.price,
+                 indexData: COMP_ITEM_INFO.selfItemInfo.indexData
+             }, {
+                  itemId: COMP_ITEM_INFO.compId,
+                 price: COMP_ITEM_INFO.compPrice,
+                 indexData: comPCoreTrendData
+             })
+         })
+    }
+}
+// 宝贝分词最终结果
+function getfinalWords(data){
+    var sortRes = babelSort(data, 'seIpvUvHits');
+    var filterList = sortRes.slice(0,5);
+    var len = filterList.length;
+    var res = [];
+    for (let i = 0; i < len; i++) {
+        const element = filterList[i];
+        res.push(element.curKeyword)
+    }
+    return res
+}
+// 截取近七天指数数据
+function cutOffIndex(data){
+    var res = {};
+    for(var key in data){
+        res[key] = data[key].slice(-7);
+    }
+    return res
+}
+// 计算近七天平均数据
+function cutOffAvg(data){
+    var res = {};
+    res.payRateIndex = data.payRateIndex.slice(-7);
+    res.cltHits = data.cltHits.slice(-7);
+    res.cltHits = data.cltHits.slice(-7);
+    res.tradeIndex = data.tradeIndex.slice(-7);
+    res.uvIndex = data.uvIndex.slice(-7);
+    var filterList = ['payRateIndex', 'cltHits', 'cartHits', 'tradeIndex', 'uvIndex']
+    for(let key in data){
+        var avg = 0;
+        if(filterList.indexOf(key)==-1){continue;}
+        for (let i = 0; i < data[key].length; i++) {
+            avg += data[key][i]
+        }
+        res[key] = avg/7
+    }
+    return res
+}
+function indexFilter(selfInfo,compInfo) {
+    var selfIndex = cutOffIndex(selfInfo.indexData);
+    var compIndex = cutOffIndex(compInfo.indexData);
+     var selfTrans = dealIndex({
+         type: 'driectIndex',
+         sendData: selfIndex
+     }, function () {})
+     var itemTrans = dealIndex({
+         type: 'driectIndex',
+         sendData: compIndex
+     }, function () {})
+      var selfAvg = cutOffAvg(selfTrans);
+      var itemAvg = cutOffAvg(itemTrans);
+      var postData = {
+          selfItem:{
+              itemId: selfInfo.itemId,
+            price: selfInfo.price,
+            index: selfAvg
+          },
+          item:{
+               itemId: compInfo.itemId,
+            price: compInfo.price,
+            index: itemAvg
+          }
+      }
+      console.log(postData)
 }

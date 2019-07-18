@@ -151,7 +151,7 @@ $(function () {
     }, SET_WAIT_TIME)
     /**竞争模块添加事件 */
     $('#app').on('DOMNodeInserted', function (e) {
-        console.log(e.target.id, ',', e.target.className)
+        // console.log(e.target.id, ',', e.target.className)
         if (e.target.className == 'oui-index-picker') { //竞争-监控店铺
             $('.mc-shopMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
         } else if (e.target.className == 'oui-index-picker-group') { //竞争-监控商品
@@ -320,11 +320,10 @@ function userInfoRes() {
 }
 // 判断版本
 function judgeCor() {
-    var shopLevel = localStorage.getItem('chaqz_getShopCate');
+    var shopLevel = dataWrapper['getShopCate'].data.allInfo ;
     var marketban = dataWrapper['publicInfo'].data;
     if (shopLevel) {
-        var allLev = JSON.parse(shopLevel)[0];
-        var isHig = allLev ? allLev[4] : '';
+        var isHig = shopLevel ? shopLevel[4] : '';
         if (isHig == 'std') {
             return false;
         }

@@ -37,6 +37,17 @@
 .chaqz-wrapper .content .table-box {
     margin: 0 15px;
 }
+.chaqz-wrapper .content .table-box td .propt-chose {
+     display: inline-block;
+     width: 20px;
+     height: 20px;
+     border: 1px solid #DDDDDD;
+     border-radius: 50%;
+}
+.chaqz-wrapper .content .table-box td .propt-chose.active {
+    border:0;
+    background: url('https://file.cdn.chaquanzhong.com/prompt-check.png') no-repeat center/contain;
+}
 
 .chaqz-wrapper .content .head {
     line-height: 30px;
@@ -1333,3 +1344,28 @@
     }
 }
 
+
+/* 推荐竞品 */
+.chaqz-wrapper .recommed-btns{
+    text-align: center;
+    margin-top: 40px;
+}
+.chaqz-wrapper .recommed-btns button:first-child{
+    width: 100px;
+    height: 46px;
+    border: 1px solid #E5E5E5;
+    border-radius: 5px;
+    color: #222222;
+    font-size: 16px;
+    background: #fff;
+}
+.chaqz-wrapper .recommed-btns button:last-child{
+    margin-left: 30px;
+    width: 100px;
+    height: 46px;
+    border: 0;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    background: #FFA200;
+}

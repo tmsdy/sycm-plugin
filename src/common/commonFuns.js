@@ -649,3 +649,35 @@ function popTip(text, options) {
         })
     }, tm)
 }
+// 排序
+export function babelSort(data,key1,key2){
+    if (!data) {
+        return []
+    }
+    var len = data.length;
+    for (var i = 0; i < len; i++) {
+        for (var j = 0; j < len - 1 - i; j++) {
+            var arr1 = key2 ? data[j][key1][key2] : data[j][key1];
+            var arr2 = key2 ? data[j + 1][key1][key2] : data[j + 1][key1];
+            if (arr1 < arr2) {
+                var temp = data[j]
+                data[j] = data[j + 1]
+                data[j + 1] = temp
+            }
+        }
+    }
+    return data;
+}
+// 数组去重
+export function removeDuplicates(arr) {
+    var res=[];
+    var obj = {};
+    for (let i = 0; i < arr.length; i++) {
+        const element = arr[i];
+        if(!obj[element]){
+            obj[element] = 1;
+            res.push(element)
+        }
+    }
+    return res
+}
