@@ -3924,7 +3924,7 @@ function HighIntention(categroy, selfInfo) {
                 var starSize = i*eachSize;
                 var endSize = (i > 3 || len == 1) ? resLength : (starSize + eachSize);
                 for (let j = starSize; j < endSize; j++) {
-                    if(ratioList.ratio>0.3){
+                    if(ratioList[j].data.ratio>0.3){
                         selectItem.push(j);
                         break;
                     }
@@ -3941,9 +3941,8 @@ function HighIntention(categroy, selfInfo) {
                         sendData: {
                             tradeIndex: [ele.tradeIndex.value]
                         }
-                    },
-                    function () {})
-                    if (trans > selfInfo.selfTotalTrade){
+                    },function () {})
+                    if (trans.tradeIndex[0] > selfInfo.tradeTotal) {
                         finalList.push(ele)
                     }
                 }
@@ -3987,7 +3986,7 @@ function getSelectShowData(finalList, categroy) {
                     var itemInfo = {};
                     itemInfo.itemId = itemId;
                     itemInfo.paybr = Math.floor(hotTotalpaybr / 7);
-                    itemInfo.payRate = hotTotalpayRate ? (hotTotalpayRate / 7 * 100).toFixed(2) : '-';
+                    itemInfo.payRate = hotTotalpayRate ? (hotTotalpayRate / 7 * 100).toFixed(2)+'%' : '-';
                     itemInfo.forecastPrice = Math.floor(hotTotalpaybr / 7 * forecastRage(hotpurPrice));
                     itemInfo.price = hotpurPrice;
                     hotpurInfo.push(itemInfo)
@@ -4084,6 +4083,7 @@ function showSelectList(hotpurInfo, finalList) {
         COMP_ITEM_INFO.compId = idPrice[0];
         COMP_ITEM_INFO.compPrice = idPrice[1];
         console.log('选择推荐项信息',idPrice)
+        textLoading('获取数据中，请稍等', 1);
         gotoFindMainWord(idPrice[0]);
       })
 }
@@ -4094,6 +4094,7 @@ $(document).on('click', '.addMointored',function(){
     var addMointorUrl = 'https://sycm.taobao.com/mc/ci/config/rival/item/addToMonitored.json?itemId=' + itemId + '&rivalType=item&firstCateId=' + firstCateId;
     getHttpRquest(addMointorUrl,function(res){
         $('.chaqz-info-wrapper.pop').hide();
+        textLoading('获取数据中，请稍等', 1);
         gotoFindMainWord(itemId);
     },3)
 })
@@ -4112,8 +4113,7 @@ function gotoFindMainWord(itmeId) {
     var endType = '&topType=trade&indexCode=tradeIndex';
     var hotPurTrendUrl = 'https://sycm.taobao.com/mc/rivalItem/analysis/getKeywords.json?dateRange=' + dayRange + '&dateType=day&pageSize=20&page=1&device=2&sellerType=0&cateId=' + localCateId + '&itemId=' + itmeId + endType;
     getHttpRquest(hotPurTrendUrl,function(res){//竞品成交关键词获取
-         $('.chaqz-wrapper').remove();
-         textLoading('获取数据中，请稍等',1);
+        $('.chaqz-wrapper').remove();
         var keyWords = JSON.parse(Decrypt(res.data));
         console.log('竞品成交关键词列表', keyWords);
         var endType2 ='&topType=flow&indexCode=uv' ;
@@ -4252,7 +4252,7 @@ function getMainWordsResult(wordList,isBoby){
              itemId: COMP_ITEM_INFO.compItemInfo.itemId,
             price: COMP_ITEM_INFO.compItemInfo.price,
             indexData: COMP_ITEM_INFO.compItemInfo.indexData
-        })
+        }, wordList)
     }else{
         var dateRange = COMP_ITEM_INFO.recent7;
         var localCateId = COMP_ITEM_INFO.localCateId;
@@ -4267,7 +4267,7 @@ function getMainWordsResult(wordList,isBoby){
                   itemId: COMP_ITEM_INFO.compId,
                  price: COMP_ITEM_INFO.compPrice,
                  indexData: comPCoreTrendData
-             })
+             }, wordList)
          })
     }
 }
@@ -4310,7 +4310,7 @@ function cutOffAvg(data){
     }
     return res
 }
-function indexFilter(selfInfo,compInfo) {
+function indexFilter(selfInfo, compInfo, wordList) {
     var selfIndex = cutOffIndex(selfInfo.indexData);
     var compIndex = cutOffIndex(compInfo.indexData);
      var selfTrans = dealIndex({
@@ -4325,18 +4325,20 @@ function indexFilter(selfInfo,compInfo) {
       var itemAvg = cutOffAvg(itemTrans);
       var postData = {
           selfItem:{
-              itemId: selfInfo.itemId,
-            price: selfInfo.price,
+            itemId: selfInfo.itemId,
+            // price: selfInfo.price,
             index: selfAvg
           },
           item:{
                itemId: compInfo.itemId,
             price: compInfo.price,
             index: itemAvg
-          }
+          },
+          mainWords: wordList
       }
+      console.log('传输数据',postData)
      chrome.storage.local.set({
-         'compareProduceData': postData
+         'AutomaticWeightedData': postData
      }, function () {
          window.open(BASE_URL + '/privilgeEscala')
           textLoading()
