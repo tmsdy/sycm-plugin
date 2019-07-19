@@ -4335,5 +4335,10 @@ function indexFilter(selfInfo,compInfo) {
             index: itemAvg
           }
       }
-      console.log(postData)
+     chrome.storage.local.set({
+         'compareProduceData': postData
+     }, function () {
+         window.open(BASE_URL + '/privilgeEscala')
+          textLoading()
+     })
 }

@@ -19,7 +19,7 @@ import {
      goOperator: '<p class="tips">前往将商品添加到监控</p><div class="cha-btns"><a class="btn" href="https://sycm.taobao.com/mc/ci/config/rival?activeKey=item"><button class="btn mr_30">前往添加</button></a><button class="btn hides  cancel">取消</button></div>',
      addMointored: '<p class="tips">前往将商品添加到监控</p><div class="cha-btns"><button class="btn mr_30 addMointored">前往添加</button><button class="btn hides  cancel">取消</button></div>',
      wantPromptTitle: '<p class="tips"> 标题对加权计划及效果影响较大，<br/>是否需优化宝贝标题 </p><div class="cha-btns"><button class="cancel mr_30 btn jugdeItem">忽略</button><button class="btn promptTitle">优化</button></div> ',
-     promptTitle: '<p class="head">添加客服领取标题优化教程，按照教程并修改标题，点击下一步</p><img src="https://file.cdn.chaquanzhong.com/wx_contact.jpg" alt="wx" style="margin-top: -20px;margin-bottom: 20px;"><div class="cha-btns"><button class="cancel mr_30 btn jugdeItem">忽略</button><button class="btn jugdeItem">下一步</button></div>',
+     promptTitle: '<p class="head">添加客服领取标题优化教程，按照教程并修改标题，点击下一步</p><img src="http://cdn.chaquanzhong.com/15608434892885.png" alt="wx" style="margin-top: -20px;margin-bottom: 20px;"><div class="cha-btns"><button class="cancel mr_30 btn jugdeItem">忽略</button><button class="btn jugdeItem">下一步</button></div>',
      init: function (type, data) {
          if ($('.chaqz-info-wrapper.pop').length) {
              this.changeDom(type, data)
@@ -97,12 +97,7 @@ import {
  }
   // 获取店铺信息
   export function dealShopInfo() {
-      //  var info = dataWrapper.shopInfo.data
       var localShop = localStorage.getItem('chaqz_shopInfo')
-      //  if (info.length) {
-      //      var ret = JSON.parse(info).data
-      //      return ret
-      //  }
       if (localShop) {
           var resd = JSON.parse(localShop)
           return resd
@@ -136,61 +131,12 @@ import {
           return false;
       }
       var memInfo = allInfo.member; //会员信息
-    //   var bindInfo = window.SAVE_BIND2; //绑定信息
-    //   var shopInfo = dealShopInfo(); //店铺信息
       //不是否为会员
       if (!memInfo) {
           LogOut()
           return false;
       }
       return true
-    //   var star_time = allInfo.time;
-    //   var star_end = memInfo.expireAt;
-    //   var remian = new Date(star_end) - star_time * 1000;
-      //会员过期
-    //   if (remian <= 0) {
-    //       popUp.init('overdue')
-    //       return false;
-    //   }
-    //   var hasBind = bindInfo.data.length; //已绑定数量
-    //   var totalBind = bindInfo.count; //可绑定数量
-    //   var isSelf = false
-    //   var isClose = false
-    //   var activeNum = 0
-    //   bindInfo.data.forEach(function (item) {
-    //       if (item['runShopId'] == shopInfo['runAsShopId']) {
-    //           isSelf = true
-    //           isClose = item['closed']
-    //       }
-    //       if (item['closed'] == 0) {
-    //           activeNum++
-    //       }
-    //   })
-    //   if (!isSelf) { // 不是本店铺
-    //       if (hasBind < totalBind) {
-    //           popUp.init('binding')
-    //           return false
-    //       }
-    //       if (memInfo.level < 4) {
-    //           popUp.init('upLimit')
-    //           return false
-    //       }
-    //       popUp.init('bindLimit')
-    //       return false
-    //   }
-    //   if (isClose == 0) { //激活
-    //       return true;
-    //   }
-    //   if (activeNum < totalBind) { //未达激活上限
-    //       popUp.init('active2')
-    //       return false
-    //   }
-    //   if (memInfo.level < 4) {
-    //       popUp.init('upLimit')
-    //       return false
-    //   }
-    //   popUp.init('bindLimit')
-    //   return false
   }
 // 登录状态切换
 export function changeLoginStatus(type) {
@@ -204,7 +150,6 @@ export function changeLoginStatus(type) {
         if ($('.chaqz-compete-wrap').length){
             return false;
         }
-        // $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img  id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png" alt="" class="avator"></div><div class="content-wrap"><ul class="content"><li class="item"id="parsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></li><li class="item"id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></li><li class="item"id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/chaheihao"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/Kasp"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/infiniteRank"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a href=""target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘宝订单检测</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/toolIndex"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/home"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="https://www.chaquanzhong.com/home"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
     }
 }
 // 退出登录
@@ -224,8 +169,6 @@ export function LogOut() {
         var title = memInfo.member.title;
         var expirTime = memInfo.member.expireAt;
         var whetherOrder = '';
-        // var binded = '未绑定';
-        // var shopInfo = dealShopInfo();
         if (title && expirTime) {
             var formDate = new Date(expirTime)
             var isExpire = formDate - memInfo.time * 1000
@@ -234,11 +177,6 @@ export function LogOut() {
             } else {
                 whetherOrder = '订购';
             }
-            // bindedInfo.data.forEach(function (item) {
-            //     if (item['mainUid'] = shopInfo['mainUserId']) {
-            //         binded = "已绑定"
-            //     }
-            // })
         } else {
             title = '普通会员';
             expirTime = '--';
