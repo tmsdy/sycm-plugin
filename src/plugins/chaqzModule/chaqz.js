@@ -31,7 +31,7 @@ chrome.storage.local.get(['chaqz_token', 'AutomaticWeightedData'], function (val
             }, '*');
         }
     }
-    var quiltyFoods = valueArray.compareProduceData
+    var quiltyFoods = valueArray.AutomaticWeightedData
     if (quiltyFoods) {
         sessionStorage.AutomaticWeightedData = JSON.stringify(quiltyFoods)
     }

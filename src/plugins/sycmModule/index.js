@@ -321,9 +321,12 @@ function userInfoRes() {
 // 判断版本
 function judgeCor() {
     var shopLevel = dataWrapper['getShopCate'].data.allInfo ;
+    var otherData = sessionStorage.getItem('chaqz_shopCate');
+    otherData = otherData ? JSON.parse(otherData):'';
     var marketban = dataWrapper['publicInfo'].data;
+    var shopLevel = shopLevel || otherData;
     if (shopLevel) {
-        var isHig = shopLevel ? shopLevel[4] : '';
+        var isHig = shopLevel ? shopLevel[0][4] : '';
         if (isHig == 'std') {
             return false;
         }
@@ -343,8 +346,10 @@ $(document).on('click', '#goRootWord',function(){
     }
 })
 $(document).on('keydown', '.op-mc-search-analyze-container .ant-input', function (e) {
-    if (!judgeCor()){return false;}
     if (e.keyCode == 13 || e.which == 13) {
+        if (!judgeCor()) {
+            return false;
+        }
         popTip('请点击一键分析,获取数据！',{time:2000})
     }
 })
@@ -457,6 +462,7 @@ var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
                      dataWrapper[k].data.cateId = cateInfo[6];
                      dataWrapper[k].data.version = cateInfo[4];
                      dataWrapper[k].data.allInfo = shopCateFont;
+                     sessionStorage.setItem('chaqz_shopCate', JSON.stringify(shopCateFont))
                  } else if (k == 'ShopItemBrand') {
                     var kind = searchWhatType(baseUrl);
                     var kindtyps = getParamsItem(baseUrl)

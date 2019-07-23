@@ -19,7 +19,7 @@ import {
      goOperator: '<p class="tips">前往将商品添加到监控</p><div class="cha-btns"><a class="btn" href="https://sycm.taobao.com/mc/ci/config/rival?activeKey=item"><button class="btn mr_30">前往添加</button></a><button class="btn hides  cancel">取消</button></div>',
      addMointored: '<p class="tips">前往将商品添加到监控</p><div class="cha-btns"><button class="btn mr_30 addMointored">前往添加</button><button class="btn hides  cancel">取消</button></div>',
      wantPromptTitle: '<p class="tips"> 标题对加权计划及效果影响较大，<br/>是否需优化宝贝标题 </p><div class="cha-btns"><button class="cancel mr_30 btn jugdeItem">忽略</button><button class="btn promptTitle">优化</button></div> ',
-     promptTitle: '<p class="head">添加客服领取标题优化教程，按照教程并修改标题，点击下一步</p><img src="http://cdn.chaquanzhong.com/15608434892885.png" alt="wx" style="margin-top: -20px;margin-bottom: 20px;"><div class="cha-btns"><button class="cancel mr_30 btn jugdeItem">忽略</button><button class="btn jugdeItem">下一步</button></div>',
+     promptTitle: '<p class="head">添加客服领取标题优化教程，按照教程并修改标题，点击下一步</p><img src="https://file.cdn.chaquanzhong.com/promt-wx.png" alt="wx" style="margin-top: -20px;margin-bottom: 20px;"><div class="cha-btns"><button class="cancel mr_30 btn jugdeItem">忽略</button><button class="btn jugdeItem">下一步</button></div>',
      init: function (type, data) {
          if ($('.chaqz-info-wrapper.pop').length) {
              this.changeDom(type, data)

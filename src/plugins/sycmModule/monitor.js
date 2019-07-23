@@ -3547,9 +3547,11 @@ function getBackgroundRquest(idNum, cb) {
            popTip('登录过期')
            LogOut();
            textLoading();
+       } else if (val.code == 5004 || val.code == 5004) {
+        getBackgroundRquest(idNum, cb)
        } else {
-        popTip('检验宝贝信息失败')
-        textLoading();
+           popTip('检验宝贝信息失败')
+           textLoading();
        }
    })
 }
@@ -3980,6 +3982,7 @@ function getSelectShowData(finalList, categroy) {
                     function () {})
                 var hotTotalpaybr = cumulative(hotTransData.payByrCntIndex);
                 var hotTotalpayRate = cumulative(hotTransData.payRateIndex);
+                console.log(new Date().getTime())
                 getBackgroundRquest(itemId, function (selfRes2) {
                     var hotpurPrice = selfRes2.data.min_price;
                     COUNT++;
@@ -4256,19 +4259,19 @@ function getMainWordsResult(wordList,isBoby){
     }else{
         var dateRange = COMP_ITEM_INFO.recent7;
         var localCateId = COMP_ITEM_INFO.localCateId;
-         var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + localCateId + "&rivalItem1Id=" + COMP_ITEM_INFO.compId;
-         getHttpRquest(finalUrl, function (comPRes) {
-             var comPCoreTrendData = JSON.parse(Decrypt(comPRes.data)).rivalItem1;
-             indexFilter({
-                  itemId: COMP_ITEM_INFO.selfItemInfo.itemId,
-                 price: COMP_ITEM_INFO.selfItemInfo.price,
-                 indexData: COMP_ITEM_INFO.selfItemInfo.indexData
-             }, {
-                  itemId: COMP_ITEM_INFO.compId,
-                 price: COMP_ITEM_INFO.compPrice,
-                 indexData: comPCoreTrendData
-             }, wordList)
-         })
+        var finalUrl = "https://sycm.taobao.com/mc/rivalItem/analysis/getCoreTrend.json?dateType=recent7&dateRange=" + dateRange + "&device=0&cateId=" + localCateId + "&rivalItem1Id=" + COMP_ITEM_INFO.compId;
+        getHttpRquest(finalUrl, function (comPRes) {
+            var comPCoreTrendData = JSON.parse(Decrypt(comPRes.data)).rivalItem1;
+            indexFilter({
+                itemId: COMP_ITEM_INFO.selfItemInfo.itemId,
+                price: COMP_ITEM_INFO.selfItemInfo.price,
+                indexData: COMP_ITEM_INFO.selfItemInfo.indexData
+            }, {
+                itemId: COMP_ITEM_INFO.compId,
+                price: COMP_ITEM_INFO.compPrice,
+                indexData: comPCoreTrendData
+            }, wordList)
+        })
     }
 }
 // 宝贝分词最终结果
@@ -4295,19 +4298,19 @@ function cutOffIndex(data){
 function cutOffAvg(data){
     var res = {};
     res.payRateIndex = data.payRateIndex.slice(-7);
-    res.cltHits = data.cltHits.slice(-7);
+    res.cartHits = data.cartHits.slice(-7);
     res.cltHits = data.cltHits.slice(-7);
     res.tradeIndex = data.tradeIndex.slice(-7);
     res.uvIndex = data.uvIndex.slice(-7);
-    var filterList = ['payRateIndex', 'cltHits', 'cartHits', 'tradeIndex', 'uvIndex']
-    for(let key in data){
-        var avg = 0;
-        if(filterList.indexOf(key)==-1){continue;}
-        for (let i = 0; i < data[key].length; i++) {
-            avg += data[key][i]
-        }
-        res[key] = avg/7
-    }
+    // var filterList = ['payRateIndex', 'cltHits', 'cartHits', 'tradeIndex', 'uvIndex']
+    // for(let key in data){
+    //     // var avg = 0;
+    //     if(filterList.indexOf(key)==-1){continue;}
+    //     // for (let i = 0; i < data[key].length; i++) {
+    //     //     avg += data[key][i]
+    //     // }
+    //     res[key] = avg
+    // }
     return res
 }
 function indexFilter(selfInfo, compInfo, wordList) {
@@ -4325,12 +4328,12 @@ function indexFilter(selfInfo, compInfo, wordList) {
       var itemAvg = cutOffAvg(itemTrans);
       var postData = {
           selfItem:{
-            itemId: selfInfo.itemId,
-            // price: selfInfo.price,
+            link: '//item.taobao.com/item.htm?id='+ selfInfo.itemId,
+            price: selfInfo.price,
             index: selfAvg
           },
           item:{
-               itemId: compInfo.itemId,
+            link: '//item.taobao.com/item.htm?id=' + compInfo.itemId,
             price: compInfo.price,
             index: itemAvg
           },
@@ -4340,7 +4343,7 @@ function indexFilter(selfInfo, compInfo, wordList) {
      chrome.storage.local.set({
          'AutomaticWeightedData': postData
      }, function () {
-         window.open(BASE_URL + '/privilgeEscala')
+         window.open('http://192.168.2.175:8088' + '/autoWeighting')
           textLoading()
      })
 }
