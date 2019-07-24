@@ -4203,10 +4203,10 @@ function cycleFindMainWord(checkInfo,isSelf) {
             var longNum = cutResult.long.data;
             if (shortNum.length > 0 && middleNum.length > 1 && longNum.length > 0){
                 var saveShotList = [shortNum[0].title]
-                var saveMidList = [middleNum[0].title, middleNum[0].title]
+                var saveMidList = [middleNum[0].title, middleNum[1].title]
                 var saveLongList = [longNum[0].title];
                 var pushData = {
-                    title: curKeyword.title,
+                    title: [curKeyword.title],
                     sdWord: {
                         short: saveShotList,
                         middle: saveMidList,
@@ -4339,11 +4339,11 @@ function indexFilter(selfInfo, compInfo, wordList) {
           },
           mainWords: wordList
       }
-      console.log('传输数据',postData)
+      console.log('传输数据', JSON.stringify(postData))
      chrome.storage.local.set({
          'AutomaticWeightedData': postData
      }, function () {
-         window.open('http://192.168.2.175:8088' + '/autoWeighting')
+         window.open('http://192.168.2.175:8089' + '/autoWeighting')
           textLoading()
      })
 }
