@@ -42,7 +42,19 @@
              "js": ["js/jquery-3.2.1.min.js", "js/tbTrade.js"],
              "css": ["css/style.css"],
              "run_at": "document_start"
-            
+        },
+        {
+            "matches": [
+                "https://*.taobao.com/*","https://*.tmall.com/*"
+            ],
+            "js": [
+                "js/jquery-3.2.1.min.js",
+                "js/tbSearchDetail.js"
+            ],
+            "css": [
+                "css/style.css"
+            ],
+            "run_at": "document_start"
         }
     ],
     "web_accessible_resources": ["css/*", "js/*", "images/*"],

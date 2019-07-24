@@ -719,8 +719,8 @@ export function dealIndex(request, sendResponse, dataWrapper) {
             for (var key in markHotIndex2) {
                 getAjax(markHotIndex2[key], key, sendResponse, Object.keys(markHotIndex2).length, 'marketHot', pageData2)
             }
-        } else if (request.type == 'hotsearch' || request.type == 'hotpurpose' || request.type == 'hotsale') {
-            var hotsearch = request.type == 'hotsearch' ? filterMarketHotsearch(request.dataType) : request.type == 'hotpurpose' ? filterMarketHotpurpose(request.dataType) : filterMarketHotsale(request.dataType);
+        } else if (request.type == 'hotsearch' || request.type == 'hotpurpose' || request.type == 'hotsale' || request.type == 'mergeHotItem') {
+            var hotsearch = request.type == 'hotsearch' ? filterMarketHotsearch(request.dataType) : request.type == 'hotpurpose' ? filterMarketHotpurpose(request.dataType) : request.type == 'mergeHotItem' ? filterMarketMergeItem(request.dataType) : filterMarketHotsale(request.dataType);
             if (!hotsearch) {
                 popTip('获取数据失败，请刷新')
                 return false;

@@ -57,7 +57,7 @@ export function formate(fmt, date) {
 }
 // 计算公式
 export function formula(val, val2, type) {
-    if (val == "undefined" || val === '' || val == '-' || !val2 || val2 == '-' || val2 == '0') {
+    if (val == undefined || val === '' || val == '-' || !val2 || val2 == '-' || val2 == '0') {
         return '-'
     } else {
         val = (val + '').replace(',', '');

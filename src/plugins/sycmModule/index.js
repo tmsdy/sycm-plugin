@@ -163,7 +163,13 @@ $(function () {
                 $('.op-mc-search-analyze-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
             }
              if (!$('.op-mc-market-rank-container .oui-card-header .chaqz-btns').length) {
-                 $('.op-mc-market-rank-container .oui-card-header').append(showBtn())
+                  var chooseIndex = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index();
+                  var isItem = chooseIndex == 1 ? 'mergeItem' : '';
+                 $('.op-mc-market-rank-container .oui-card-header').append(showBtn(isItem))
+             }else{
+                 var chooseIndex = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index();
+                 var isItem = chooseIndex == 1 ? 'mergeItem' : '';
+                  chooseIndex == 1 ? $('.op-mc-market-rank-container .oui-card-header .chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button><button id="mergeItem" class="serachBtn ">合并转化</button>') : $('.op-mc-market-rank-container .oui-card-header .chaqz-btns #mergeItem').remove();
              }
             //  属性洞察
              if (!$('.op-mc-property-insight-container .oui-card-title:contains("属性排行") .chaqz-btns').length) {
@@ -278,7 +284,7 @@ function showBtn(type) {
     // var curUrl = window.location.href;
     // var isRootWord = curUrl.indexOf('https://sycm.taobao.com/mc/mq/search_analyze')==-1;
     var seachBtnText = type == 'isRootWord' ? '一键分析' : '一键转化';
-    var keyRight = type == "keyRight" ? '<button id="vesting" class="serachBtn vesting">一键加权</button>':'';
+    var keyRight = type == "keyRight" ? '<button id="vesting" class="serachBtn vesting">一键加权</button>' : type == "mergeItem" ? '<button id="mergeItem" class="serachBtn ">合并转化</button>' : '';
     if (isLogin) {
         reDom = '<div class="chaqz-btns btnsItem1"><button id="search" class="serachBtn">' + seachBtnText + '</button>'+
         keyRight + '<div>';

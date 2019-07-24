@@ -25,7 +25,7 @@ module.exports = {
     'popup.js': './src/plugins/sycmModule/popup.js',
 
     // 'interceptRquest.js': './src/utils/interceptRquest.js',
-    // 'insertSha.js': './src/plugins/insertSha.js',
+    'tbSearchDetail.js': './src/plugins/taobao/tbSearchDetail.js',
 
     // background-scripts
     'background.js': './src/plugins/background.js',

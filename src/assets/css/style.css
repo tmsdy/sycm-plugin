@@ -75,6 +75,7 @@
     text-align: center;
     padding: 0;
 }
+
 .chaqz-wrapper div.dt-buttons {
     float: right;
     margin-top: -44px;
@@ -302,7 +303,7 @@
 }
 
 .chaqz-wrapper .weight-parsing .prompt-list button {
-    width: 104px;
+    width: 85px;
     height: 32px;
     border: 1px solid rgba(235, 111, 60, 1);
     border-radius: 5px;
@@ -322,6 +323,7 @@
     padding-left: 105px;
     background: url("https://img.chaquanzhong.com/cqz.png") no-repeat 0 center;
 }
+
 /* market 行业排行 */
 .mc-industryCustomer #completeShopPurchase .chaqz-btns {
     float: none;
@@ -391,15 +393,19 @@
     color: #fff;
     font-size: 16px;
 }
-.chaqz-wrapper .chaqz-top-tabs .switchStruct,.chaqz-wrapper .chaqz-top-tabs .switchCity {
+
+.chaqz-wrapper .chaqz-top-tabs .switchStruct,
+.chaqz-wrapper .chaqz-top-tabs .switchCity {
     width: auto;
     min-width: 80px;
     padding: 5px;
 }
+
 .chaqz-wrapper .chaqz-top-tabs .tabs-show {
     margin: 10px;
     font-size: 14px;
 }
+
 .chaqz-wrapper .chaqz-top-tabs .clickHit {
     margin-right: 20px;
 }
@@ -510,6 +516,7 @@
     color: #999;
     margin-top: -10px;
 }
+
 /* echarts */
 #chaqzx-echarts-wrap {
     width: 100%;
@@ -582,6 +589,7 @@
     border: 0;
     color: #fff;
 }
+
 .tbtrade .c-cont {
     width: 1200px;
     padding: 16px 30px;
@@ -608,6 +616,7 @@
     margin-left: 8px;
     vertical-align: middle;
 }
+
 .tbtrade .c-cont .trade-table .no-margin {
     margin-left: 0;
 }
@@ -653,6 +662,7 @@
     color: #666;
     height: 43px;
 }
+
 .tbtrade .c-cont .report-table .thead td {
     color: #fff;
 }
@@ -959,6 +969,7 @@
     text-align: left;
     padding-left: 10px;
 }
+
 .chaqz-compete-wrap .head .avator {
     float: right;
     padding-right: 10px;
@@ -1041,6 +1052,7 @@
 .analy-goods .good-tips.alert {
     display: block;
 }
+
 .chaqz-info-wrapper .c-cont .cross-tabs {
     margin: 20px 0;
     border-bottom: 1px solid #f1f1f1;
@@ -1061,9 +1073,11 @@
 .chaqz-info-wrapper.pop .c-cont .hasCross {
     border-bottom: 2px solid rgb(255, 162, 0);
 }
-.chaqz-info-wrapper .c-cont .hide-btn{
+
+.chaqz-info-wrapper .c-cont .hide-btn {
     display: none;
 }
+
 /* 市场--搜索分析 */
 .root-word-entry {
     font-size: 24px;
@@ -1075,6 +1089,7 @@
 .op-mc-search-analyze-container .chaqz-btns.btnsItem1 {
     float: left;
 }
+
 .mc-brandCustomer .mc-Portrait .chaqz-btns.btnsItem1 {
     float: none;
     display: inline-block;
@@ -1086,18 +1101,21 @@
 #chaqz-table-trend .bstr {
     background: rgba(75, 146, 236, 0.5);
 }
+
 .chaqz-wrapper .rootword-table table tr th,
-.chaqz-wrapper .rootword-table table tr td{
+.chaqz-wrapper .rootword-table table tr td {
     white-space: nowrap;
     padding-left: 3px;
     padding-right: 3px;
 }
+
 /* 市场分析 */
-.op-mc-search-analyze-container .alife-one-design-sycm-indexes-trend-addition-middle .chaqz-btns{
+.op-mc-search-analyze-container .alife-one-design-sycm-indexes-trend-addition-middle .chaqz-btns {
     margin-left: 153px;
     position: relative;
     z-index: 1000;
 }
+
 /* loading */
 .load-pop {
     position: fixed;
@@ -1325,4 +1343,129 @@
     100% {
         -webkit-transform: rotate(360deg);
     }
+}
+
+/* 淘宝 */
+.chaqz_search_top {
+    padding: 10px 0;
+    background: #e5e5e5;
+}
+
+.chaqz_search_top li {
+    margin-left: 5px;
+    display: inline-block;
+}
+
+.chaqz_search_top li img {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.chaqz_search_top li .price {
+    color: red;
+}
+
+.chaqz_search_top li.echart-tab {
+    cursor: pointer;
+    position: relative;
+}
+
+.chaqz_search_top li.echart-tab::before {
+    display: none;
+    position: absolute;
+    content: '';
+    top: 10px;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-bottom: 10px solid #fff;
+    border-top: 10px solid transparent;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    z-index: 1;
+}
+
+.chaqz_search_top li .tab {
+    display: inline-block;
+    width: 50px;
+    height: 20px;
+    line-height: 18px;
+    background: #4B92EC;
+    color: #fff;
+    border-radius: 3px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.chaqz_search_top li .arrow {
+    display: inline-block;
+    width: 0px;
+    height: 0px;
+    border-top: 5px solid #222;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    position: relative;
+    top: 5px;
+    left: 2px;
+}
+
+.chaqz_search_top li .arrow::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -4px;
+    width: 0px;
+    height: 0px;
+    border-top: 4px solid #e5e5e5;
+    border-bottom: 4px solid transparent;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+}
+
+.chaqz-trend-chart {
+    padding: 20px;
+    display: none;
+    position: absolute;
+    top: 30px;
+    width: 1030px;
+    height: 500px;
+    z-index: 10000;
+    background: #fff;
+    box-shadow: rgba(0, 0, 0, 0.176) 0px 6px 12px;
+}
+
+.chaqz_search_top li:nth-of-type(3) .chaqz-trend-chart {
+    left: -290px;
+}
+
+.chaqz_search_top li:nth-of-type(4) .chaqz-trend-chart {
+    left: -340px;
+}
+
+.chaqz_search_top li:nth-of-type(5) .chaqz-trend-chart {
+    left: -392px;
+}
+
+.chaqz_search_top li.echart-tab.area-show .chaqz-trend-chart {
+    display: block;
+}
+
+.chaqz_search_top li.echart-tab.area-show::before {
+    display: block;
+}
+
+.chaqz-trend-chart .chaqz-echarts-box {
+    height: 400px;
+}
+
+.chaqz-trend-chart table {
+    width: 100%;
+    border: 1px solid #e5e5e5;
+    text-align: center;
+    border-spacing: 0;
+}
+
+.chaqz-trend-chart table td {
+    border: 1px solid #e5e5e5;
 }
