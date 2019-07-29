@@ -4,6 +4,7 @@ import {
     // LOCAL_VERSION
 } from './constState'
  // 弹窗模块
+ var LOGO_BASE_URL = 'http://118.25.92.247:8099';
  export var popUp = {
      version: '<p class="tips">为了更好的体验，请到官网下载最新版本。</p><div class="cha-btns"><a class="btn" href="' + BASE_URL + '/pluginIntro" target="_blank"><button class="btn">前往下载</button></a></div>',
      orderMem: '<p class="tips">账户未开通会员，请联系客服或订购会员。</p><div class="cha-btns"><a class="mr_30 btn" href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><button class="btn">联系客服</button></a><button class="btn buyBtn">订购</button></div>',
@@ -306,8 +307,8 @@ export function LogOut() {
         chrome.runtime.sendMessage({
             key: "getData",
             options: {
-                // url: BASE_URL + '/api/v1/user/login',
-                url: 'http://192.168.2.168:8080/api/v1/platfrom/userAuth/cqzLogin',
+                url: LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/cqzLogin',
+                // url: 'http://192.168.2.168:8080/api/v1/platfrom/userAuth/cqzLogin',
                 type: "POST",
                 data: 'account=' + user + '&password=' + pwd + '&appId=M177293746593',
                 contentType: "application/x-www-form-urlencoded; charset=UTF-8",

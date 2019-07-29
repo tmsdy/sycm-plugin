@@ -1,5 +1,6 @@
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' : 'http://118.25.153.205:8090';
 // var BASE_URL = 'http://118.25.153.205:8090';
+var LOGO_BASE_URL = 'http://118.25.92.247:8099';
 var SAVE_CUR_PAGE = {};
 var LOCAL_VERSION = '1.0.13';
 var isLogin = false;
@@ -28,18 +29,15 @@ function judgeWebsite() {
   if (link.indexOf('https://list.tmall.com/search_product.htm') != -1) {
     $(document).on('DOMNodeInserted', '#content', function (e) {
       if (e.target.id == 'J_FilterPlaceholder') {
-        getPageInfo('tm');
-         var topAdver = '<div class="chaqz-adver-top"><img src="https://file.cdn.chaquanzhong.com/adver-top.png" alt=""></div>';
-         type == 'tm' ? $('#content').prepend(topAdver) : $('#main').prepend(topAdver);
+        getPageInfo('tm')
       }
     })
+    return 'tm'
   }
   if (link.indexOf('https://s.taobao.com/search') != -1) {
     $(document).on('DOMNodeInserted', '#main', function (e) {
       if (e.target.id == 'mainsrp-itemlist') {
         getPageInfo();
-         var topAdver = '<div class="chaqz-adver-top"><img src="https://file.cdn.chaquanzhong.com/adver-top.png" alt=""></div>';
-         type == 'tm' ? $('#content').prepend(topAdver) : $('#main').prepend(topAdver);
       }
     })
   }
@@ -60,6 +58,8 @@ function judgeWebsite() {
 /**--------  search page operator  --------------- */
 // 获取页面信息
 function getPageInfo(type) {
+  var topAdver = '<div class="chaqz-adver-top"><img src="https://file.cdn.chaquanzhong.com/adver-top.png" alt=""></div>';
+   !$('.chaqz-adver-top').length?type == 'tm' ? $('#content').prepend(topAdver) : $('#main').prepend(topAdver):'';
   var list = type == 'tm' ? $('#content #J_ItemList .product') : $('#mainsrp-itemlist .m-itemlist .items .item'); //天猫or淘宝商品列表
   var itemLen = list.length;
   var itemIdList = [];
@@ -106,14 +106,14 @@ function getPageInfo(type) {
       sale,
       addr
     })
-    $(wraps).append('<ul class="chaqz-item-info item-id-' + itemId + '" data-id="'+itemId+'"><li><i class="logo-smll-icon chaqz-icon"></i><a href="https://www.chaquanzhong.com/"><a href="https://www.chaquanzhong.com/jdGrade">查排名</a><a href="https://www.chaquanzhong.com/chaheihao">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">一键加权</a></li><li><i class="type-icon chaqz-icon">类</i><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon"></i>下架：<span class="offtime"></span></li></ul><div></div>');
+    $(wraps).append('<ul class="chaqz-item-info item-id-' + itemId + '" data-id="' + itemId + '"><li><i class="logo-smll-icon chaqz-icon"></i><a href="' + BASE_URL + '"><a href="' + BASE_URL + '/jdGrade">查排名</a><a href="' + BASE_URL + '/chaheihao">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">一键加权</a></li><li><i class="type-icon chaqz-icon">类</i><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon"></i>下架：<span class="offtime"></span></li></ul><div></div>');
     //===  <li><i class="natural-icon chaqz-icon"></i>自然搜索：<span></span></li><li><i class="ztc-icon chaqz-icon"></i>直通车：<span></span></li>
   }
   var priceStatic = getHeightLow(redData.prices)
   var saleStatic = getHeightLow(redData.sales)
   // 顶部展示区域
   var hasAddr = type == 'tm' ? '' : '<li class="echart-tab addr">区域图<span class="arrow"></span></li>';
-  var dom = '<ul class="chaqz_search_top"><li><i class="logo-icon chaqz-icon"></i><a href="www.chaquanzhong.com">www.chaquanzhong.com</a></li><li class="page-static">本页统计</li>' + hasAddr + '<li class="echart-tab offline">下架图<span class="arrow"></span></li><li class="echart-tab price">价格图<span class="arrow"></span></li><li><span class="tab">价格</span></li><li>平均价:<span class="price">' + priceStatic.avg + '</span></li><li>最高价:<span class="price">' + priceStatic.high + '</span></li><li>最低价:<span class="price">' + priceStatic.low + '</span></li><li><span class="tab">销量</span></li><li>平均销:<span class="price">' + saleStatic.avg + '</span></li><li>最高销:<span class="price">' + saleStatic.high + '</span></li><li>最低销:<span class="price">' + saleStatic.low + '</span></li></ul>';
+  var dom = '<ul class="chaqz_search_top"><li><i class="logo-icon chaqz-icon"></i><a href="' + BASE_URL + '">www.chaquanzhong.com</a></li><li class="page-static">本页统计</li>' + hasAddr + '<li class="echart-tab offline">下架图<span class="arrow"></span></li><li class="echart-tab price">价格图<span class="arrow"></span></li><li><span class="tab">价格</span></li><li>平均价:<span class="price">' + priceStatic.avg + '</span></li><li>最高价:<span class="price">' + priceStatic.high + '</span></li><li>最低价:<span class="price">' + priceStatic.low + '</span></li><li><span class="tab">销量</span></li><li>平均销:<span class="price">' + saleStatic.avg + '</span></li><li>最高销:<span class="price">' + saleStatic.high + '</span></li><li>最低销:<span class="price">' + saleStatic.low + '</span></li></ul>';
   type == 'tm' ? $('#J_RelSearch').append(dom) : $('#mainsrp-itemlist').prepend(dom);
   //  获取区域图数据
   type == 'tm' ? '' : getAddressData(addrData);
@@ -512,7 +512,7 @@ function getDetailPage(type) {
     count: 0,
     res: {}
   },function(timeRes){})
-  var dom = '<div class="chaqz-detail-wrap"><div class="content"><div class="left"><i class="logo-icon chaqz-icon"></i></div><div class="right item-id-' + itemId + '"><div class="item"><a href="https://www.chaquanzhong.com/"  target="_blank">www.chaquanzhong.com</a><span class="title">下架：</span><span class="offtime hot">7-12 11:15(周三)[4天22时48分]</span><span class="title">类目：</span><span class="category hot">保温杯</span><span class="title"><i class="chaqz-icon history-icon"></i><span class="historyPrice detail-history" data-id=' + itemId + '>历史价格</span></span></div><div class="item links"><span class="title-btn">提升权重</span><a href="https://www.chaquanzhong.com/jdGrade" target="_blank">查排名</a><a href="https://www.chaquanzhong.com/chaheihao"  target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">一键加权</a><a href="https://www.chaquanzhong.com/sevenPlan"  target="_blank">7天上首页</a><a href="https://www.chaquanzhong.com/directTrain"  target="_blank">直通车托管</a><a href="https://www.chaquanzhong.com/moldbaby"  target="_blank">打造爆款</a></div></div></div><div class="advert"><a href="" target="_blank"><img src="https://file.cdn.chaquanzhong.com/adver-side.png"alt=""></a></div></div>';
+  var dom = '<div class="chaqz-detail-wrap"><div class="content"><div class="left"><i class="logo-icon chaqz-icon"></i></div><div class="right item-id-' + itemId + '"><div class="item"><a href="' + BASE_URL + '"  target="_blank">www.chaquanzhong.com</a><span class="title">下架：</span><span class="offtime hot">7-12 11:15(周三)[4天22时48分]</span><span class="title">类目：</span><span class="category hot">保温杯</span><span class="title"><i class="chaqz-icon history-icon"></i><span class="historyPrice detail-history" data-id=' + itemId + '>历史价格</span></span></div><div class="item links"><span class="title-btn">提升权重</span><a href="' + BASE_URL + '/jdGrade" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao"  target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">一键加权</a><a href="' + BASE_URL + '/sevenPlan"  target="_blank">7天上首页</a><a href="' + BASE_URL + '/directTrain"  target="_blank">直通车托管</a><a href="' + BASE_URL + '/moldbaby"  target="_blank">打造爆款</a></div></div></div><div class="advert"><a href="" target="_blank"><img src="https://file.cdn.chaquanzhong.com/adver-side.png"alt=""></a></div></div>';
   //  ==== <div class="item"><span class="title-btn">搜索展现</span><span class="search-tb">淘宝搜索</span><span class="offline hot">（23）</span><span class="title">淘宝直通车</span><span class="search-ztc hot">（23）</span><span class="title">无线搜索</span><span class="search-wx hot">（23）</span><span class="title">无线直通车</span><span class="search-wxztc hot">（23）</span></div>
   $('#detail').prepend(dom);
   skuPopup(itemId, type)
@@ -521,7 +521,7 @@ function getDetailPage(type) {
 }
 // sku popup
 function skuPopup(itemId, type) {
-  var dom = '<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png"alt=""class="avator"></div><div class="content-wrap"><button id="skuAnaly">sku评价分析</button><div class="bottom"><a href="' + BASE_URL + '/home?from=plugin"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.13</span></div></div></div></div>'
+  var dom = '<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png"alt=""class="avator"></div><div class="content-wrap"><div class="sku-btn" id="skuAnaly"><i class="chaqz-icon sku-icon"></i><p class="sku-text">sku评价分析</p></div><div class="bottom"><a href="' + BASE_URL + '/home?from=plugin"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.13</span></div></div></div></div>'
   $('#page').append(dom);
   $('#skuAnaly').click(function () {
     $('body').addClass('chaqz-global-loading loading-fixed');
@@ -665,7 +665,7 @@ function showSkuResult(resData) {
 // 趋势table
 function domStructSku(data, title, edata) {
   // var titleImg = title.picUrl ? ('<img src="' + title.picUrl + '">') : '';
-  var wrapper = '<div class="chaqz-wrapper"><div class="content"><div class="cha-box"><div class="head"><div class="top-head"><img src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png" alt="">查权重<a href="https://www.chaquanzhong.com" target="_blank">[www.chaquanzhong.com]</a><span class="sku">sku评价分析</span></div></div><div id="chaqzx-echarts-wrap"></div><div class="table-box"><table id="chaqz-table-trend" class="trend-table"></table></div></div><span class="chaqz-close">×</span></div></div>'
+  var wrapper = '<div class="chaqz-wrapper"><div class="content"><div class="cha-box"><div class="head"><div class="top-head"><img src="https://file.cdn.chaquanzhong.com/chaqz-single-logo.png" alt="">查权重<a href="' + BASE_URL + '" target="_blank">[www.chaquanzhong.com]</a><span class="sku">sku评价分析</span></div></div><div id="chaqzx-echarts-wrap"></div><div class="table-box"><table id="chaqz-table-trend" class="trend-table"></table></div></div><span class="chaqz-close">×</span></div></div>'
   $('#page').append(wrapper)
   $('#chaqz-table-trend').DataTable({
     data: data.data,
@@ -675,7 +675,7 @@ function domStructSku(data, title, edata) {
         "next": "&gt;",
         "previous": "&lt;"
       },
-      "sEmptyTable": '获取数据失败，请刷新界面',
+      "sEmptyTable": '没有数据',
       zeroRecords: "没有匹配数据"
     },
     // searching: false,
@@ -821,9 +821,7 @@ function detailPagePop() {
       chrome.runtime.sendMessage({
         key: "getData",
         options: {
-          url: BASE_URL + '/api/v1/platfrom/userAuth/cqzLogin',
-          // url: BASE_URL + '/api/v1/user/login',
-          url: 'http://192.168.2.168:8080/api/v1/platfrom/userAuth/cqzLogin',
+          url: LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/cqzLogin',
           type: "POST",
           data: 'account=' + user + '&password=' + pwd + '&appId=M177293746593',
           contentType: "application/x-www-form-urlencoded; charset=UTF-8",

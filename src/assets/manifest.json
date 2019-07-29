@@ -47,6 +47,7 @@
             "matches": [
                 "https://*.taobao.com/*","https://*.tmall.com/*"
             ],
+            "exclude_matches": ["https://sycm.taobao.com/*"],
             "js": [
                 "js/jquery-3.2.1.min.js",
                  "js/echarts.min.js",

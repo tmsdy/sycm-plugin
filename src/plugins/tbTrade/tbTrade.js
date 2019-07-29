@@ -1,7 +1,8 @@
 console.log("taobao 交易管理");
 
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
-    'http://118.25.153.205:8090';
+    'http://118.25.153.205:8080';
+    var LOGO_BASE_URL = 'http://118.25.92.247:8099';
 var LOCAL_VERSION = '1.0.13';
 var isLogin = false;
 var searchWang = '';
@@ -60,13 +61,10 @@ var anyDom = {
         chrome.runtime.sendMessage({
             key: "getData",
             options: {
-                url: BASE_URL + '/api/v1/user/login',
-                type: "POST",
-                data: JSON.stringify({
-                    phone: user,
-                    password: pwd
-                }),
-                contentType: "application/json,charset=utf-8",
+                url: LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/cqzLogin',
+                data: 'account=' + user + '&password=' + pwd + '&appId=M177293746593',
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                processData: false,
             }
         }, function (val) {
             if (val.code == 200) {

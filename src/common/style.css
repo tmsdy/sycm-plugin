@@ -428,7 +428,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.75);
-    z-index: 10000000;
+    z-index: 10000000000;
 
 }
 
@@ -1405,6 +1405,11 @@
 .chaqz-icon.natural-icon {
    background-image:url(../common/images/natural-cion.png) 
 }
+.chaqz-icon.sku-icon {
+    width: 50px;
+    height: 50px;
+   background-image:url(../common/images/sku-logo.png) 
+}
 
 .chaqz_search_top li {
     margin-left: 5px;
@@ -1618,6 +1623,10 @@
     display: flex;
     background: #e5e5e5;
 }
+.chaqz-detail-wrap .sku-text {
+    margin-top: 20px;
+    color: #2062E6;
+}
 
 .chaqz-detail-wrap .content {
     flex: 1;
@@ -1685,7 +1694,7 @@
 
 .chaqz-detail-wrap .right .links a {
     margin-right: 10px;
-    color: #2062E6;
+    color: #2062E6 !important;
 }
 
 .chaqz-detail-wrap .advert {
@@ -1702,14 +1711,7 @@
     right: 50px;
     z-index: 100000005;
 }
-
 #page .chaqz-compete-wrap #skuAnaly {
-    padding: 5px;
-    background: #2062E6;
-    border-radius: 3px;
-    color: #fff;
-    border: 0;
-    outline: 0;
     margin-top: 20px;
     cursor: pointer;
 }
