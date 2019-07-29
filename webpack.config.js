@@ -4,45 +4,67 @@ const MangleJsClassPlugin = require('mangle-js-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const path = require('path')
+let ExtractTextWebpackPlugin = require('extract-text-webpack-plugin');//打包css
+const envStatus = process.env.NODE_ENV == 'production'?'prod':'dev';
+const releaseVersion = 'v1.0.19';
 module.exports = {
   // devtool: 'inline-source-map',
   // mode:'production',
   entry: {
     // content-scripts
-    'sycmContent.js': ['./src/plugins/sycmModule/index.js', './src/plugins/sycmModule/variableAnaly.js'],
-    'sycmContent1.js': './src/plugins/sycmModule/monitor.js',
-    'sycmContent2.js':  './src/plugins/sycmModule/market.js',
-    'contentScript.js': './src/plugins/sycmModule/contentScript.js',
+    'sycmContent': ['./src/plugins/sycmModule/index.js', './src/plugins/sycmModule/variableAnaly.js'],
+    'sycmContent1': './src/plugins/sycmModule/monitor.js',
+    'sycmContent2':  './src/plugins/sycmModule/market.js',
+    'contentScript': './src/plugins/sycmModule/contentScript.js',
     
-    'chaqz_web.js': './src/plugins/chaqzModule/chaqz_web.js',
-    'chaqzContent.js': './src/plugins/chaqzModule/chaqz.js',
+    'chaqz_web': './src/plugins/chaqzModule/chaqz_web.js',
+    'chaqzContent': './src/plugins/chaqzModule/chaqz.js',
 
-    'chaqz_direct.js': './src/plugins/directTaobao/chaqz_direct.js',
-    'tbDirect.js': './src/plugins/directTaobao/tbDirect.js',
+    'chaqz_direct': './src/plugins/directTaobao/chaqz_direct.js',
+    'tbDirect': './src/plugins/directTaobao/tbDirect.js',
 
-    'chaqz_trade.js': './src/plugins/tbTrade/chaqz_trade.js',
-    'tbTrade.js': './src/plugins/tbTrade/tbTrade.js',
-    'popup.js': './src/plugins/sycmModule/popup.js',
+    'chaqz_trade': './src/plugins/tbTrade/chaqz_trade.js',
+    'tbTrade': './src/plugins/tbTrade/tbTrade.js',
+    'popup': './src/plugins/sycmModule/popup.js',
 
-    // 'interceptRquest.js': './src/utils/interceptRquest.js',
-    'tbSearchDetail.js': './src/plugins/taobao/tbSearchDetail.js',
+    // 'interceptRquest': './src/utils/interceptRquest.js',
+    'tbSearchDetail': './src/plugins/taobao/tbSearchDetail.js',
 
     // background-scripts
-    'background.js': './src/plugins/background.js',
+    'background': './src/plugins/background.js',
 
   },
   output: {
     // path: path.resolve(__dirname, 'js'),
-    filename: './js/[name]'
+    // filename: './js/[name]-' + envStatus + releaseVersion +'.js'
+    filename: './js/[name].js'
   },
+   resolve: {
+     alias: {
+       image: path.resolve(__dirname, 'src/common/images/')
+     }
+   },
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          'style-loader',
-          'css-loader'
-        ]
+         use: ExtractTextWebpackPlugin.extract({
+           // 将css用link的方式引入就不再需要style-loader了
+           use: 'css-loader'
+         }),
+        // use: [
+        //   {
+        //     loader: 'style-loader'
+        //   },
+        //   {
+        //     loader: 'css-loader'
+        //   },
+        //   {
+        //     loader: 'postcss-loader'
+        //   }
+        // ],
+        include:path.resolve(__dirname,'src'),
+        exclude:/node_modules/
       },
       {
         test: /\.scss$/,
@@ -60,6 +82,16 @@ module.exports = {
           presets: ['latest'] //按照最新的ES6语法规则去转换
         }
       },
+      {
+        test: /\.(jpe?g|png|gif)$/,
+        use: [{
+          loader: 'url-loader',
+          options: {
+            limit: 8192, // 小于8k的图片自动转成base64格式，并且不会存在实体图片
+            outputPath: 'images/' // 图片打包后存放的目录
+          }
+        }]
+      }
       // {
       //   test: require.resolve('jquery'), //require.resolve 用来获取模块的绝对路径
       //   use: [{
@@ -83,7 +115,7 @@ module.exports = {
     splitChunks: {
       cacheGroups: {
         commons: {
-          name: "sycmCommons.js",
+          name: "sycmCommons",
             chunks: "initial",
             minChunks: 2,
             minSize: 0
@@ -103,6 +135,7 @@ module.exports = {
        new webpack.DefinePlugin({
          'process.env.ASSET_PATH': JSON.stringify(process.env.NODE_ENV)
        }),
+       new ExtractTextWebpackPlugin('css/style.css')
       // new webpack.ProvidePlugin({
       //   $: 'jquery',
       //   jQuery: 'jquery',

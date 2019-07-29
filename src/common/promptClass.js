@@ -306,33 +306,33 @@ export function LogOut() {
         chrome.runtime.sendMessage({
             key: "getData",
             options: {
-                url: BASE_URL + '/api/v1/user/login',
+                // url: BASE_URL + '/api/v1/user/login',
+                url: 'http://192.168.2.168:8080/api/v1/platfrom/userAuth/cqzLogin',
                 type: "POST",
-                data: JSON.stringify({
-                    phone: user,
-                    password: pwd
-                }),
-                contentType: "application/json,charset=utf-8",
+                data: 'account=' + user + '&password=' + pwd + '&appId=M177293746593',
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                processData: false,
             }
         }, function (val) {
             if (val.code == 200) {
                 $('.chaqz-info-wrapper').remove();
-                var member = val.data;
+                // var member = val.data;
                 var token = val.data.token;
                 localStorage.setItem('chaqz_token', token);
                 // SAVE_MEMBER = member;
-                window.SAVE_MEMBER2 = member;
+                // window.SAVE_MEMBER2 = member;
                 var saveToke = {
                     expiration: val.data.expire,
                     token: token
                 }
                 chrome.storage.local.set({
                     'chaqz_token': saveToke,
-                    'chaqzShopInfo': member
+                    // 'chaqzShopInfo': member
                 }, function () {});
                 isLogin = true;
                 // window.isLogin = true;
                 // _that.getShopBind()
+                _that.getUserInfo();
                 changeLoginStatus()
                 $('.chaqz-info-wrapper.login').remove();
             } else {
@@ -379,27 +379,6 @@ export function LogOut() {
             $('.chaqz-info-wrapper.login').remove()
         })
     },
-    getShopBind: function () {
-        var saveToke = localStorage.getItem('chaqz_token')
-        chrome.runtime.sendMessage({
-            key: 'getData',
-            options: {
-                url: BASE_URL + '/api/v1/plugin/shop',
-                type: 'GET',
-                headers: {
-                    Authorization: "Bearer " + saveToke
-                }
-            }
-        }, function (val) {
-            if (val.code == 200) {
-                var bindInfo = val.data
-                SAVE_BIND = bindInfo
-                window.SAVE_BIND2 = bindInfo;
-            } else if (val.code == 2030) {
-                LogOut()
-            }
-        })
-    },
     getInfo: function () {
         var userWrap = $('.chaqz-info-wrapper.user')
         if (userWrap.length) {
@@ -426,5 +405,36 @@ export function LogOut() {
                 popUp.init('weixin')
             })
         }
+    },
+    getUserInfo:function(){
+            if (!isLogin) {
+                return false;
+            }
+            var saveToke = localStorage.getItem('chaqz_token');
+            chrome.runtime.sendMessage({
+                key: 'getData',
+                options: {
+                    url: BASE_URL + '/api/v1/user/userinfo',
+                    type: 'GET',
+                    headers: {
+                        Authorization: "Bearer " + saveToke
+                    }
+                }
+            }, function (val) {
+                if (val.code == 200) {
+                    var res = val.data;
+                    res.username = res.account;
+                    res.member.expireAt = res.member.expire_at;
+                    window.SAVE_MEMBER2 = res;
+                     chrome.storage.local.set({
+                        //  'chaqz_token': saveToke,
+                         'chaqzShopInfo': res
+                     }, function () {});
+                    isLogin = true;
+                    changeLoginStatus()
+                } else {
+                    LogOut()
+                }
+            })
     }
 }

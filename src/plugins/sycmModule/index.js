@@ -9,6 +9,7 @@ import {
     LogOut,
     isNewVersion
 } from '../../common/promptClass'
+import '../../common/style.css'
 var SAVE_MEMBER = {};
 // var SAVE_BIND = {};
 // var SET_WAIT_TIME = 600000

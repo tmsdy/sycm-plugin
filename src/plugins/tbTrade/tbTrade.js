@@ -79,9 +79,10 @@ var anyDom = {
                 chrome.storage.local.set({
                     'chaqz_token': saveToke
                 }, function () {});
-                SAVE_MEMBER = val.data;
+                // SAVE_MEMBER = val.data;
                 isLogin = true;
                 $('.chaqz-info-wrapper.login').remove();
+                getUserInfo()
                tbName? _that.searchHei(tbName):'';
             } else {
                 $('.chaqz-info-wrapper.login .pwd .tips').text('账号或密码错误').show();
@@ -90,38 +91,37 @@ var anyDom = {
             }
         })
     },
-    loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + BASE_URL + '/reg" class="right" target="_blank">免费注册</a><a href="' + BASE_URL + '/findP" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
-        infoDom: function (memInfo, bindedInfo) {
-            var acct = memInfo.username;
-            var title = memInfo.member.title;
-            var expirTime = memInfo.member.expireAt;
-            var whetherOrder = '';
-            // var binded = '未绑定';
-            // var shopInfo = dealShopInfo();
-            if (title && expirTime) {
-                var formDate = new Date(expirTime)
-                var isExpire = formDate - memInfo.time * 1000
-                if (isExpire > 0) {
-                    whetherOrder = '续费';
-                } else {
-                    whetherOrder = '订购';
-                }
-                // bindedInfo.data.forEach(function (item) {
-                //     if (item['mainUid'] = shopInfo['mainUserId']) {
-                //         binded = "已绑定"
-                //     }
-                // })
+    infoDom: function (memInfo, bindedInfo) {
+        var acct = memInfo.username;
+        var title = memInfo.member.title;
+        var expirTime = memInfo.member.expireAt;
+        var whetherOrder = '';
+        // var binded = '未绑定';
+        // var shopInfo = dealShopInfo();
+        if (title && expirTime) {
+            var formDate = new Date(expirTime)
+            var isExpire = formDate - memInfo.time * 1000
+            if (isExpire > 0) {
+                whetherOrder = '续费';
             } else {
-                title = '普通会员';
-                expirTime = '--';
-                whetherOrder = '订购'
-                // binded = '未绑定'
+                whetherOrder = '订购';
             }
-            var wrap = '<div class="chaqz-info-wrapper user"><div class="c-cont"><span class="close2 hided">×</span><div class="help"><img src="https://file.cdn.chaquanzhong.com/wenhao.png" alt="?"><a href="' + BASE_URL + '/pluginIntro" target="_blank">帮助</a></div><div class="infoList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><ul class="user-list"><li><span class="name">账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span><span>' + acct + '</span><span class="fr" id="logout">退出登录</span></li><li><span class="name">会员信息:</span><span>' + title + '</span></li><li><span class="name">到期时间:</span><span>' + expirTime + '</span><a href="' + BASE_URL + '/vipInfo?from=plugin" target="_blank" class="fr">' + whetherOrder + '</a></li><li><span class="name">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span><span>' + LOCAL_VERSION + '</span></li><li><span class="name">联系客服:</span><span><a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><img class="mr_10" src="https://file.cdn.chaquanzhong.com/qq_icon.png" alt="qq"></a><img src="https://file.cdn.chaquanzhong.com/wx_icon.png" alt="wx" class="wxpop"></span></li></ul></div></div></div>';
-            // <li><span class="name">店铺绑定</span><span>' + binded + '</span></li>
-            $('#page').append(wrap);
+            // bindedInfo.data.forEach(function (item) {
+            //     if (item['mainUid'] = shopInfo['mainUserId']) {
+            //         binded = "已绑定"
+            //     }
+            // })
+        } else {
+            title = '普通会员';
+            expirTime = '--';
+            whetherOrder = '订购'
+            // binded = '未绑定'
+        }
+        var wrap = '<div class="chaqz-info-wrapper user"><div class="c-cont"><span class="close2 hided">×</span><div class="help"><img src="https://file.cdn.chaquanzhong.com/wenhao.png" alt="?"><a href="' + BASE_URL + '/pluginIntro" target="_blank">帮助</a></div><div class="infoList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><ul class="user-list"><li><span class="name">账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span><span>' + acct + '</span><span class="fr" id="logout">退出登录</span></li><li><span class="name">会员信息:</span><span>' + title + '</span></li><li><span class="name">到期时间:</span><span>' + expirTime + '</span><a href="' + BASE_URL + '/vipInfo?from=plugin" target="_blank" class="fr">' + whetherOrder + '</a></li><li><span class="name">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span><span>' + LOCAL_VERSION + '</span></li><li><span class="name">联系客服:</span><span><a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><img class="mr_10" src="https://file.cdn.chaquanzhong.com/qq_icon.png" alt="qq"></a><img src="https://file.cdn.chaquanzhong.com/wx_icon.png" alt="wx" class="wxpop"></span></li></ul></div></div></div>';
+        // <li><span class="name">店铺绑定</span><span>' + binded + '</span></li>
+        $('#page').append(wrap);
 
-        },
+    },
     init: function (tbName) {
         var _that = this
         $('#page').append(this.loginDom);
@@ -160,25 +160,25 @@ var anyDom = {
             $('.chaqz-info-wrapper.login').remove()
         })
     },
-     getInfo: function () {
-         var userWrap = $('.chaqz-info-wrapper.user')
-         if (userWrap.length && isLogin) {
-             userWrap.show()
-         } else {
-             var memInfo = SAVE_MEMBER;
-             // var bindInfo = SAVE_BIND;
-             if (memInfo.member) {
-                 // this.infoDom(memInfo, bindInfo)
-                 anyDom.infoDom(memInfo)
-             } else {
-                 anyDom.init()
-             }
-             $('.chaqz-info-wrapper #logout').click(function () {
-                 $('.chaqz-info-wrapper.user').hide();
-                 logOut()
-             })
-         }
-     },
+    getInfo: function () {
+        var userWrap = $('.chaqz-info-wrapper.user')
+        if (userWrap.length && isLogin) {
+            userWrap.show()
+        } else {
+            var memInfo = SAVE_MEMBER;
+            // var bindInfo = SAVE_BIND;
+            if (memInfo.member) {
+                // this.infoDom(memInfo, bindInfo)
+                anyDom.infoDom(memInfo)
+            } else {
+                anyDom.init()
+            }
+            $('.chaqz-info-wrapper #logout').click(function () {
+                $('.chaqz-info-wrapper.user').hide();
+                logOut()
+            })
+        }
+    },
     searchHei: function (tbName) {
         LoadingPop('show')
         var saveToke = localStorage.getItem('chaqz_token');
@@ -217,6 +217,33 @@ var anyDom = {
         })
     }
 }
+  function getUserInfo() {
+      var saveToke = localStorage.getItem('chaqz_token');
+      chrome.runtime.sendMessage({
+          key: 'getData',
+          options: {
+              url: BASE_URL + '/api/v1/user/userinfo',
+              type: 'GET',
+              headers: {
+                  Authorization: "Bearer " + saveToke
+              }
+          }
+      }, function (val) {
+          if (val.code == 200) {
+              var res = val.data;
+              res.username = res.account;
+              res.member.expireAt = res.member.expire_at;
+              SAVE_MEMBER = res;
+              // window.SAVE_MEMBER2 = res;
+              isLogin = true;
+              // changeLoginStatus()
+          } else {
+              isLogin = false;
+              LogOut()
+          }
+      })
+//   }
+  }
 function logOut(){
     isLogin = false;
     SAVE_MEMBER = {};
