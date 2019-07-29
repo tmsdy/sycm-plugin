@@ -1393,6 +1393,8 @@
    background: #FF8100;
    color: #fff;
    border-radius: 2px;
+   font-style: normal;
+   text-align: center;
 }
 .chaqz-icon.offline-icon {
    background-image:url(../common/images/offline-icon.png) 
@@ -1512,7 +1514,6 @@
 .chaqz-trend-chart .chaqz-echarts-box {
     height: 400px;
 }
-
 .chaqz-trend-chart table {
     width: 100%;
     border: 1px solid #e5e5e5;
@@ -1590,14 +1591,16 @@
 .chaqz-item-info li .historyPrice {
     position: relative;
     cursor: pointer;
+    padding: 2px 0; 
 }
 
-.chaqz-item-info li .historyPrice #chaqz-echarts-box {
+.chaqz-item-info li .historyPrice #chaqz-echarts-box,
+.chaqz-trend-chart #chaqz-echarts-box {
     height: 180px;
 }
 
 .chaqz-item-info .price-wrap {
-    /* float: right; */
+    float: right;
     margin-right: 15px;
 }
 

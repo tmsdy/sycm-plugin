@@ -4,6 +4,7 @@ var SAVE_CUR_PAGE = {};
 var LOCAL_VERSION = '1.0.13';
 var isLogin = false;
 var SAVE_MEMBER = {};
+var SAVE_HISTORY = {};
 var weekStr = ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
 var webSite = judgeWebsite()
 var INIT_TIME = new Date().getTime();
@@ -27,15 +28,18 @@ function judgeWebsite() {
   if (link.indexOf('https://list.tmall.com/search_product.htm') != -1) {
     $(document).on('DOMNodeInserted', '#content', function (e) {
       if (e.target.id == 'J_FilterPlaceholder') {
-        getPageInfo('tm')
+        getPageInfo('tm');
+         var topAdver = '<div class="chaqz-adver-top"><img src="https://file.cdn.chaquanzhong.com/adver-top.png" alt=""></div>';
+         type == 'tm' ? $('#content').prepend(topAdver) : $('#main').prepend(topAdver);
       }
     })
-    return 'tm'
   }
   if (link.indexOf('https://s.taobao.com/search') != -1) {
     $(document).on('DOMNodeInserted', '#main', function (e) {
       if (e.target.id == 'mainsrp-itemlist') {
         getPageInfo();
+         var topAdver = '<div class="chaqz-adver-top"><img src="https://file.cdn.chaquanzhong.com/adver-top.png" alt=""></div>';
+         type == 'tm' ? $('#content').prepend(topAdver) : $('#main').prepend(topAdver);
       }
     })
   }
@@ -56,8 +60,6 @@ function judgeWebsite() {
 /**--------  search page operator  --------------- */
 // 获取页面信息
 function getPageInfo(type) {
-  var topAdver = '<div class="chaqz-adver-top"><img src="https://file.cdn.chaquanzhong.com/adver-top.png" alt=""></div>';
-   type == 'tm' ? $('#content').prepend(topAdver) : $('#main').prepend(topAdver);
   var list = type == 'tm' ? $('#content #J_ItemList .product') : $('#mainsrp-itemlist .m-itemlist .items .item'); //天猫or淘宝商品列表
   var itemLen = list.length;
   var itemIdList = [];
@@ -104,8 +106,8 @@ function getPageInfo(type) {
       sale,
       addr
     })
-    $(wraps).append('<ul class="chaqz-item-info item-id-' + itemId + '"><li><i class="logo-smll-icon chaqz-icon"></i><a href="https://www.chaquanzhong.com/"><a href="https://www.chaquanzhong.com/jdGrade">查排名</a><a href="https://www.chaquanzhong.com/chaheihao">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">一键加权</a></li><li><p class="price-wrap"><i class="history-icon chaqz-icon"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon"></i>下架：<span class="offtime"></span></li></ul><div></div>');
-    //<i class="type-icon chaqz-icon">类</i><span>保温杯</span>===  <li><i class="natural-icon chaqz-icon"></i>自然搜索：<span></span></li><li><i class="ztc-icon chaqz-icon"></i>直通车：<span></span></li>
+    $(wraps).append('<ul class="chaqz-item-info item-id-' + itemId + '" data-id="'+itemId+'"><li><i class="logo-smll-icon chaqz-icon"></i><a href="https://www.chaquanzhong.com/"><a href="https://www.chaquanzhong.com/jdGrade">查排名</a><a href="https://www.chaquanzhong.com/chaheihao">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">一键加权</a></li><li><i class="type-icon chaqz-icon">类</i><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon"></i>下架：<span class="offtime"></span></li></ul><div></div>');
+    //===  <li><i class="natural-icon chaqz-icon"></i>自然搜索：<span></span></li><li><i class="ztc-icon chaqz-icon"></i>直通车：<span></span></li>
   }
   var priceStatic = getHeightLow(redData.prices)
   var saleStatic = getHeightLow(redData.sales)
@@ -119,6 +121,8 @@ function getPageInfo(type) {
   getPriceData(priceStatic.high, redData.oriData, type)
   // 获取下架数据
   getOfflineData(itemIdList, itemPrice)
+  // 一开始没有滚动的时候，出现在视窗中的图片也会加载
+  categoryLazy();
 }
 //  获取区域图数据
 function getAddressData(addrData) {
@@ -203,7 +207,6 @@ function getOfflineData(itemIdList, itemPrice) {
     res: {}
   };
   offlineRequest(itemIdList, tailWrap, function () {
-    console.log(tailWrap)
     var timeData = tailWrap.res;
     var accordDate = {}
     for (let k in timeData) {
@@ -230,7 +233,6 @@ function getOfflineData(itemIdList, itemPrice) {
       offlineShowInfo.seller.push(ele.sell)
       offlineShowInfo.payCot.push(ele.payCot)
     }
-    console.log(sortData, offlineShowInfo)
     tableRows.push(['下架时间'].concat(offlineShowInfo.names));
     tableRows.push(['卖家数量（个）'].concat(offlineShowInfo.seller));
     tableRows.push(['付款人数（人）'].concat(offlineShowInfo.payCot));
@@ -258,11 +260,10 @@ function offlineRequest(itemIdList, tailWrap, cb) {
       var retime = curDate - newTime;
       var remainTime = getRemainTime(retime, !0)
       $('.item-id-' + ele).find('.offtime').text(showTime + '[' + remainTime + ']').attr('title', '下架时间:' + showTime + ' 剩余天数:' + remainTime);
-      console.log(tailWrap.count)
-      if (tailWrap.count > len - 2) {
-        cb()
-      }
       tailWrap.res[ele] = formate("yyyy-MM-dd", curDate);
+      if (tailWrap.count > len - 2) {
+        cb(tailWrap.res)
+      }
       tailWrap.count++
     })
   }
@@ -366,18 +367,25 @@ $(document).on('mouseenter', '.historyPrice', function () {
   var id = $(this).data('id');
   var dom = '<div class="chaqz-trend-chart history-wrap chaqz-global-loading"></div>';
   $(this).append(dom)
-  var saveToke = localStorage.getItem('chaqz_token');
+  var isDetail = $(this).hasClass('detail-history');
+  // var saveToke = localStorage.getItem('chaqz_token');
+  // 判断是否请求过
+  if (SAVE_HISTORY[id]){
+    historyStruct(SAVE_HISTORY[id].lowHigh, SAVE_HISTORY[id].edata, isDetail);
+     $('.chaqz-global-loading').removeClass('chaqz-global-loading');
+    return false;
+  }
   chrome.runtime.sendMessage({
     key: 'getData',
     options: {
-      url: BASE_URL + '/api/v1/tools/toolbox/getSearchhistory?param=' + id,
+      url: BASE_URL + '/api/v1/plugin/toolbox/getSearchhistory?param=' + id,
       type: 'GET',
-      headers: {
-        Authorization: "Bearer " + saveToke
-      }
+      // headers: {
+      //   Authorization: "Bearer " + saveToke
+      // }
     }
   }, function (val) {
-    if (val.code == 200) {
+    if (val.code == 200 && typeof val.data.RetObject !='string') {
       var res = val.data.RetObject;
       var dateOriList = res.date_list.split(',');
       var dateFullList = dateOriList.map(function (item) {
@@ -385,55 +393,131 @@ $(document).on('mouseenter', '.historyPrice', function () {
       });
       var priceOriList = res.pirce_list[0].split(',');
       var lowHigh = getHeightLow(priceOriList);
-      var contentDom = '<div class="title">历史最低：￥<span class="hot">' + lowHigh.low + '</span> |最高：￥<span class="hot">' + lowHigh.low + '</span></div><div id="chaqz-echarts-box"></div>';
-      $('.chaqz-trend-chart').append(contentDom);
-      var myChart = echarts.init(document.getElementById('chaqz-echarts-box'));
-      var option = {
-        tooltip: {
-          trigger: 'axis',
-        },
-        grid: {
-          top: 30,
-          bottom: 30,
-          left: '15%'
-        },
-        xAxis: {
-          type: 'category',
-          data: dateFullList
-        },
-        yAxis: {
-          type: 'value',
-          axisLabel: {
-            formatter: "{value} 元"
-          }
-        },
-        series: [{
-          name: '价格',
-          type: 'line',
-          smooth: true,
-          data: priceOriList
-        }]
+      SAVE_HISTORY[id] = {
+        lowHigh,
+        edata: {
+          dateFullList,
+          priceOriList
+        }, isDetail
       }
-      myChart.setOption(option)
+      historyStruct(lowHigh, {
+        dateFullList, priceOriList
+      }, isDetail)
     } else {
       var contentDom = '<div class="no-data">未查询到价格数据</div>';
       $('.chaqz-trend-chart').append(contentDom);
     }
     $('.chaqz-global-loading').removeClass('chaqz-global-loading');
   })
-  $(document).on('mouseleave', '.historyPrice', function () {
-    $('.chaqz-trend-chart').remove();
+  $(document).on('mouseleave  ', '.historyPrice', function () {
+    if($(this).hasClass('detail-history')){
+      $('.chaqz-trend-chart').remove();
+      return false
+    }
+    $('.chaqz-item-info .chaqz-trend-chart').remove();
   })
 
 })
+ function historyStruct(lowHigh, edata, isDetail) {
+   var contentDom = '<div class="title">历史最低：￥<span class="hot">' + lowHigh.low + '</span> |最高：￥<span class="hot">' + lowHigh.low + '</span></div><div id="chaqz-echarts-box"></div>';
+   isDetail ? $('.chaqz-detail-wrap .chaqz-trend-chart').append(contentDom) : $('.chaqz-item-info .chaqz-trend-chart').append(contentDom);
+   var myChart = echarts.init(document.getElementById('chaqz-echarts-box'));
+   var option = {
+     tooltip: {
+       trigger: 'axis',
+     },
+     grid: {
+       top: 30,
+       bottom: 30,
+       left: '15%'
+     },
+     xAxis: {
+       type: 'category',
+       data: edata.dateFullList
+     },
+     yAxis: {
+       type: 'value',
+       axisLabel: {
+         formatter: "{value} 元"
+       }
+     },
+     series: [{
+       name: '价格',
+       type: 'line',
+       smooth: true,
+       data: edata.priceOriList
+     }]
+   }
+   myChart.setOption(option)
+ }
+// 类目懒加载
+// 当页面开始滚动的时候，遍历图片，如果图片出现在视窗中，就加载图片
+var clock; //函数节流
+$(window).on('scroll', function () {
+  if (clock) {
+    clearTimeout(clock);
+  }
+  clock = setTimeout(function () {
+    categoryLazy()
+  }, 200)
+})
+
+function categoryLazy() {
+  
+  $('.chaqz-item-info').not('[data-isLoading]').each(function () {
+    if (isCategoryShow($(this))) {
+      loadCategrory($(this));
+    }
+  })
+}
+// 判断图片是否出现在视窗的函数
+function isCategoryShow($node) {
+  return $node.offset().top <= $(window).height() + $(window).scrollTop()+350;
+}
+
+// 加载图片的函数，就是把自定义属性data-src 存储的真正的图片地址，赋值给src
+function loadCategrory($img) {
+  var itemId = $img.data('id');
+  getCategroyList(itemId)
+  // 已经加载的图片，我给它设置一个属性，值为1，作为标识
+  $img.attr('data-isLoading', 1);
+}
+function getCategroyList(itemId){
+   chrome.runtime.sendMessage({
+         key: 'getData',
+         options: {
+           url: BASE_URL + '/api/v1/plugin/toolbox/getSearchMulu?param=' + itemId,
+           type: 'GET',
+         }
+       }, function (val) {
+          var categoryName = val.data ? val.data.RetObject : '';
+          var cateDetail = categoryName ? categoryName.split('->') : '';
+          $('.item-id-' + itemId).find('.category').text(cateDetail[cateDetail.length - 1]).attr('title', categoryName);
+       })
+  //  $.ajax({
+  //    url: BASE_URL + '/api/v1/plugin/toolbox/getSearchMulu?param=' + itemId,
+  //    type: 'GET',
+  //    success: function (val) {
+  //      var categoryName = val.data ? val.data.RetObject : '';
+  //      var cateDetail = categoryName ? categoryName.split('->'):'';
+  //       $('.item-id-' + itemId).find('.category').text(cateDetail[cateDetail.length - 1]).attr('title', categoryName);
+  //    }
+  //  })
+}
 /**--------- detail page operator===========*/
 function getDetailPage(type) {
   var itemIdUrl = window.location.href;
   var itemId = getSearchPara(itemIdUrl, 'id');
-  var dom = '<div class="chaqz-detail-wrap"><div class="content"><div class="left"><i class="logo-icon chaqz-icon"></i></div><div class="right"><div class="item"><a href="https://www.chaquanzhong.com/"  target="_blank">www.chaquanzhong.com</a><span class="title">下架：</span><span class="offline hot">7-12 11:15(周三)[4天22时48分]</span><span class="title"><i class="chaqz-icon history-icon"></i><span class="historyPrice" data-id=' + itemId + '>历史价格</span></span></div><div class="item links"><span class="title-btn">提升权重</span><a href="https://www.chaquanzhong.com/jdGrade" target="_blank">查排名</a><a href="https://www.chaquanzhong.com/chaheihao"  target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">一键加权</a><a href="https://www.chaquanzhong.com/sevenPlan"  target="_blank">7天上首页</a><a href="https://www.chaquanzhong.com/directTrain"  target="_blank">直通车托管</a><a href="https://www.chaquanzhong.com/moldbaby"  target="_blank">打造爆款</a></div></div></div><div class="advert"><a href="" target="_blank"><img src="https://file.cdn.chaquanzhong.com/adver-side.png"alt=""></a></div></div>';
-  //<span class="title">类目：</span><span class="categroy hot">保温杯</span>  ==== <div class="item"><span class="title-btn">搜索展现</span><span class="search-tb">淘宝搜索</span><span class="offline hot">（23）</span><span class="title">淘宝直通车</span><span class="search-ztc hot">（23）</span><span class="title">无线搜索</span><span class="search-wx hot">（23）</span><span class="title">无线直通车</span><span class="search-wxztc hot">（23）</span></div>
+  offlineRequest([itemId], {
+    count: 0,
+    res: {}
+  },function(timeRes){})
+  var dom = '<div class="chaqz-detail-wrap"><div class="content"><div class="left"><i class="logo-icon chaqz-icon"></i></div><div class="right item-id-' + itemId + '"><div class="item"><a href="https://www.chaquanzhong.com/"  target="_blank">www.chaquanzhong.com</a><span class="title">下架：</span><span class="offtime hot">7-12 11:15(周三)[4天22时48分]</span><span class="title">类目：</span><span class="category hot">保温杯</span><span class="title"><i class="chaqz-icon history-icon"></i><span class="historyPrice detail-history" data-id=' + itemId + '>历史价格</span></span></div><div class="item links"><span class="title-btn">提升权重</span><a href="https://www.chaquanzhong.com/jdGrade" target="_blank">查排名</a><a href="https://www.chaquanzhong.com/chaheihao"  target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">一键加权</a><a href="https://www.chaquanzhong.com/sevenPlan"  target="_blank">7天上首页</a><a href="https://www.chaquanzhong.com/directTrain"  target="_blank">直通车托管</a><a href="https://www.chaquanzhong.com/moldbaby"  target="_blank">打造爆款</a></div></div></div><div class="advert"><a href="" target="_blank"><img src="https://file.cdn.chaquanzhong.com/adver-side.png"alt=""></a></div></div>';
+  //  ==== <div class="item"><span class="title-btn">搜索展现</span><span class="search-tb">淘宝搜索</span><span class="offline hot">（23）</span><span class="title">淘宝直通车</span><span class="search-ztc hot">（23）</span><span class="title">无线搜索</span><span class="search-wx hot">（23）</span><span class="title">无线直通车</span><span class="search-wxztc hot">（23）</span></div>
   $('#detail').prepend(dom);
   skuPopup(itemId, type)
+  // 类目
+  getCategroyList(itemId)
 }
 // sku popup
 function skuPopup(itemId, type) {
@@ -710,7 +794,6 @@ $(document).on('click', '.popover-header .left', function (ev) {
     }
   }
 })
-
 // 详情页用户信息的弹窗
 function detailPagePop() {
   // 用户信息
@@ -850,13 +933,7 @@ function detailPagePop() {
   $(document).on('click', '.chaqz-info-wrapper .hided', function () {
     $('.chaqz-info-wrapper').remove()
   })
-  //  退出
-  function logOut() {
-    isLogin = false;
-    SAVE_MEMBER = {};
-    chrome.storage.local.remove(['chaqzShopInfo'], function () {});
-    localStorage.removeItem('chaqz_token');
-  }
+ 
   // 个人信息
   $(document).on('click', '#userBtn', function () {
     anyDom.getInfo();
@@ -885,10 +962,17 @@ function detailPagePop() {
         // changeLoginStatus()
       } else {
         isLogin = false;
-        LogOut()
+        logOut()
       }
     })
   }
+   //  退出
+   function logOut() {
+     isLogin = false;
+     SAVE_MEMBER = {};
+     chrome.storage.local.remove(['chaqzShopInfo'], function () {});
+     localStorage.removeItem('chaqz_token');
+   }
 }
 /**---- funs -------*/
 function dealSales(sale) { //销量处理
