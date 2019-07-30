@@ -43,7 +43,7 @@ function judgeWebsite() {
   }
   //详情页获取用户信息
   detailPagePop()
-  if (link.indexOf('https://detail.tmall.com/item.htm') != -1) {
+  if (link.indexOf('https://detail') != -1) {
     $(function () {
       getDetailPage('tm');
     })
@@ -189,7 +189,7 @@ function getPriceData(highPrice, oriData, ) {
   var priceShowInfo = {
     names: cutList,
     seller: priceInfo.sellers,
-    payCot: priceInfo.payCot
+    payCot: priceInfo.payCot,
   }
   SAVE_CUR_PAGE.priceShowInfo = priceShowInfo;
   domStructTrend(tableRows, 'price')
@@ -204,6 +204,7 @@ function getOfflineData(itemIdList, itemPrice) {
   }
   var tailWrap = {
     count: 0,
+    cateGory:{},
     res: {}
   };
   offlineRequest(itemIdList, tailWrap, function () {
@@ -261,7 +262,10 @@ function offlineRequest(itemIdList, tailWrap, cb) {
       var remainTime = getRemainTime(retime, !0)
       $('.item-id-' + ele).find('.offtime').text(showTime + '[' + remainTime + ']').attr('title', '下架时间:' + showTime + ' 剩余天数:' + remainTime);
       tailWrap.res[ele] = formate("yyyy-MM-dd", curDate);
+      // var itemCategory = getTbCateId(val);
+      // tailWrap.cateGory[ele] = itemCategory;
       if (tailWrap.count > len - 2) {
+        console.log(tailWrap.cateGory)
         cb(tailWrap.res)
       }
       tailWrap.count++
@@ -275,6 +279,20 @@ function getSxjTime(t, e) {
     if (i && i[1] && i[1].match(/\d+/)) {
       var o = parseInt(i[1]);
       return o < e && (o = 6048e5 * Math.ceil((e - o) / 6048e5) + o), o
+    }
+  }
+}
+// categord寻找
+function getTbCateId(t) {
+  for (var e = ['data-catid="([0-9]*)"', "categoryId=([0-9]*)", "categoryId[\"|']*\\s*:\\s*[\"|'](.*?)[\"|']"], a = 0, n = e.length; a < n; a++) {
+    var r = new RegExp(e[a], "g").exec(t);
+    if (r && r[1]) {
+      var i = r[1];
+      try {
+        return parseInt(i)
+      } catch (t) {
+        console.log("category val is not number!" + i)
+      }
     }
   }
 }
@@ -344,7 +362,6 @@ function domChartStruct(edata, type) {
         name: '卖家数量',
         type: 'bar',
         smooth: true,
-        yAxisIndex: 1,
         barWidth: 40,
         data: edata.seller
       },
@@ -352,7 +369,7 @@ function domChartStruct(edata, type) {
         name: '付款人数',
         type: 'line',
         smooth: true,
-        yAxisIndex: 0,
+        yAxisIndex: 1,
         data: edata.payCot
       }
     ]
@@ -524,6 +541,12 @@ function skuPopup(itemId, type) {
   var dom = '<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png"alt=""class="avator"></div><div class="content-wrap"><div class="sku-btn" id="skuAnaly"><i class="chaqz-icon sku-icon"></i><p class="sku-text">sku评价分析</p></div><div class="bottom"><a href="' + BASE_URL + '/home?from=plugin"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.13</span></div></div></div></div>'
   $('#page').append(dom);
   $('#skuAnaly').click(function () {
+    // 判断是否含有sku
+    var hasSku = judgeSkuSave();
+    if(!hasSku){
+      popTip('无需sku分析');
+      return false
+    }
     $('body').addClass('chaqz-global-loading loading-fixed');
     var shopId = '';
     // var shopIdDom = type == 'tm' ? $('#shop-info #dsr-userid').val() : $('#header-content .search-bottom .shop-collect').attr('href');
@@ -555,7 +578,15 @@ function skuPopup(itemId, type) {
     ajaxEvaluation(resData)
   })
 }
-
+function judgeSkuSave(){
+  var url = window.location.href;
+  if (url.indexOf('https://detail')!=-1){
+    return $('.tb-skin .tb-sku .tb-prop').length>2;
+  } else if (url.indexOf('https://item') != -1) {
+      return $('.tb-skin .tb-prop').length;
+  }
+  return true;
+}
 function ajaxEvaluation(params) {
   var dateTime = new Date().getTime();
   var numRandom = randomNum();
@@ -1076,4 +1107,18 @@ function babelSort(data, type) {
     }
   }
   return arr;
+}
+function popTip(text, options) {
+  var st = '';
+  var tm = 500;
+  if (options) {
+    st = options ? options.style : '';
+    tm = options ? options.time : tm;
+  }
+  $('#page').append('<div class="small-alert" style="' + st + '">' + text + '</div>');
+  setTimeout(function () {
+    $('#page .small-alert').fadeOut(300, function () {
+      $('#page .small-alert').remove();
+    })
+  }, tm)
 }

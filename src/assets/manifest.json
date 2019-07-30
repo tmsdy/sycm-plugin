@@ -45,7 +45,20 @@
         },
         {
             "matches": [
-                "https://*.taobao.com/*","https://*.tmall.com/*"
+                "*://*.tmall.com/*",
+                "*://*.tmall.hk/*",
+                "*://*.taobao.com/*",
+                "*://*.alitrip.com/*",
+                "*://*.chi.taobao.com/*",
+                "*://*.ju.taobao.com/*",
+                "*://*.95095.com/*",
+                "*://*.yao.95095.com/*",
+                "*://*.tiaoshi.taobao.com/*",
+                "*://*.detail.tmall.com/*",
+                // "*://*.dianchacha.com/*",
+                // "*://*.baidu.com/*",
+                // "*://*.fliggy.com/*",
+                "*://*.liangxinyao.com/*"
             ],
             "exclude_matches": ["https://sycm.taobao.com/*"],
             "js": [
