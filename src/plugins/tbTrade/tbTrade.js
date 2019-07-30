@@ -2,7 +2,10 @@ console.log("taobao 交易管理");
 
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
     'http://118.25.153.205:8080';
-    var LOGO_BASE_URL = 'http://118.25.92.247:8099';
+var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
+    'http://118.25.92.247:8099';
+var redirectUrl = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' :
+        'http://118.25.92.247:8099'
 var LOCAL_VERSION = '1.0.13';
 var isLogin = false;
 var searchWang = '';
@@ -49,7 +52,7 @@ $(document).on('click', '#chaqzCheck', function () {
 
 })
 var anyDom = {
-    loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + BASE_URL + '/reg" class="right" target="_blank">免费注册</a><a href="' + BASE_URL + '/findP" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
+  loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/regist" class="right" target="_blank">免费注册</a><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/retrieve" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
     login: function (tbName) {
         var _that = this;
         var onLoading = false;
@@ -94,8 +97,6 @@ var anyDom = {
         var title = memInfo.member.title;
         var expirTime = memInfo.member.expireAt;
         var whetherOrder = '';
-        // var binded = '未绑定';
-        // var shopInfo = dealShopInfo();
         if (title && expirTime) {
             var formDate = new Date(expirTime)
             var isExpire = formDate - memInfo.time * 1000
@@ -104,19 +105,12 @@ var anyDom = {
             } else {
                 whetherOrder = '订购';
             }
-            // bindedInfo.data.forEach(function (item) {
-            //     if (item['mainUid'] = shopInfo['mainUserId']) {
-            //         binded = "已绑定"
-            //     }
-            // })
         } else {
             title = '普通会员';
             expirTime = '--';
             whetherOrder = '订购'
-            // binded = '未绑定'
         }
         var wrap = '<div class="chaqz-info-wrapper user"><div class="c-cont"><span class="close2 hided">×</span><div class="help"><img src="https://file.cdn.chaquanzhong.com/wenhao.png" alt="?"><a href="' + BASE_URL + '/pluginIntro" target="_blank">帮助</a></div><div class="infoList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><ul class="user-list"><li><span class="name">账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span><span>' + acct + '</span><span class="fr" id="logout">退出登录</span></li><li><span class="name">会员信息:</span><span>' + title + '</span></li><li><span class="name">到期时间:</span><span>' + expirTime + '</span><a href="' + BASE_URL + '/vipInfo?from=plugin" target="_blank" class="fr">' + whetherOrder + '</a></li><li><span class="name">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span><span>' + LOCAL_VERSION + '</span></li><li><span class="name">联系客服:</span><span><a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><img class="mr_10" src="https://file.cdn.chaquanzhong.com/qq_icon.png" alt="qq"></a><img src="https://file.cdn.chaquanzhong.com/wx_icon.png" alt="wx" class="wxpop"></span></li></ul></div></div></div>';
-        // <li><span class="name">店铺绑定</span><span>' + binded + '</span></li>
         $('#page').append(wrap);
 
     },
@@ -164,9 +158,7 @@ var anyDom = {
             userWrap.show()
         } else {
             var memInfo = SAVE_MEMBER;
-            // var bindInfo = SAVE_BIND;
             if (memInfo.member) {
-                // this.infoDom(memInfo, bindInfo)
                 anyDom.infoDom(memInfo)
             } else {
                 anyDom.init()
@@ -232,15 +224,12 @@ var anyDom = {
               res.username = res.account;
               res.member.expireAt = res.member.expire_at;
               SAVE_MEMBER = res;
-              // window.SAVE_MEMBER2 = res;
               isLogin = true;
-              // changeLoginStatus()
           } else {
               isLogin = false;
               LogOut()
           }
       })
-//   }
   }
 function logOut(){
     isLogin = false;

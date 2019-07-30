@@ -92,16 +92,6 @@ module.exports = {
           }
         }]
       }
-      // {
-      //   test: require.resolve('jquery'), //require.resolve 用来获取模块的绝对路径
-      //   use: [{
-      //     loader: 'expose-loader',
-      //     options: 'jQuery'
-      //   }, {
-      //     loader: 'expose-loader',
-      //     options: '$'
-      //   }]
-      // }
     ]
   },
   devServer:{
@@ -116,9 +106,10 @@ module.exports = {
       cacheGroups: {
         commons: {
           name: "sycmCommons",
-            chunks: "initial",
-            minChunks: 2,
-            minSize: 0
+          chunks: "initial",
+          minChunks: 2,
+          minSize: 0,
+          test: /src\/common\/(.*)\.js/
         }
       }
     }

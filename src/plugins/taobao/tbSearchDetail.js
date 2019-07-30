@@ -1,5 +1,9 @@
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' : 'http://118.25.153.205:8090';
 // var BASE_URL = 'http://118.25.153.205:8090';
+var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
+  'http://118.25.92.247:8099';
+var redirectUrl = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' :
+  'http://118.25.92.247:8099'
 var LOGO_BASE_URL = 'http://118.25.92.247:8099';
 var SAVE_CUR_PAGE = {};
 var LOCAL_VERSION = '1.0.13';
@@ -495,9 +499,10 @@ function isCategoryShow($node) {
 // 加载图片的函数，就是把自定义属性data-src 存储的真正的图片地址，赋值给src
 function loadCategrory($img) {
   var itemId = $img.data('id');
+   $img.attr('data-isLoading', 1);
   getCategroyList(itemId)
   // 已经加载的图片，我给它设置一个属性，值为1，作为标识
-  $img.attr('data-isLoading', 1);
+ 
 }
 function getCategroyList(itemId){
    chrome.runtime.sendMessage({
@@ -840,7 +845,7 @@ function detailPagePop() {
     }
   });
   var anyDom = {
-    loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + BASE_URL + '/reg" class="right" target="_blank">免费注册</a><a href="' + BASE_URL + '/findP" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
+    loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/regist" class="right" target="_blank">免费注册</a><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/retrieve" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
     login: function (tbName) {
       var _that = this;
       var onLoading = false;

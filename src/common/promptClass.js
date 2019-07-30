@@ -1,10 +1,12 @@
 //  弹窗，吐司呀，loading
 import {
     BASE_URL,
+    LOGO_BASE_URL,
+    redirectUrl
     // LOCAL_VERSION
 } from './constState'
  // 弹窗模块
- var LOGO_BASE_URL = 'http://118.25.92.247:8099';
+//  var LOGO_BASE_URL = 'http://118.25.92.247:8099';
  export var popUp = {
      version: '<p class="tips">为了更好的体验，请到官网下载最新版本。</p><div class="cha-btns"><a class="btn" href="' + BASE_URL + '/pluginIntro" target="_blank"><button class="btn">前往下载</button></a></div>',
      orderMem: '<p class="tips">账户未开通会员，请联系客服或订购会员。</p><div class="cha-btns"><a class="mr_30 btn" href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><button class="btn">联系客服</button></a><button class="btn buyBtn">订购</button></div>',
@@ -179,67 +181,17 @@ import {
           return false;
       }
       var memInfo = allInfo.member; //会员信息
-    //   var bindInfo = window.SAVE_BIND2; //绑定信息
-    //   var shopInfo = dealShopInfo(); //店铺信息
       //不是否为会员
       if (!memInfo) {
           LogOut()
           return false;
       }
       return true
-    //   var star_time = allInfo.time;
-    //   var star_end = memInfo.expireAt;
-    //   var remian = new Date(star_end) - star_time * 1000;
-      //会员过期
-    //   if (remian <= 0) {
-    //       popUp.init('overdue')
-    //       return false;
-    //   }
-    //   var hasBind = bindInfo.data.length; //已绑定数量
-    //   var totalBind = bindInfo.count; //可绑定数量
-    //   var isSelf = false
-    //   var isClose = false
-    //   var activeNum = 0
-    //   bindInfo.data.forEach(function (item) {
-    //       if (item['runShopId'] == shopInfo['runAsShopId']) {
-    //           isSelf = true
-    //           isClose = item['closed']
-    //       }
-    //       if (item['closed'] == 0) {
-    //           activeNum++
-    //       }
-    //   })
-    //   if (!isSelf) { // 不是本店铺
-    //       if (hasBind < totalBind) {
-    //           popUp.init('binding')
-    //           return false
-    //       }
-    //       if (memInfo.level < 4) {
-    //           popUp.init('upLimit')
-    //           return false
-    //       }
-    //       popUp.init('bindLimit')
-    //       return false
-    //   }
-    //   if (isClose == 0) { //激活
-    //       return true;
-    //   }
-    //   if (activeNum < totalBind) { //未达激活上限
-    //       popUp.init('active2')
-    //       return false
-    //   }
-    //   if (memInfo.level < 4) {
-    //       popUp.init('upLimit')
-    //       return false
-    //   }
-    //   popUp.init('bindLimit')
-    //   return false
   }
 // 登录状态切换
 export function changeLoginStatus(type) {
     if (type == 'out') {
         $('.chaqz-btns').html('<button id="loginbtn" class="serachBtn user">登录</button>');
-        // $('.chaqz-compete-wrap').remove();
     } else {
         $('.chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button>' );
         $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header .chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button><button id="vesting" class="serachBtn vesting">一键加权</button>');
@@ -247,10 +199,6 @@ export function changeLoginStatus(type) {
         if ($('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index()==1){
             $('.op-mc-market-rank-container .oui-card-header .chaqz-btns').append('<button id="mergeItem" class="serachBtn ">合并转化</button>');
         }
-        // if ($('.chaqz-compete-wrap').length){
-        //     return false;
-        // }
-        // $('body').append('<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img  id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png" alt="" class="avator"></div><div class="content-wrap"><ul class="content"><li class="item"id="parsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup1.png"alt=""><p class="name">竞品解析</p></li><li class="item"id="weightParsing"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup2.png"alt=""><p class="name">权重解析</p></li><li class="item"id="goRootWord"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup3.png"alt=""><p class="name">词根透视</p></li><li class="item"><a href="https://sycm.taobao.com/mc/ci/item/analysis"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup4.png"alt=""><p class="name">一键加权</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/chaheihao"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup5.png"alt=""><p class="name">黑号查询</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/Kasp"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup6.png"alt=""><p class="name">卡首屏</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/infiniteRank"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup7.png"alt=""><p class="name">查排名</p></a></li><li class="item"><a href=""target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup8.png"alt=""><p class="name">淘宝订单检测</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/toolIndex"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup9.png"alt=""><p class="name">在线查指数</p></a></li><li class="item"><a href="https://www.chaquanzhong.com/home"target="_blank"><img src="https://file.cdn.chaquanzhong.com/chaqz-plugins-popup12.png"alt=""><p class="name">更多功能</p></a></li></ul><div class="bottom"><a href="https://www.chaquanzhong.com/home"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.8</span></div></div></div>')
     }
 }
 // 退出登录
@@ -264,14 +212,12 @@ export function LogOut() {
 }
 // d登录
  export var anyDom = {
-    loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + BASE_URL + '/reg" class="right" target="_blank">免费注册</a><a href="' + BASE_URL + '/findP" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
+    loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/regist" class="right" target="_blank">免费注册</a><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/retrieve" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
     infoDom: function (memInfo, bindedInfo) {
         var acct = memInfo.username;
         var title = memInfo.member.title;
         var expirTime = memInfo.member.expireAt;
         var whetherOrder = '';
-        // var binded = '未绑定';
-        // var shopInfo = dealShopInfo();
         if (title && expirTime) {
             var formDate = new Date(expirTime)
             var isExpire = formDate - memInfo.time * 1000
@@ -280,16 +226,10 @@ export function LogOut() {
             } else {
                 whetherOrder = '订购';
             }
-            // bindedInfo.data.forEach(function (item) {
-            //     if (item['mainUid'] = shopInfo['mainUserId']) {
-            //         binded = "已绑定"
-            //     }
-            // })
         } else {
             title = '普通会员';
             expirTime = '--';
             whetherOrder = '订购'
-            // binded = '未绑定'
         }
         var wrap = '<div class="chaqz-info-wrapper user"><div class="c-cont"><span class="close2 hided">×</span><div class="help"><img src="https://file.cdn.chaquanzhong.com/wenhao.png" alt="?"><a href="' + BASE_URL + '/pluginIntro" target="_blank">帮助</a></div><div class="infoList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><ul class="user-list"><li><span class="name">账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span><span>' + acct + '</span><span class="fr" id="logout">退出登录</span></li><li><span class="name">会员信息:</span><span>' + title + '</span></li><li><span class="name">到期时间:</span><span>' + expirTime + '</span><a href="' + BASE_URL + '/vipInfo?from=plugin" target="_blank" class="fr">' + whetherOrder + '</a></li><li><span class="name">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span><span>' + LOCAL_VERSION + '</span></li><li><span class="name">联系客服:</span><span><a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><img class="mr_10" src="https://file.cdn.chaquanzhong.com/qq_icon.png" alt="qq"></a><img src="https://file.cdn.chaquanzhong.com/wx_icon.png" alt="wx" class="wxpop"></span></li></ul></div></div></div>';
         // <li><span class="name">店铺绑定</span><span>' + binded + '</span></li>

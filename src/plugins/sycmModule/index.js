@@ -1,5 +1,6 @@
 import {
     BASE_URL,
+    LOGO_BASE_URL
 } from '../../common/constState'
 import {
     popTip,
