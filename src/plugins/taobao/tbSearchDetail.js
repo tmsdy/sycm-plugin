@@ -867,8 +867,9 @@ function detailPagePop() {
         if (val.code == 200) {
           var token = val.data.token;
           localStorage.setItem('chaqz_token', token);
+          var curTime = new Date().getTime();
           var saveToke = {
-            expiration: val.data.expire,
+            expiration: curTime + val.data.expires * 1000,
             token: token
           }
           chrome.storage.local.set({

@@ -7,7 +7,7 @@ chrome.storage.local.get(['chaqz_token', 'compareProduceData'], function (valueA
     if (newLoacal) {
         // 获取token发生时间
         var bendiTime = new Date().getTime();
-        var localTime = local.expiration ? local.expiration : bendiTime / 1000;
+        var localTime = local.expiration ? local.expiration : bendiTime;
         var enjoyTime = newLoacal.expiration;
         // var remeSaveTime = localStorage.getItem('prevSaveTime');
         // remeSaveTime = remeSaveTime ? remeSaveTime:0;

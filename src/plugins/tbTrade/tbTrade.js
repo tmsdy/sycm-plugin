@@ -1,7 +1,7 @@
 console.log("taobao 交易管理");
 
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
-    'http://118.25.153.205:8080';
+    'http://118.25.153.205:8090';
 var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
     'http://118.25.92.247:8099';
 var redirectUrl = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' :
@@ -73,8 +73,9 @@ var anyDom = {
             if (val.code == 200) {
                 var token = val.data.token;
                 localStorage.setItem('chaqz_token', token);
+                var curTime = new Date().getTime();
                 var saveToke = {
-                    expiration: val.data.expire,
+                    expiration: curTime + val.data.expires * 1000,
                     token: token
                 }
                 chrome.storage.local.set({

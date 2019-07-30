@@ -29,6 +29,7 @@ module.exports = {
 
     // 'interceptRquest': './src/utils/interceptRquest.js',
     'tbSearchDetail': './src/plugins/taobao/tbSearchDetail.js',
+    'chaqz-tbSearch': './src/plugins/taobao/chaqz-tbSearch.js',
 
     // background-scripts
     'background': './src/plugins/background.js',
@@ -109,7 +110,7 @@ module.exports = {
           chunks: "initial",
           minChunks: 2,
           minSize: 0,
-          test: /src\/common\/(.*)\.js/
+          // test: /src\/common\/(.*)\.js/
         }
       }
     }
