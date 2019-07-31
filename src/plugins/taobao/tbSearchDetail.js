@@ -4,12 +4,12 @@ var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_
   'http://118.25.92.247:8099';
 var redirectUrl = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' :
   'http://118.25.92.247:8099'
-var LOGO_BASE_URL = 'http://118.25.92.247:8099';
 var SAVE_CUR_PAGE = {};
 var LOCAL_VERSION = '1.0.13';
 var isLogin = false;
 var SAVE_MEMBER = {};
 var SAVE_HISTORY = {};
+var SAVE_PAGE_INFO = {}
 var weekStr = ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
 var webSite = judgeWebsite()
 var INIT_TIME = new Date().getTime();
@@ -26,6 +26,16 @@ $(document).on('mouseleave', '.echart-tab', function () {
   $(this).removeClass('area-show');
   echarts.dispose($(this).html())
 })
+// 查看类目
+$(document).on('click', '.cate-btn', function () {
+  if ($(this).hasClass('isloading')) {
+    popTip('查询中，请稍后...');
+    return false;
+  }
+  var itemId = $(this).parents('.chaqz-item-info').data('id');
+  $(this).addClass('isloading')
+  getCategroyList(itemId)
+})
 
 function judgeWebsite() {
   // 判断天猫或者淘宝
@@ -34,14 +44,20 @@ function judgeWebsite() {
     $(document).on('DOMNodeInserted', '#content', function (e) {
       if (e.target.id == 'J_FilterPlaceholder') {
         getPageInfo('tm')
+        dealZtcFood(2, $('#J_Recommend'))
       }
     })
     return 'tm'
   }
   if (link.indexOf('https://s.taobao.com/search') != -1) {
+
     $(document).on('DOMNodeInserted', '#main', function (e) {
+
       if (e.target.id == 'mainsrp-itemlist') {
+        SAVE_PAGE_INFO = getPageItemInfo()
         getPageInfo();
+        dealZtcFood(0, $('#J_shopkeeper'))
+        dealZtcFood(1, $('#J_shopkeeper_bottom'))
       }
     })
   }
@@ -62,8 +78,8 @@ function judgeWebsite() {
 /**--------  search page operator  --------------- */
 // 获取页面信息
 function getPageInfo(type) {
-  var topAdver = '<div class="chaqz-adver-top"><img src="https://file.cdn.chaquanzhong.com/adver-top.png" alt=""></div>';
-   !$('.chaqz-adver-top').length?type == 'tm' ? $('#content').prepend(topAdver) : $('#main').prepend(topAdver):'';
+  var topAdver = '<div class="chaqz-adver-top"><a href="http://www.liuliang120.com/homePage/mainPage" target="_blank"><img src="https://file.cdn.chaquanzhong.com/adver-top.png" alt=""></a></div>';
+  !$('.chaqz-adver-top').length ? type == 'tm' ? $('#content').prepend(topAdver) : $('#main').prepend(topAdver) : '';
   var list = type == 'tm' ? $('#content #J_ItemList .product') : $('#mainsrp-itemlist .m-itemlist .items .item'); //天猫or淘宝商品列表
   var itemLen = list.length;
   var itemIdList = [];
@@ -110,8 +126,7 @@ function getPageInfo(type) {
       sale,
       addr
     })
-    $(wraps).append('<ul class="chaqz-item-info item-id-' + itemId + '" data-id="' + itemId + '"><li><i class="logo-smll-icon chaqz-icon"></i><a href="' + BASE_URL + '"><a href="' + BASE_URL + '/jdGrade">查排名</a><a href="' + BASE_URL + '/chaheihao">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis">一键加权</a></li><li><i class="type-icon chaqz-icon">类</i><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon"></i>下架：<span class="offtime"></span></li></ul><div></div>');
-    //===  <li><i class="natural-icon chaqz-icon"></i>自然搜索：<span></span></li><li><i class="ztc-icon chaqz-icon"></i>直通车：<span></span></li>
+    appendWrap(wraps, itemId)
   }
   var priceStatic = getHeightLow(redData.prices)
   var saleStatic = getHeightLow(redData.sales)
@@ -119,6 +134,7 @@ function getPageInfo(type) {
   var hasAddr = type == 'tm' ? '' : '<li class="echart-tab addr">区域图<span class="arrow"></span></li>';
   var dom = '<ul class="chaqz_search_top"><li><i class="logo-icon chaqz-icon"></i><a href="' + BASE_URL + '">www.chaquanzhong.com</a></li><li class="page-static">本页统计</li>' + hasAddr + '<li class="echart-tab offline">下架图<span class="arrow"></span></li><li class="echart-tab price">价格图<span class="arrow"></span></li><li><span class="tab">价格</span></li><li>平均价:<span class="price">' + priceStatic.avg + '</span></li><li>最高价:<span class="price">' + priceStatic.high + '</span></li><li>最低价:<span class="price">' + priceStatic.low + '</span></li><li><span class="tab">销量</span></li><li>平均销:<span class="price">' + saleStatic.avg + '</span></li><li>最高销:<span class="price">' + saleStatic.high + '</span></li><li>最低销:<span class="price">' + saleStatic.low + '</span></li></ul>';
   type == 'tm' ? $('#J_RelSearch').append(dom) : $('#mainsrp-itemlist').prepend(dom);
+
   //  获取区域图数据
   type == 'tm' ? '' : getAddressData(addrData);
   // 获取价格数据
@@ -126,7 +142,66 @@ function getPageInfo(type) {
   // 获取下架数据
   getOfflineData(itemIdList, itemPrice)
   // 一开始没有滚动的时候，出现在视窗中的图片也会加载
-  categoryLazy();
+  // categoryLazy();
+
+}
+// 直通车商品数据处理
+function dealZtcFood(type, $el) {
+  var tailWrap = {
+    count: 0,
+    res: {}
+  };
+  if (type == 2) { //tm
+    var tmZtcClass = getChangeId(type);
+    var tmZtcList = $($el).find('.' + tmZtcClass + '-item');
+    if (!tmZtcClass || !tmZtcList.length) {
+      setTimeout(function () {
+        dealZtcFood(type, $el)
+      }, 500)
+      return false;
+    }
+    var tmItemList = [];
+    for (let i = 0; i < tmZtcList.length; i++) {
+      const element = tmZtcList[i];
+      var atpanel = $(element).find('.' + tmZtcClass + '-redtitle').attr('atpanel');
+      var itemId = atpanel.split(',')[1];
+      tmItemList.push(itemId)
+      var itemWrap = $(element).find('.' + tmZtcClass + "-item-inner")
+      appendWrap(itemWrap, itemId)
+    }
+    $('#J_Recommend .' + tmZtcClass + '-shop-list').css('overflow', 'unset')
+    offlineRequest(tmItemList, tailWrap)
+  } else { //tb type:0右侧直通车,1下方直通车
+    var itemIdList = [];
+    var ztcClass = getChangeId(type);
+    var ztcList = $($el).find('.' + ztcClass + '-item');
+    if (!ztcClass || !ztcList.length) {
+      setTimeout(function () {
+        dealZtcFood(type, $el)
+      }, 500)
+      return false;
+    }
+    if (!type) {
+      $($el).find('.' + ztcClass + '-feedback').hide()
+      $($el).find('.' + ztcClass + '-red').hide();
+    }
+    for (let j = 0; j < ztcList.length; j++) {
+      const ele = ztcList[j];
+      var rigthBotton = type ? 'p4p_b_data' : 'p4p_r_data';
+      var itemId = SAVE_PAGE_INFO[rigthBotton][j].RESOURCEID;
+      itemIdList.push(itemId)
+      appendWrap(ele, itemId)
+    }
+    offlineRequest(itemIdList, tailWrap)
+  }
+}
+// 商品底部添加
+function appendWrap($el, itemId) {
+  if (!$el) {
+    return false
+  }
+  $($el).append('<ul class="chaqz-item-info item-id-' + itemId + '" data-id="' + itemId + '"><li><i class="logo-smll-icon chaqz-icon tit"></i><a href="' + BASE_URL + '" target="_blank">查权重</a><a href="' + BASE_URL + '/infiniteRank" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao" target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">一键加权</a></li><li><i class="type-icon chaqz-icon tit">类</i><span class="cate-btn">查看</span><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon tit"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon tit"></i>下架：<span class="offtime"></span></li></ul><div></div>');
+  //===  <li><i class="natural-icon chaqz-icon"></i>自然搜索：<span></span></li><li><i class="ztc-icon chaqz-icon"></i>直通车：<span></span></li>
 }
 //  获取区域图数据
 function getAddressData(addrData) {
@@ -208,7 +283,7 @@ function getOfflineData(itemIdList, itemPrice) {
   }
   var tailWrap = {
     count: 0,
-    cateGory:{},
+    cateGory: {},
     res: {}
   };
   offlineRequest(itemIdList, tailWrap, function () {
@@ -270,7 +345,7 @@ function offlineRequest(itemIdList, tailWrap, cb) {
       // tailWrap.cateGory[ele] = itemCategory;
       if (tailWrap.count > len - 2) {
         console.log(tailWrap.cateGory)
-        cb(tailWrap.res)
+        cb && cb(tailWrap.res)
       }
       tailWrap.count++
     })
@@ -347,11 +422,14 @@ function domChartStruct(edata, type) {
       data: ['付款人数', '卖家数量']
     },
     grid: {
-      right: '5%',
+      right: '7%',
       left: '5%'
     },
     xAxis: {
       type: 'category',
+      axisLabel: {
+        rotate: -45
+      },
       data: edata.names
     },
     yAxis: [{
@@ -391,9 +469,9 @@ $(document).on('mouseenter', '.historyPrice', function () {
   var isDetail = $(this).hasClass('detail-history');
   // var saveToke = localStorage.getItem('chaqz_token');
   // 判断是否请求过
-  if (SAVE_HISTORY[id]){
+  if (SAVE_HISTORY[id]) {
     historyStruct(SAVE_HISTORY[id].lowHigh, SAVE_HISTORY[id].edata, isDetail);
-     $('.chaqz-global-loading').removeClass('chaqz-global-loading');
+    $('.chaqz-global-loading').removeClass('chaqz-global-loading');
     return false;
   }
   chrome.runtime.sendMessage({
@@ -406,7 +484,7 @@ $(document).on('mouseenter', '.historyPrice', function () {
       // }
     }
   }, function (val) {
-    if (val.code == 200 && typeof val.data.RetObject !='string') {
+    if (val.code == 200 && typeof val.data.RetObject != 'string') {
       var res = val.data.RetObject;
       var dateOriList = res.date_list.split(',');
       var dateFullList = dateOriList.map(function (item) {
@@ -419,10 +497,12 @@ $(document).on('mouseenter', '.historyPrice', function () {
         edata: {
           dateFullList,
           priceOriList
-        }, isDetail
+        },
+        isDetail
       }
       historyStruct(lowHigh, {
-        dateFullList, priceOriList
+        dateFullList,
+        priceOriList
       }, isDetail)
     } else {
       var contentDom = '<div class="no-data">未查询到价格数据</div>';
@@ -431,7 +511,7 @@ $(document).on('mouseenter', '.historyPrice', function () {
     $('.chaqz-global-loading').removeClass('chaqz-global-loading');
   })
   $(document).on('mouseleave  ', '.historyPrice', function () {
-    if($(this).hasClass('detail-history')){
+    if ($(this).hasClass('detail-history')) {
       $('.chaqz-trend-chart').remove();
       return false
     }
@@ -439,38 +519,43 @@ $(document).on('mouseenter', '.historyPrice', function () {
   })
 
 })
- function historyStruct(lowHigh, edata, isDetail) {
-   var contentDom = '<div class="title">历史最低：￥<span class="hot">' + lowHigh.low + '</span> |最高：￥<span class="hot">' + lowHigh.low + '</span></div><div id="chaqz-echarts-box"></div>';
-   isDetail ? $('.chaqz-detail-wrap .chaqz-trend-chart').append(contentDom) : $('.chaqz-item-info .chaqz-trend-chart').append(contentDom);
-   var myChart = echarts.init(document.getElementById('chaqz-echarts-box'));
-   var option = {
-     tooltip: {
-       trigger: 'axis',
-     },
-     grid: {
-       top: 30,
-       bottom: 30,
-       left: '15%'
-     },
-     xAxis: {
-       type: 'category',
-       data: edata.dateFullList
-     },
-     yAxis: {
-       type: 'value',
-       axisLabel: {
-         formatter: "{value} 元"
-       }
-     },
-     series: [{
-       name: '价格',
-       type: 'line',
-       smooth: true,
-       data: edata.priceOriList
-     }]
-   }
-   myChart.setOption(option)
- }
+
+function historyStruct(lowHigh, edata, isDetail) {
+  var contentDom = '<div class="title">历史最低：￥<span class="hot">' + lowHigh.low + '</span> |最高：￥<span class="hot">' + lowHigh.low + '</span></div><div id="chaqz-echarts-box"></div>';
+  isDetail ? $('.chaqz-detail-wrap .chaqz-trend-chart').append(contentDom) : $('.chaqz-item-info .chaqz-trend-chart').append(contentDom);
+  var echartDom = document.getElementById('chaqz-echarts-box');
+  if (!echartDom) {
+    return false;
+  }
+  var myChart = echarts.init(echartDom);
+  var option = {
+    tooltip: {
+      trigger: 'axis',
+    },
+    grid: {
+      top: 30,
+      bottom: 30,
+      left: '15%'
+    },
+    xAxis: {
+      type: 'category',
+      data: edata.dateFullList
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: "{value} 元"
+      }
+    },
+    series: [{
+      name: '价格',
+      type: 'line',
+      smooth: true,
+      data: edata.priceOriList
+    }]
+  }
+  myChart.setOption(option)
+}
 // 类目懒加载
 // 当页面开始滚动的时候，遍历图片，如果图片出现在视窗中，就加载图片
 var clock; //函数节流
@@ -479,12 +564,12 @@ $(window).on('scroll', function () {
     clearTimeout(clock);
   }
   clock = setTimeout(function () {
-    categoryLazy()
+    // categoryLazy()
   }, 200)
 })
 
 function categoryLazy() {
-  
+
   $('.chaqz-item-info').not('[data-isLoading]').each(function () {
     if (isCategoryShow($(this))) {
       loadCategrory($(this));
@@ -493,29 +578,32 @@ function categoryLazy() {
 }
 // 判断图片是否出现在视窗的函数
 function isCategoryShow($node) {
-  return $node.offset().top <= $(window).height() + $(window).scrollTop()+350;
+  return $node.offset().top <= $(window).height() + $(window).scrollTop() + 350;
 }
 
 // 加载图片的函数，就是把自定义属性data-src 存储的真正的图片地址，赋值给src
 function loadCategrory($img) {
   var itemId = $img.data('id');
-   $img.attr('data-isLoading', 1);
+  $img.attr('data-isLoading', 1);
   getCategroyList(itemId)
   // 已经加载的图片，我给它设置一个属性，值为1，作为标识
- 
+
 }
-function getCategroyList(itemId){
-   chrome.runtime.sendMessage({
-         key: 'getData',
-         options: {
-           url: BASE_URL + '/api/v1/plugin/toolbox/getSearchMulu?param=' + itemId,
-           type: 'GET',
-         }
-       }, function (val) {
-          var categoryName = val.data ? val.data.RetObject : '';
-          var cateDetail = categoryName ? categoryName.split('->') : '';
-          $('.item-id-' + itemId).find('.category').text(cateDetail[cateDetail.length - 1]).attr('title', categoryName);
-       })
+
+function getCategroyList(itemId) {
+  chrome.runtime.sendMessage({
+    key: 'getData',
+    options: {
+      url: BASE_URL + '/api/v1/plugin/toolbox/getSearchMulu?param=' + itemId,
+      type: 'GET',
+    }
+  }, function (val) {
+    var categoryName = val.data ? val.data.RetObject : '';
+    var cateDetail = categoryName ? categoryName.split('->') : '';
+    var cls = '.item-id-' + itemId;
+    $(cls).find('.cate-btn').remove();
+    $(cls).find('.category').css('display', 'inline-block').text(cateDetail[cateDetail.length - 1]).attr('title', categoryName);
+  })
   //  $.ajax({
   //    url: BASE_URL + '/api/v1/plugin/toolbox/getSearchMulu?param=' + itemId,
   //    type: 'GET',
@@ -533,8 +621,8 @@ function getDetailPage(type) {
   offlineRequest([itemId], {
     count: 0,
     res: {}
-  },function(timeRes){})
-  var dom = '<div class="chaqz-detail-wrap"><div class="content"><div class="left"><i class="logo-icon chaqz-icon"></i></div><div class="right item-id-' + itemId + '"><div class="item"><a href="' + BASE_URL + '"  target="_blank">www.chaquanzhong.com</a><span class="title">下架：</span><span class="offtime hot">7-12 11:15(周三)[4天22时48分]</span><span class="title">类目：</span><span class="category hot">保温杯</span><span class="title"><i class="chaqz-icon history-icon"></i><span class="historyPrice detail-history" data-id=' + itemId + '>历史价格</span></span></div><div class="item links"><span class="title-btn">提升权重</span><a href="' + BASE_URL + '/jdGrade" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao"  target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">一键加权</a><a href="' + BASE_URL + '/sevenPlan"  target="_blank">7天上首页</a><a href="' + BASE_URL + '/directTrain"  target="_blank">直通车托管</a><a href="' + BASE_URL + '/moldbaby"  target="_blank">打造爆款</a></div></div></div><div class="advert"><a href="" target="_blank"><img src="https://file.cdn.chaquanzhong.com/adver-side.png"alt=""></a></div></div>';
+  }, function (timeRes) {})
+  var dom = '<div class="chaqz-detail-wrap"><div class="content"><div class="left"><i class="logo-icon chaqz-icon"></i></div><div class="right item-id-' + itemId + '"><div class="item"><a href="' + BASE_URL + '"  target="_blank">www.chaquanzhong.com</a><span class="title">下架：</span><span class="offtime hot">7-12 11:15(周三)[4天22时48分]</span><span class="title">类目：</span><span class="category hot">保温杯</span><span class="title"><i class="chaqz-icon history-icon"></i><span class="historyPrice detail-history" data-id=' + itemId + '>历史价格</span></span></div><div class="item links"><span class="title-btn">提升权重</span><a href="' + BASE_URL + '/infiniteRank" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao"  target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">一键加权</a><a href="' + BASE_URL + '/sevenPlan"  target="_blank">7天上首页</a><a href="' + BASE_URL + '/directTrain"  target="_blank">直通车托管</a><a href="' + BASE_URL + '/moldbaby"  target="_blank">打造爆款</a></div></div></div><div class="advert"><a href="http://www.liuliang120.com/homePage/mainPage" target="_blank"><img src="https://file.cdn.chaquanzhong.com/adver-side.png"alt=""></a></div></div>';
   //  ==== <div class="item"><span class="title-btn">搜索展现</span><span class="search-tb">淘宝搜索</span><span class="offline hot">（23）</span><span class="title">淘宝直通车</span><span class="search-ztc hot">（23）</span><span class="title">无线搜索</span><span class="search-wx hot">（23）</span><span class="title">无线直通车</span><span class="search-wxztc hot">（23）</span></div>
   $('#detail').prepend(dom);
   skuPopup(itemId, type)
@@ -543,12 +631,12 @@ function getDetailPage(type) {
 }
 // sku popup
 function skuPopup(itemId, type) {
-  var dom = '<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png"alt=""class="avator"></div><div class="content-wrap"><div class="sku-btn" id="skuAnaly"><i class="chaqz-icon sku-icon"></i><p class="sku-text">sku评价分析</p></div><div class="bottom"><a href="' + BASE_URL + '/home?from=plugin"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.13</span></div></div></div></div>'
+  var dom = '<div class="chaqz-compete-wrap"><div class="head popover-header"><div class="left"><img class=""src="https://file.cdn.chaquanzhong.com/plugin-compete-logo.png"alt=""></div><img id="userBtn"src="https://file.cdn.chaquanzhong.com/chaqz-plugins-avator.png"alt=""class="avator"></div><div class="content-wrap"><div class="sku-btn" id="skuAnaly"><i class="chaqz-icon sku-icon"></i><p class="sku-text">sku评价分析</p></div><div class="bottom"><a href="' + BASE_URL + '/home?from=plugin"target="_blank">www.chaquanzhong.com</a><br/><span>v1.0.14</span></div></div></div></div>'
   $('#page').append(dom);
   $('#skuAnaly').click(function () {
     // 判断是否含有sku
     var hasSku = judgeSkuSave();
-    if(!hasSku){
+    if (!hasSku) {
       popTip('无需sku分析');
       return false
     }
@@ -583,15 +671,17 @@ function skuPopup(itemId, type) {
     ajaxEvaluation(resData)
   })
 }
-function judgeSkuSave(){
+
+function judgeSkuSave() {
   var url = window.location.href;
-  if (url.indexOf('https://detail')!=-1){
-    return $('.tb-skin .tb-sku .tb-prop').length>2;
+  if (url.indexOf('https://detail') != -1) {
+    return $('.tb-skin .tb-sku .tb-prop').length > 2;
   } else if (url.indexOf('https://item') != -1) {
-      return $('.tb-skin .tb-prop').length;
+    return $('.tb-skin .tb-prop').length;
   }
   return true;
 }
+
 function ajaxEvaluation(params) {
   var dateTime = new Date().getTime();
   var numRandom = randomNum();
@@ -968,7 +1058,7 @@ function detailPagePop() {
   $(document).on('click', '.chaqz-info-wrapper .hided', function () {
     $('.chaqz-info-wrapper').remove()
   })
- 
+
   // 个人信息
   $(document).on('click', '#userBtn', function () {
     anyDom.getInfo();
@@ -1001,13 +1091,13 @@ function detailPagePop() {
       }
     })
   }
-   //  退出
-   function logOut() {
-     isLogin = false;
-     SAVE_MEMBER = {};
-     chrome.storage.local.remove(['chaqzShopInfo'], function () {});
-     localStorage.removeItem('chaqz_token');
-   }
+  //  退出
+  function logOut() {
+    isLogin = false;
+    SAVE_MEMBER = {};
+    chrome.storage.local.remove(['chaqzShopInfo'], function () {});
+    localStorage.removeItem('chaqz_token');
+  }
 }
 /**---- funs -------*/
 function dealSales(sale) { //销量处理
@@ -1075,6 +1165,23 @@ function randomNum() {
   }
   return arr * 1;
 }
+// 获取自定义id
+function getChangeId(type) {
+  // var rightZtc = $('#J_shopkeeper').children()[0].attr('id');
+  // var bottomZtc = $('#J_shopkeeper_bottom').children()[0].attr('id');
+  var classId = '';
+  if (type == 1) {
+    classId = $('#J_shopkeeper_bottom tbcc')[0] ? $('#J_shopkeeper_bottom tbcc')[0].id : '';
+    $('#J_shopkeeper_bottom tbcc')[0] ? $('#J_shopkeeper_bottom tbcc').css('overflow', 'unset') : '';
+  } else if (type == 2) {
+    classId = $('#J_Recommend').children()[0] ? $('#J_Recommend').children()[0].id : '';
+  } else {
+    classId = $('#J_shopkeeper').children()[0] ? $('#J_shopkeeper').children()[0].id : '';
+    $('#J_shopkeeper tbcc')[0] ? $('#J_shopkeeper tbcc').css('overflow', 'unset') : ''
+  }
+  var splitId = classId.split('tbcc-c-')[1];
+  return splitId
+}
 // 日期格式化
 function formate(fmt, date) {
   if (!date) {
@@ -1114,6 +1221,7 @@ function babelSort(data, type) {
   }
   return arr;
 }
+
 function popTip(text, options) {
   var st = '';
   var tm = 500;
@@ -1127,4 +1235,45 @@ function popTip(text, options) {
       $('#page .small-alert').remove();
     })
   }, tm)
+}
+
+function getPageItemInfo() {
+  var content;
+  var content_reg, ret;
+  content = document.getElementsByTagName('html')[0].innerHTML;
+  content_reg = /g_page_config = (.*);/g;
+  content_reg.exec(content);
+  ret = RegExp.$1;
+  ret = JSON.parse(ret);
+  // console.log(ret)
+  var itemlist = ret.mods.itemlist.data.auctions;
+  // console.log(ret.mods.p4p.data);
+  try {
+    var p4p_data = ret.mods.p4p.data.p4pdata;
+  } catch (err) {
+    var p4p_data = '';
+  }
+  var p4p_r_data = '';
+  var p4p_b_data = '';
+  if (p4p_data) {
+    try {
+      p4p_r_data = JSON.parse(p4p_data)['right']['data']['ds1'];
+    } catch (err) {
+      //
+    }
+
+    if (typeof (JSON.parse(p4p_data).bottom) != 'undefined') {
+      try {
+        p4p_b_data = JSON.parse(p4p_data)['bottom']['data']['ds1'];
+      } catch (err) {
+        //
+      }
+    }
+  }
+
+  return {
+    itemlist: itemlist,
+    p4p_r_data: p4p_r_data,
+    p4p_b_data: p4p_b_data
+  }
 }

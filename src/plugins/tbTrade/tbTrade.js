@@ -6,22 +6,22 @@ var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_
     'http://118.25.92.247:8099';
 var redirectUrl = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' :
         'http://118.25.92.247:8099'
-var LOCAL_VERSION = '1.0.13';
+var LOCAL_VERSION = '1.0.14';
 var isLogin = false;
 var searchWang = '';
 var SAVE_MEMBER = {};
 
 chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray) {
     var tok = valueArray.chaqz_token;
-    SAVE_MEMBER = valueArray.chaqzShopInfo?valueArray.chaqzShopInfo:{};
+    // SAVE_MEMBER = valueArray.chaqzShopInfo?valueArray.chaqzShopInfo:{};
     if (tok) {
         localStorage.setItem('chaqz_token', tok.token);
         isLogin = true;
+        getUserInfo()
     } else {
         isLogin = false;
     }
 });
-// $(function () {
     var haset = true;
     $(document).on('DOMNodeInserted', '.ww-light.ww-large', function (e) {
         // console.log(e.target.id, ',', e.target.className)
@@ -37,9 +37,11 @@ chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray)
     $(document).on('click', '#sold_container .pagination li', function () {
         haset = true;
     })
+    $(function () {
       // 右下角
+
       rightConcer()
-// })
+})
 $(document).on('click', '#chaqzSearch', function () {
     var tbName = $(this).siblings().find('.buyer-mod__name___S9vit').text();
     isLogin ? anyDom.searchHei(tbName) : anyDom.init(tbName);

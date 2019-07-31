@@ -1351,64 +1351,78 @@
 }
 
 /* 淘宝 */
-.chaqz-adver-top{
+.chaqz-adver-top {
     text-align: center;
 }
+
 .chaqz_search_top {
     padding: 10px 0;
     background: #e5e5e5;
 }
+
 .chaqz_search_top a {
     color: #2062E6;
 }
+
 .chaqz_search_top .page-static {
     color: #999999;
 }
+
 .chaqz-icon {
     /* icon 基础样式 */
-   display: inline-block;
-   width: 16px;
-   height: 16px;
-   background-repeat:no-repeat;
-   background-position: 100%/center;
-   vertical-align: middle; 
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-repeat: no-repeat;
+    background-position: 100%/center;
+    vertical-align: middle;
 }
- .chaqz-icon.logo-icon {
-   width: 30px;
-   height: 30px;
-   background-image:url(../common/images/chaqz-logo.png) 
+
+.chaqz-icon.logo-icon {
+    width: 30px;
+    height: 30px;
+    background-image: url(../common/images/chaqz-logo.png)
 }
- .chaqz-icon.logo-icon {
-   width: 30px;
-   height: 30px;
-   background-image:url(../common/images/chaqz-logo.png) 
+
+.chaqz-icon.logo-icon {
+    width: 30px;
+    height: 30px;
+    background-image: url(../common/images/chaqz-logo.png)
 }
+
 .chaqz-icon.logo-smll-icon {
-   background-image:url(../common/images/chaqz-small-logo.png) 
+    background-image: url(../common/images/chaqz-small-logo.png)
 }
+
 .chaqz-icon.history-icon {
-   background-image:url(../common/images/history-icon.png) 
+    background-image: url(../common/images/history-icon.png)
 }
+
 .chaqz-icon.type-icon {
-   background: #FF8100;
-   color: #fff;
-   border-radius: 2px;
-   font-style: normal;
-   text-align: center;
+    background: #FF8100;
+    color: #fff;
+    border-radius: 2px;
+    font-style: normal;
+    text-align: center;
+    height: 18px;
 }
+
 .chaqz-icon.offline-icon {
-   background-image:url(../common/images/offline-icon.png) 
+    background-image: url(../common/images/offline-icon.png)
 }
+
 .chaqz-icon.ztc-icon {
-   background-image:url(../common/images/ztc-icon.png) 
+    background-image: url(../common/images/ztc-icon.png)
 }
+
 .chaqz-icon.natural-icon {
-   background-image:url(../common/images/natural-cion.png) 
+    background-image: url(../common/images/natural-cion.png)
 }
+
 .chaqz-icon.sku-icon {
     width: 50px;
     height: 50px;
-   background-image:url(../common/images/sku-logo.png) 
+    background-image: url(../common/images/sku-logo.png)
 }
 
 .chaqz_search_top li {
@@ -1429,6 +1443,7 @@
 .chaqz_search_top li.echart-tab {
     cursor: pointer;
     position: relative;
+    margin-right: 5px;
 }
 
 .chaqz_search_top li.echart-tab::before {
@@ -1494,6 +1509,7 @@
     z-index: 10000;
     background: #fff;
     box-shadow: rgba(0, 0, 0, 0.176) 0px 6px 12px;
+    z-index: 10000000000000;
 }
 
 .chaqz_search_top li:nth-of-type(3) .chaqz-trend-chart {
@@ -1519,6 +1535,7 @@
 .chaqz-trend-chart .chaqz-echarts-box {
     height: 400px;
 }
+
 .chaqz-trend-chart table {
     width: 100%;
     border: 1px solid #e5e5e5;
@@ -1528,6 +1545,11 @@
 
 .chaqz-trend-chart table td {
     border: 1px solid #e5e5e5;
+    padding: 5px 0;
+}
+
+.chaqz-trend-chart table tr td:first-child {
+    background: #F5F5F5;
 }
 
 .chaqz-trend-chart.history-wrap {
@@ -1537,6 +1559,11 @@
     top: 15px;
     left: 0;
     padding: 5px;
+}
+
+#J_shopkeeper_bottom .chaqz-trend-chart.history-wrap,
+#J_shopkeeper .chaqz-trend-chart.history-wrap {
+    left: -300px;
 }
 
 .chaqz-trend-chart.history-wrap .title {
@@ -1583,20 +1610,46 @@
     height: 480px;
 }
 
+#J_shopkeeper_bottom .chaqz-item-info li,
+#J_shopkeeper .chaqz-item-info li {
+    padding-left: 10px;
+}
+
 .chaqz-item-info {
     padding-left: 10px;
     clear: both;
 }
 
-.chaqz-item-info li {
+.chaqz-item-info .cate-btn {
+    background: #5898F9;
+    padding: 1px 2px;
+    border-radius: 3px;
+    cursor: pointer;
+    color: #fff;
+    vertical-align: middle;
+}
+
+.chaqz-item-info .category {
+    display: none;
+}
+
+.chaqz-item-info .tit {
+    margin-right: 5px;
+}
+
+.chaqz-item-info li,
+#J_shopkeeper .chaqz-item-info li,
+#J_shopkeeper_bottom .chaqz-item-info li {
     display: inline-block;
     min-width: 200px;
+    margin-bottom: 10px;
 }
 
 .chaqz-item-info li .historyPrice {
+    color: #5898F9;
     position: relative;
     cursor: pointer;
-    padding: 2px 0; 
+    padding: 2px 0;
 }
 
 .chaqz-item-info li .historyPrice #chaqz-echarts-box,
@@ -1609,9 +1662,13 @@
     margin-right: 15px;
 }
 
-.chaqz-item-info a {
-    color: #4B92EC;
-    margin-right: 8px;
+.chaqz-item-info li a {
+    color: #5898F9;
+    margin-right: 5px;
+}
+
+.chaqz-item-info li a:first-of-type {
+    color: #333;
 }
 
 #J_ItemList.view .product {
@@ -1623,6 +1680,7 @@
     display: flex;
     background: #e5e5e5;
 }
+
 .chaqz-detail-wrap .sku-text {
     margin-top: 20px;
     color: #2062E6;
@@ -1711,6 +1769,7 @@
     right: 50px;
     z-index: 100000005;
 }
+
 #page .chaqz-compete-wrap #skuAnaly {
     margin-top: 20px;
     cursor: pointer;
@@ -1724,7 +1783,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5) url(../common/images/loading.gif) no-repeat 41% center;
+    background: url(../common/images/loding-icon.gif) no-repeat center center;
     z-index: 100000000000000000;
 }
 
@@ -1734,6 +1793,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #fff;
+    color: #000;
+    background: rgba(255, 255, 255, 0.7) url(../common/images/loding-icon.gif) no-repeat 41% center;
     font-size: 18px;
 }
+
+

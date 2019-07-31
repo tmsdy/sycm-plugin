@@ -845,11 +845,16 @@ function rankMergeItemShow(localData){
             obj.cartHit = res.cartHits[i] ? res.cartHits[i] : '未上榜';
             obj.payBar = res.uvIndex[i] ? Math.floor(res.uvIndex[i] * res.payRateIndex[i]) : '-';
             obj.payRate = res.payRateIndex[i] ? (res.payRateIndex[i]*100).toFixed(2)+'%':'-';
-            obj.searRate = formula(res.seIpvUvHits[i], res.uvIndex[i], 2);
-            obj.uvPrice = formula(res.tradeIndex[i], res.uvIndex[i], 1);
-            obj.kdPrice = formula(res.tradeIndex[i], obj.payBar[i], 1);
-            obj.carRate = formula(res.cartHits[i], res.uvIndex[i], 2);
-            obj.cltRate = formula(res.cltHits[i], res.uvIndex[i], 2);
+            var searRate = formula(res.seIpvUvHits[i], res.uvIndex[i], 2);
+            obj.searRate = searRate == '-' ? '未上榜' : searRate;
+            var uvPrice = formula(res.tradeIndex[i], res.uvIndex[i], 1);
+            obj.uvPrice = uvPrice == '-' ? '未上榜' : uvPrice;
+            var kdPrice = formula(res.tradeIndex[i], obj.payBar, 1);
+            obj.kdPrice = kdPrice == '-' ? '未上榜' : kdPrice;
+            var carRate = formula(res.cartHits[i], res.uvIndex[i], 2);
+            obj.carRate = carRate == '-' ? '未上榜' : carRate;
+            var cltRate = formula(res.cltHits[i], res.uvIndex[i], 2);
+            obj.cltRate = cltRate == '-' ? '未上榜' : cltRate;
             resData.push(obj)
         }
            var  cols = [{
