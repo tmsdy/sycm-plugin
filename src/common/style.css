@@ -1608,12 +1608,12 @@
     height: 250px;
 }
 
-.response-wider #mainsrp-itemlist .m-itemlist .grid .item {
+#mainsrp-itemlist .m-itemlist .grid .item {
     height: 480px;
 }
-.response-narrow #mainsrp-itemlist .m-itemlist .grid .item {
+/* .response-narrow #mainsrp-itemlist .m-itemlist .grid .item {
     height: 480px;
-}
+} */
 
 #J_shopkeeper_bottom .chaqz-item-info li,
 #J_shopkeeper .chaqz-item-info li {
