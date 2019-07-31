@@ -189,7 +189,7 @@ function dealZtcFood(type, $el) {
     var ztcList = $($el).find('.' + ztcClass + '-item');
     console.log(ztcClass, $el, ztcList.length)
     if (!ztcClass || !ztcList.length) {
-      if(!type){return false};
+      if(type){return false};
       setTimeout(function () {
         dealZtcFood(type, $el)
       }, 500)
