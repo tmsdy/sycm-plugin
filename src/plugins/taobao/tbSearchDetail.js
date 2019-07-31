@@ -44,7 +44,11 @@ function judgeWebsite() {
     $(document).on('DOMNodeInserted', '#content', function (e) {
       if (e.target.id == 'J_FilterPlaceholder') {
         getPageInfo('tm')
-        dealZtcFood(2, $('#J_Recommend'))
+        setInterval(function () {
+          if (!$('#J_Recommend .chaqz-item-info').length) {
+            dealZtcFood(2, $('#J_Recommend'))
+          }
+        }, 1000)
       }
     })
     return 'tm'
@@ -52,12 +56,16 @@ function judgeWebsite() {
   if (link.indexOf('https://s.taobao.com/search') != -1) {
 
     $(document).on('DOMNodeInserted', '#main', function (e) {
-
+      console.log(e.target.id, ',', e.target.className)
       if (e.target.id == 'mainsrp-itemlist') {
         SAVE_PAGE_INFO = getPageItemInfo()
         getPageInfo();
         dealZtcFood(0, $('#J_shopkeeper'))
-        dealZtcFood(1, $('#J_shopkeeper_bottom'))
+        setInterval(function(){
+          if(!$('#J_shopkeeper_bottom .chaqz-item-info').length){
+            dealZtcFood(1, $('#J_shopkeeper_bottom'))
+          }
+        },1000)
       }
     })
   }
@@ -126,13 +134,13 @@ function getPageInfo(type) {
       sale,
       addr
     })
-    appendWrap(wraps, itemId)
+    appendWrap($(wraps), itemId)
   }
   var priceStatic = getHeightLow(redData.prices)
   var saleStatic = getHeightLow(redData.sales)
   // 顶部展示区域
   var hasAddr = type == 'tm' ? '' : '<li class="echart-tab addr">区域图<span class="arrow"></span></li>';
-  var dom = '<ul class="chaqz_search_top"><li><i class="logo-icon chaqz-icon"></i><a href="' + BASE_URL + '">www.chaquanzhong.com</a></li><li class="page-static">本页统计</li>' + hasAddr + '<li class="echart-tab offline">下架图<span class="arrow"></span></li><li class="echart-tab price">价格图<span class="arrow"></span></li><li><span class="tab">价格</span></li><li>平均价:<span class="price">' + priceStatic.avg + '</span></li><li>最高价:<span class="price">' + priceStatic.high + '</span></li><li>最低价:<span class="price">' + priceStatic.low + '</span></li><li><span class="tab">销量</span></li><li>平均销:<span class="price">' + saleStatic.avg + '</span></li><li>最高销:<span class="price">' + saleStatic.high + '</span></li><li>最低销:<span class="price">' + saleStatic.low + '</span></li></ul>';
+  var dom = '<ul class="chaqz_search_top"><li><i class="logo-icon chaqz-icon"></i><a href="' + BASE_URL + '" target="_blank">www.chaquanzhong.com</a></li><li class="page-static">本页统计</li>' + hasAddr + '<li class="echart-tab offline">下架图<span class="arrow"></span></li><li class="echart-tab price">价格图<span class="arrow"></span></li><li><span class="tab">价格</span></li><li>平均价:<span class="price">' + priceStatic.avg + '</span></li><li>最高价:<span class="price">' + priceStatic.high + '</span></li><li>最低价:<span class="price">' + priceStatic.low + '</span></li><li><span class="tab">销量</span></li><li>平均销:<span class="price">' + saleStatic.avg + '</span></li><li>最高销:<span class="price">' + saleStatic.high + '</span></li><li>最低销:<span class="price">' + saleStatic.low + '</span></li></ul>';
   type == 'tm' ? $('#J_RelSearch').append(dom) : $('#mainsrp-itemlist').prepend(dom);
 
   //  获取区域图数据
@@ -152,14 +160,17 @@ function dealZtcFood(type, $el) {
     res: {}
   };
   if (type == 2) { //tm
+    
     var tmZtcClass = getChangeId(type);
     var tmZtcList = $($el).find('.' + tmZtcClass + '-item');
+    console.log(tmZtcClass, $el, tmZtcList.length)
     if (!tmZtcClass || !tmZtcList.length) {
       setTimeout(function () {
         dealZtcFood(type, $el)
       }, 500)
       return false;
     }
+     
     var tmItemList = [];
     for (let i = 0; i < tmZtcList.length; i++) {
       const element = tmZtcList[i];
@@ -170,11 +181,13 @@ function dealZtcFood(type, $el) {
       appendWrap(itemWrap, itemId)
     }
     $('#J_Recommend .' + tmZtcClass + '-shop-list').css('overflow', 'unset')
+    $('#J_Recommend .' + tmZtcClass + '-global').css('height', 540)
     offlineRequest(tmItemList, tailWrap)
   } else { //tb type:0右侧直通车,1下方直通车
     var itemIdList = [];
     var ztcClass = getChangeId(type);
     var ztcList = $($el).find('.' + ztcClass + '-item');
+    console.log(ztcClass, $el, ztcList.length)
     if (!ztcClass || !ztcList.length) {
       setTimeout(function () {
         dealZtcFood(type, $el)
@@ -184,9 +197,12 @@ function dealZtcFood(type, $el) {
     if (!type) {
       $($el).find('.' + ztcClass + '-feedback').hide()
       $($el).find('.' + ztcClass + '-red').hide();
+    }else{
+      $('#J_shopkeeper_bottom .' + ztcClass + '-global').css('height',540)
+      $('#J_shopkeeper_bottom .' + ztcClass + '-global>ul').css('height',480)
     }
     for (let j = 0; j < ztcList.length; j++) {
-      const ele = ztcList[j];
+      let ele = ztcList[j];
       var rigthBotton = type ? 'p4p_b_data' : 'p4p_r_data';
       var itemId = SAVE_PAGE_INFO[rigthBotton][j].RESOURCEID;
       itemIdList.push(itemId)
@@ -200,7 +216,9 @@ function appendWrap($el, itemId) {
   if (!$el) {
     return false
   }
-  $($el).append('<ul class="chaqz-item-info item-id-' + itemId + '" data-id="' + itemId + '"><li><i class="logo-smll-icon chaqz-icon tit"></i><a href="' + BASE_URL + '" target="_blank">查权重</a><a href="' + BASE_URL + '/infiniteRank" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao" target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">一键加权</a></li><li><i class="type-icon chaqz-icon tit">类</i><span class="cate-btn">查看</span><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon tit"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon tit"></i>下架：<span class="offtime"></span></li></ul><div></div>');
+  console.log($el)
+  var appendDom = '<ul class="chaqz-item-info item-id-' + itemId + '" data-id="' + itemId + '"><li><i class="logo-smll-icon chaqz-icon tit"></i><a href="' + BASE_URL + '" target="_blank">查权重</a><a href="' + BASE_URL + '/infiniteRank" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao" target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">加权</a></li><li><i class="type-icon chaqz-icon tit">类</i><span class="cate-btn">查看</span><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon tit"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon tit"></i>下架：<span class="offtime"></span></li></ul><div></div>'
+  $($el).append(appendDom);
   //===  <li><i class="natural-icon chaqz-icon"></i>自然搜索：<span></span></li><li><i class="ztc-icon chaqz-icon"></i>直通车：<span></span></li>
 }
 //  获取区域图数据
@@ -470,7 +488,7 @@ $(document).on('mouseenter', '.historyPrice', function () {
   // var saveToke = localStorage.getItem('chaqz_token');
   // 判断是否请求过
   if (SAVE_HISTORY[id]) {
-    historyStruct(SAVE_HISTORY[id].lowHigh, SAVE_HISTORY[id].edata, isDetail);
+    historyStruct(SAVE_HISTORY[id].lowHigh, SAVE_HISTORY[id].edata, isDetail, id);
     $('.chaqz-global-loading').removeClass('chaqz-global-loading');
     return false;
   }
@@ -491,19 +509,26 @@ $(document).on('mouseenter', '.historyPrice', function () {
         return '2019.' + item
       });
       var priceOriList = res.pirce_list[0].split(',');
-      var lowHigh = getHeightLow(priceOriList);
+      var lowPri = lowHighPrice(res.ls_down);
+      var highPri = lowHighPrice(res.ls_high);
       SAVE_HISTORY[id] = {
-        lowHigh,
+        lowHigh: {
+          low: lowPri,
+          high: highPri
+        },
         edata: {
           dateFullList,
           priceOriList
         },
-        isDetail
+        isDetail, id
       }
-      historyStruct(lowHigh, {
+      historyStruct({
+            low: lowPri,
+            high: highPri
+          }, {
         dateFullList,
         priceOriList
-      }, isDetail)
+      }, isDetail, id)
     } else {
       var contentDom = '<div class="no-data">未查询到价格数据</div>';
       $('.chaqz-trend-chart').append(contentDom);
@@ -520,9 +545,11 @@ $(document).on('mouseenter', '.historyPrice', function () {
 
 })
 
-function historyStruct(lowHigh, edata, isDetail) {
-  if ($('.chaqz-item-info .chaqz-trend-chart').length){return false};
-  var contentDom = '<div class="title">历史最低：￥<span class="hot">' + lowHigh.low + '</span> |最高：￥<span class="hot">' + lowHigh.high + '</span></div><div id="chaqz-echarts-box"></div>';
+function historyStruct(lowHigh, edata, isDetail,itemId) {
+  if (!$('.item-id-' + itemId + ' .chaqz-trend-chart').length || $('.item-id-' + itemId + ' .chaqz-trend-chart .title').length) {
+    return false
+  };
+  var contentDom = '<div class="title">历史最低：<span class="hot">￥' + lowHigh.low + '</span> |最高：<span class="hot">￥' + lowHigh.high + '</span></div><div id="chaqz-echarts-box"></div>';
   isDetail ? $('.chaqz-detail-wrap .chaqz-trend-chart').append(contentDom) : $('.chaqz-item-info .chaqz-trend-chart').append(contentDom);
   var echartDom = document.getElementById('chaqz-echarts-box');
   if (!echartDom) {
@@ -1277,4 +1304,13 @@ function getPageItemInfo() {
     p4p_r_data: p4p_r_data,
     p4p_b_data: p4p_b_data
   }
+}
+// 获取最高最低价格
+function lowHighPrice(price){
+  if(!price){
+    return 0
+  }
+  var fontPri = price.split(' ')[0];
+  var endPri = fontPri.split('￥')[1]
+  return endPri
 }

@@ -1561,6 +1561,7 @@
     top: 15px;
     left: 0;
     padding: 5px;
+    color: #333;
 }
 
 #J_shopkeeper_bottom .chaqz-trend-chart.history-wrap,
@@ -1623,6 +1624,9 @@
 .chaqz-item-info {
     padding-left: 10px;
     clear: both;
+}
+#J_ItemList .chaqz-item-info {
+    padding-left: 0;
 }
 
 .chaqz-item-info .cate-btn {
