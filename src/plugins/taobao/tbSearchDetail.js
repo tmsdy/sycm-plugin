@@ -521,7 +521,8 @@ $(document).on('mouseenter', '.historyPrice', function () {
 })
 
 function historyStruct(lowHigh, edata, isDetail) {
-  var contentDom = '<div class="title">历史最低：￥<span class="hot">' + lowHigh.low + '</span> |最高：￥<span class="hot">' + lowHigh.low + '</span></div><div id="chaqz-echarts-box"></div>';
+  if ($('.chaqz-item-info .chaqz-trend-chart').length){return false};
+  var contentDom = '<div class="title">历史最低：￥<span class="hot">' + lowHigh.low + '</span> |最高：￥<span class="hot">' + lowHigh.high + '</span></div><div id="chaqz-echarts-box"></div>';
   isDetail ? $('.chaqz-detail-wrap .chaqz-trend-chart').append(contentDom) : $('.chaqz-item-info .chaqz-trend-chart').append(contentDom);
   var echartDom = document.getElementById('chaqz-echarts-box');
   if (!echartDom) {
