@@ -1565,7 +1565,8 @@
 }
 
 #J_shopkeeper_bottom .chaqz-trend-chart.history-wrap,
-#J_shopkeeper .chaqz-trend-chart.history-wrap {
+#J_shopkeeper .chaqz-trend-chart.history-wrap,
+#J_Recommend .chaqz-trend-chart.history-wrap {
     left: -300px;
 }
 

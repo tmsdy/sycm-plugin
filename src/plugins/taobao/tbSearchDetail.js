@@ -1204,6 +1204,7 @@ function getChangeId(type) {
     $('#J_shopkeeper_bottom tbcc')[0] ? $('#J_shopkeeper_bottom tbcc').css('overflow', 'unset') : '';
   } else if (type == 2) {
     classId = $('#J_Recommend').children()[0] ? $('#J_Recommend').children()[0].id : '';
+    $('#J_Recommend tbcc')[0] ? $('#J_Recommend tbcc').css('overflow', 'unset') : '';
   } else {
     classId = $('#J_shopkeeper').children()[0] ? $('#J_shopkeeper').children()[0].id : '';
     $('#J_shopkeeper tbcc')[0] ? $('#J_shopkeeper tbcc').css('overflow', 'unset') : ''
