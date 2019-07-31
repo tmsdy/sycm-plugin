@@ -5,7 +5,7 @@ var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_
 var redirectUrl = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' :
   'http://118.25.92.247:8099'
 var SAVE_CUR_PAGE = {};
-var LOCAL_VERSION = '1.0.13';
+var LOCAL_VERSION = '1.0.14';
 var isLogin = false;
 var SAVE_MEMBER = {};
 var SAVE_HISTORY = {};
@@ -165,9 +165,9 @@ function dealZtcFood(type, $el) {
     var tmZtcList = $($el).find('.' + tmZtcClass + '-item');
     console.log(tmZtcClass, $el, tmZtcList.length)
     if (!tmZtcClass || !tmZtcList.length) {
-      setTimeout(function () {
-        dealZtcFood(type, $el)
-      }, 500)
+      // setTimeout(function () {
+      //   dealZtcFood(type, $el)
+      // }, 500)
       return false;
     }
      
@@ -189,6 +189,7 @@ function dealZtcFood(type, $el) {
     var ztcList = $($el).find('.' + ztcClass + '-item');
     console.log(ztcClass, $el, ztcList.length)
     if (!ztcClass || !ztcList.length) {
+      if(!type){return false};
       setTimeout(function () {
         dealZtcFood(type, $el)
       }, 500)
