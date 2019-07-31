@@ -1354,7 +1354,9 @@
 .chaqz-adver-top {
     text-align: center;
 }
-
+.chaqz-adver-top img{
+    width: 100%;
+}
 .chaqz_search_top {
     padding: 10px 0;
     background: #e5e5e5;
@@ -1607,6 +1609,9 @@
 }
 
 .response-wider #mainsrp-itemlist .m-itemlist .grid .item {
+    height: 480px;
+}
+.response-narrow #mainsrp-itemlist .m-itemlist .grid .item {
     height: 480px;
 }
 

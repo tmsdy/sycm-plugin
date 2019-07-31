@@ -532,7 +532,7 @@ function operatWeight(weightData) {
     for (let j = 0; j < 2; j++) {
         var proKey = sortEndList[5 - j].name;
         var name = typeName[proKey];
-        var url = 'cltHits,cartHits'.indexOf(proKey) == -1 ? 'http://www.liuliang120.com/homePage/mainPage' : 'http://www.renwu188.com/';
+        var url = 'payItemCnt,payRateIndex'.indexOf(proKey) == -1 ? 'http://www.liuliang120.com/homePage/mainPage' : 'http://www.renwu188.com/';
         promtHtml += '<li><span>宝贝' + name + '低于行业优秀，建议</span><a href="' + url + '" target="_blank"><button>优化</button></li></a>';
     }
     return {

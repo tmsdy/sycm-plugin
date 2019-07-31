@@ -1929,7 +1929,7 @@ function compareShopTrend() { // 趋势
                obj.cltHit = transData.cltHits[cot];
                obj.cartHit = transData.cartHits[cot];
                obj.payByrCntIndex = transData.payByrCntIndex[cot];
-               obj.payRateIndex = (transData.payRateIndex[cot] * 100).toFixed(2) + '%';
+               obj.payRateIndex = transData.payRateIndex[cot]!=undefined?(transData.payRateIndex[cot] * 100).toFixed(2) + '%':"-";
                obj.kdPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.payByrCntIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.payByrCntIndex[cot]).toFixed(2);
                obj.uvPrice = (transData.tradeIndex[cot] == '超出范围' || !transData.uvIndex[cot]) ? '-' : (transData.tradeIndex[cot] / transData.uvIndex[cot]).toFixed(2);
                obj.searchRate = transData.uvIndex[cot] ? (transData.seIpvUvHits[cot] / transData.uvIndex[cot] * 100).toFixed(2) + '%' : '-';
