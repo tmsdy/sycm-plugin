@@ -752,6 +752,45 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
          return false;
      }
      competeSelectId = isPassReg;
+    //  暂时使用获取token
+     isOverTimeToken(isPassReg, tips)
+    //  var saveToke = localStorage.getItem('chaqz_token')
+    //  chrome.runtime.sendMessage({
+    //      key: 'getData',
+    //      options: {
+    //          url: BASE_URL + '/py/api/v1/item?id=' + isPassReg,
+    //          type: "GET",
+    //          headers: {
+    //              Authorization: "Bearer " + saveToke
+    //          }
+    //      }
+    //  }, function (val) {
+    //      if (val.code == 200) {
+    //          var localCateId = getFirstCateId();
+    //          var resCateId = val.data.rootCategoryId;
+    //          if (localCateId != resCateId) {
+    //              tips.html('校验失败,仅支持同类目商品！<a class="contactService">请联系客服</a>')
+    //              $('.chaqz-info-wrapper.pop .good-tips').addClass('alert');
+    //              LoadingPop();
+    //              return false
+    //          }
+    //          var itemInfo = {
+    //              pic: val.data.images[0],
+    //              title: val.data.title,
+    //              priceRange: '￥' + val.data.min_price + "~￥" + val.data.max_price
+    //          }
+    //          weightParsing(isPassReg, val.data.categoryId, itemInfo,localCateId);
+    //      } else if (val.code == 2030) {
+    //          LogOut();
+    //          LoadingPop();
+    //      } else {
+    //          tips.html('校验失败！<a class="contactService">请联系客服</a>')
+    //          $('.chaqz-info-wrapper.pop .good-tips').addClass('alert');
+    //          LoadingPop();
+    //      }
+    //  })
+ })
+ function isOverTimeToken(isPassReg) {
      var saveToke = localStorage.getItem('chaqz_token')
      chrome.runtime.sendMessage({
          key: 'getData',
@@ -777,17 +816,44 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
                  title: val.data.title,
                  priceRange: '￥' + val.data.min_price + "~￥" + val.data.max_price
              }
-             weightParsing(isPassReg, val.data.categoryId, itemInfo,localCateId);
+             weightParsing(isPassReg, val.data.categoryId, itemInfo, localCateId);
          } else if (val.code == 2030) {
-             LogOut();
-             LoadingPop();
+            setIntRefreshToken(isOverTimeToken(isPassReg, tips))
+            //  LogOut();
+            //  LoadingPop();
          } else {
              tips.html('校验失败！<a class="contactService">请联系客服</a>')
              $('.chaqz-info-wrapper.pop .good-tips').addClass('alert');
              LoadingPop();
          }
      })
- })
+ }
+ function setIntRefreshToken(cb) {
+     var curToken = localStorage.getItem('chaqz_token');
+     chrome.runtime.sendMessage({
+         key: "getData",
+         options: {
+             url: BASE_URL + '/api/v1/user/Retoken',
+             type: "POST",
+             contentType: 'application/json',
+             data: JSON.stringify({
+                 token: curToken
+             }),
+         }
+     }, function (val) {
+         var token = val.data.token;
+         localStorage.setItem('chaqz_token', token);
+         var curTime = new Date().getTime();
+         var saveToke = {
+             expiration: curTime + val.data.expires * 1000,
+             token: token
+         }
+         chrome.storage.local.set({
+             'chaqz_token': saveToke
+         }, function () {});
+         cb && cb()
+     })
+ }
  // all-竞品解析
  $(document).on('click', '#parsing', function () {
      if (!isNewVersion()) {
@@ -1626,23 +1692,31 @@ function concatArr(decryData, decryDataTwo) {
                             var indx = item.tradeIndex ? item.tradeIndex.value : 0;
                             indexData.push(indx)
                         })
-                        var saveToke = localStorage.getItem('chaqz_token')
-                        chrome.runtime.sendMessage({
-                                key: "getData",
-                                options: {
-                                    url: BASE_URL + '/api/v1/plugin/flowFormula?type=2',
-                                    type: "POST",
-                                    contentType: "application/json,charset=utf-8",
-                                    headers: {
-                                        Authorization: "Bearer " + saveToke
-                                    },
-                                    data: JSON.stringify({
-                                        exponent: indexData
-                                    })
-                                }
-                            },
-                            function (indexVal) {
-                                indexVal = indexVal.data;
+                        dealIndex({
+                            type: 'dealTrend',
+                            dataType: {
+                                tradeIndex: indexData
+                            }
+                        },
+                        function (indexVal) {
+                        // })
+                        // var saveToke = localStorage.getItem('chaqz_token')
+                        // chrome.runtime.sendMessage({
+                        //         key: "getData",
+                        //         options: {
+                        //             url: BASE_URL + '/api/v1/plugin/flowFormula?type=2',
+                        //             type: "POST",
+                        //             contentType: "application/json,charset=utf-8",
+                        //             headers: {
+                        //                 Authorization: "Bearer " + saveToke
+                        //             },
+                        //             data: JSON.stringify({
+                        //                 exponent: indexData
+                        //             })
+                        //         }
+                        //     },
+                        //     function (indexVal) {
+                                indexVal = indexVal.value.tradeIndex;
                                 var inResData = [];
                                 var inLen = indexVal.length;
                                 var eDateArr = [];
@@ -1840,37 +1914,70 @@ function getCompareData(resData, resultWrap, itemInfo) {
             requestData.topItem = '';
             requestData.version = '1.0';
             //  console.log('出到后台数据', requestData)
-            var saveToke = localStorage.getItem('chaqz_token')
-            chrome.runtime.sendMessage({
-                key: 'getData',
-                options: {
-                    url: BASE_URL + '/py/api/v1/weight',
-                    type: 'POST',
-                    headers: {
-                        Authorization: "Bearer " + saveToke
-                    },
-                    data: JSON.stringify(requestData),
-                    contentType: "application/json,charset=utf-8",
-                }
-            }, function (val3) {
-                if (val3.code == 200) {
-                    localStorage.setItem(itemInfo.locaKey, JSON.stringify({
-                        itemInfo:itemInfo,
-                        data: val3.data
-                    }))
-                    domStructweightPars(itemInfo, val3.data)
-                    // console.log('接收后台处理数据', val3.data)
-                } else if (val3.code == 2030) {
-                    LogOut()
-                } else {
-                    popTip('解析失败');
-                }
-                $('.chaqz-info-wrapper.pop').hide();
-                LoadingPop();
-            })
+
+            // 过期刷新获取新token
+            getWeightResult(requestData, itemInfo)
+            // var saveToke = localStorage.getItem('chaqz_token')
+            // chrome.runtime.sendMessage({
+            //     key: 'getData',
+            //     options: {
+            //         url: BASE_URL + '/py/api/v1/weight',
+            //         type: 'POST',
+            //         headers: {
+            //             Authorization: "Bearer " + saveToke
+            //         },
+            //         data: JSON.stringify(requestData),
+            //         contentType: "application/json,charset=utf-8",
+            //     }
+            // }, function (val3) {
+            //     if (val3.code == 200) {
+            //         localStorage.setItem(itemInfo.locaKey, JSON.stringify({
+            //             itemInfo:itemInfo,
+            //             data: val3.data
+            //         }))
+            //         domStructweightPars(itemInfo, val3.data)
+            //         // console.log('接收后台处理数据', val3.data)
+            //     } else if (val3.code == 2030) {
+            //         LogOut()
+            //     } else {
+            //         popTip('解析失败');
+            //     }
+            //     $('.chaqz-info-wrapper.pop').hide();
+            //     LoadingPop();
+            // })
          })
     })
-   
+}
+function getWeightResult(requestData, itemInfo) {
+     var saveToke = localStorage.getItem('chaqz_token')
+     chrome.runtime.sendMessage({
+         key: 'getData',
+         options: {
+             url: BASE_URL + '/py/api/v1/weight',
+             type: 'POST',
+             headers: {
+                 Authorization: "Bearer " + saveToke
+             },
+             data: JSON.stringify(requestData),
+             contentType: "application/json,charset=utf-8",
+         }
+     }, function (val3) {
+         if (val3.code == 200) {
+             localStorage.setItem(itemInfo.locaKey, JSON.stringify({
+                 itemInfo: itemInfo,
+                 data: val3.data
+             }))
+             domStructweightPars(itemInfo, val3.data)
+             // console.log('接收后台处理数据', val3.data)
+         } else if (val3.code == 2030) {
+             setIntRefreshToken(getWeightResult(requestData, itemInfo))
+            //  LogOut()
+         } else {
+             popTip('解析失败');
+         }
+         $('.chaqz-info-wrapper.pop').hide();
+         LoadingPop();
+     })
 }
 /*----------词根分析----------*/
 //  词根分析展示

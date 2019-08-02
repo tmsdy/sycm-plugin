@@ -202,7 +202,7 @@
              return indexTrans.rangRate2(num)
          } else if (num >= 70 && num < 100) {
              return indexTrans.rangRate3(num)
-         } else if (num >= 100 && num < 3693) {
+         } else if (num >= 100 && num < 3693.5) {
              return indexTrans.rangRate4(num)
          } else {
              return '超出范围'

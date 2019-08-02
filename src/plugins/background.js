@@ -13,6 +13,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     return true
 })
 var rootWordRemId = '';
+var tiemr = null;
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == 'fromWeb') {
         chrome.tabs.query({
@@ -58,9 +59,44 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         }, function (res) {
 
         })
+    } else if (request.type == 'hasTefresToken'){
+        // token更新机制
+        timer = null;
+        timer = setInterval(function(){
+             httpRequestAjax({
+                url: BASE_URL + '/api/v1/user/Retoken',
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    token: request.curToken
+                }),
+            }, function (data) {
+                //  sendResponse(data)
+                var token = data.data.token;
+                 sendMessagePage(sender.tab.id, token)
+                 var curTime = new Date().getTime();
+                 var saveToke = {
+                     expiration: curTime + data.data.expires * 1000,
+                     token: token
+                 }
+                 chrome.storage.local.set({
+                     'chaqz_token': saveToke
+                 }, function () {});
+             })
+        },request.time)
     }
     return true
 })
+function sendMessagePage(sendId,resToken){
+    var list = ['sycmPage','taTragePage','tmDetailPage','tbDetailPage']
+    for (let i = 0; i < list.length; i++) {
+        const element = list[i];
+         chrome.tabs.sendMessage(sendId, {
+             type: element,
+              resToken
+         }, function (res) {})
+    }
+}
 // 获取数据
 // var version = "1.0";
 // var tabId;

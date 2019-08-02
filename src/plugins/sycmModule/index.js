@@ -116,18 +116,10 @@ window.isLogin = false;
 clearLocalstorage();
 // 触发数据监听
 interceptRequest();
+
 // 判断是否登录
-chrome.storage.local.get('chaqz_token', function (valueArray) {
-    var tok = valueArray.chaqz_token;
-    if (tok) {
-        localStorage.setItem('chaqz_token', tok.token);
-        isLogin = true;
-        // window.isLogin = true;
-    } else {
-        LogOut()
-        // isLogin = false;
-    }
-});
+checkLoginCode()
+
 $(function () {
     // 登录
     $(document).on('click', '#loginbtn', function () {
@@ -143,8 +135,8 @@ $(function () {
          return false
      });
     //更新用户信息
-    userInfoRes();
-
+    // userInfoRes();
+competePop();
     // 信息上查
     sendUserInfo();
     var setTimer = null;
@@ -295,10 +287,10 @@ function showBtn(type) {
     }
     return reDom
 }
+
 // 更新用户信息
 function userInfoRes() {
     // 竞品分析显示隐藏
-    competePop();
     if (!isLogin) {
         return false;
     }
@@ -322,9 +314,108 @@ function userInfoRes() {
             isLogin = true;
             changeLoginStatus()
         } else {
-            LogOut()
+            setIntRefreshToken(userInfoRes)
+            // LogOut()
         }
     })
+}
+// 判断是否登录过来
+function checkLoginCode(){
+    var url = window.location.href;
+    console.log(url)
+    url = decodeURIComponent(url);
+    var hasCode = getSearchPara(url, 'code');
+    var hasAccout = getSearchPara(url, 'account');
+    if (hasCode && hasAccout){
+       var cutPara = url.replace(/account=\d*&?/, '')
+       var cutPara2 = cutPara.replace(/code=\w*&?/, '')
+        chrome.runtime.sendMessage({
+            key: "getData",
+            options: {
+                url: BASE_URL + '/api/v1/user/token',
+                type: "POST",
+                contentType:'application/json',
+                data: JSON.stringify({
+                    account:  hasAccout,
+                    code: hasCode
+                }),
+            }
+        }, function (val) {
+            var token = val.data.token;
+            localStorage.setItem('chaqz_token', token);
+            var curTime = new Date().getTime();
+            var saveToke = {
+                expiration: curTime+val.data.expires*1000,
+                token: token
+            }
+            chrome.storage.local.set({
+                'chaqz_token': saveToke
+            }, function () {});
+            window.location.href = cutPara2;
+        })
+    }else{
+        chrome.storage.local.get('chaqz_token', function (valueArray) {
+            var tok = valueArray.chaqz_token;
+            if (tok) {
+                localStorage.setItem('chaqz_token', tok.token);
+                isLogin = true;
+                userInfoRes()
+            } else {
+                LogOut()
+            }
+        });
+    }
+}
+function setIntRefreshToken(cb){
+    var curToken = localStorage.getItem('chaqz_token');
+        chrome.runtime.sendMessage({
+            key: "getData",
+            options: {
+                url: BASE_URL + '/api/v1/user/Retoken',
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    token: curToken
+                }),
+            }
+        }, function (val) {
+            var token = val.data.token;
+            localStorage.setItem('chaqz_token', token);
+            var curTime = new Date().getTime();
+            var saveToke = {
+                expiration: curTime + val.data.expires * 1000,
+                token: token
+            }
+            chrome.storage.local.set({
+                'chaqz_token': saveToke
+            }, function () {});
+            // 背景页解决方案
+            // tellRefreshToken(val.data.expires,curToken)
+            cb&&cb()
+        })
+}
+// function tellRefreshToken(time){
+//     chrome.runtime.sendMessage({type:'hasTefresToken',time,curToken},function(res){})
+// }
+// chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
+//     if (request.type == 'sycmPage'){
+//          localStorage.setItem('chaqz_token', request.resToken);
+//     }
+// })
+function getSearchPara(url, key) {
+    if (!url) return '';
+    var params = url.split('?')[1];
+    var parList = params.split('&');
+    var res = '';
+    for (let i = 0; i < parList.length; i++) {
+        const element = parList[i];
+        var keyVale = element.split('=');
+        if (keyVale[0] == key) {
+            res = keyVale[1]
+            break;
+        }
+    }
+    return res;
 }
 // 判断版本
 function judgeCor() {

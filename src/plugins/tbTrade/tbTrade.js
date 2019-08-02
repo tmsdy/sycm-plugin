@@ -2,26 +2,14 @@ console.log("taobao 交易管理");
 
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
     'http://118.25.153.205:8090';
-var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
-    'http://118.25.92.247:8099';
-var redirectUrl = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' :
-        'http://118.25.92.247:8099'
+var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' : 'http://118.25.92.247:8099';
 var LOCAL_VERSION = '1.0.14';
 var isLogin = false;
 var searchWang = '';
 var SAVE_MEMBER = {};
 
-chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray) {
-    var tok = valueArray.chaqz_token;
-    // SAVE_MEMBER = valueArray.chaqzShopInfo?valueArray.chaqzShopInfo:{};
-    if (tok) {
-        localStorage.setItem('chaqz_token', tok.token);
-        isLogin = true;
-        getUserInfo()
-    } else {
-        isLogin = false;
-    }
-});
+checkLoginCode()
+
     var haset = true;
     $(document).on('DOMNodeInserted', '.ww-light.ww-large', function (e) {
         // console.log(e.target.id, ',', e.target.className)
@@ -53,48 +41,67 @@ $(document).on('click', '#chaqzCheck', function () {
     isLogin ? anyDom.searchTbk(tbName) : anyDom.init();
 
 })
-var anyDom = {
-  loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/regist&check=GPFEX346" class="right" target="_blank">免费注册</a><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/retrieve&check=GPFEX346" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
-    login: function (tbName) {
-        var _that = this;
-        var onLoading = false;
-        var user = $('.chaqz-info-wrapper #phone').val()
-        var pwd = $('.chaqz-info-wrapper #pwd').val()
-        if (!user || !pwd || onLoading) {
-            return false
-        }
+// 判断是否登录过来
+function checkLoginCode() {
+    var url = window.location.href;
+    var hasCode = getSearchPara(url, 'code');
+    var hasAccout = getSearchPara(url, 'account');
+    if (hasCode && hasAccout) {
+        var cutPara = url.replace(/account=\d*&?/, '')
+        var cutPara2 = cutPara.replace(/code=\w*&?/, '')
         chrome.runtime.sendMessage({
             key: "getData",
             options: {
-                url: LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/cqzLogin',
-                data: 'account=' + user + '&password=' + pwd + '&appId=M177293746593',
-                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-                processData: false,
+                url: BASE_URL + '/api/v1/user/token',
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    account: hasAccout,
+                    code: hasCode
+                }),
             }
         }, function (val) {
-            if (val.code == 200) {
-                var token = val.data.token;
-                localStorage.setItem('chaqz_token', token);
-                var curTime = new Date().getTime();
-                var saveToke = {
-                    expiration: curTime + val.data.expires * 1000,
-                    token: token
-                }
-                chrome.storage.local.set({
-                    'chaqz_token': saveToke
-                }, function () {});
-                // SAVE_MEMBER = val.data;
-                isLogin = true;
-                $('.chaqz-info-wrapper.login').remove();
-                getUserInfo()
-               tbName? _that.searchHei(tbName):'';
-            } else {
-                $('.chaqz-info-wrapper.login .pwd .tips').text('账号或密码错误').show();
-                logOut()
-                onLoading = false
+            var token = val.data.token;
+            localStorage.setItem('chaqz_token', token);
+            var curTime = new Date().getTime();
+            var saveToke = {
+                expiration: curTime + val.data.expires * 1000,
+                token: token
             }
+            chrome.storage.local.set({
+                'chaqz_token': saveToke
+            }, function () {});
+            window.location.href = cutPara2;
         })
-    },
+    } else {
+        chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray) {
+            var tok = valueArray.chaqz_token;
+            if (tok) {
+                localStorage.setItem('chaqz_token', tok.token);
+                isLogin = true;
+                getUserInfo()
+            } else {
+                isLogin = false;
+            }
+        });
+    }
+}
+function getSearchPara(url, key) {
+    if (!url) return '';
+    var params = url.split('?')[1];
+    var parList = params.split('&');
+    var res = '';
+    for (let i = 0; i < parList.length; i++) {
+        const element = parList[i];
+        var keyVale = element.split('=');
+        if (keyVale[0] == key) {
+            res = keyVale[1]
+            break;
+        }
+    }
+    return res;
+}
+var anyDom = {
     infoDom: function (memInfo, bindedInfo) {
         var acct = memInfo.username;
         var title = memInfo.member.title;
@@ -117,43 +124,11 @@ var anyDom = {
         $('#page').append(wrap);
 
     },
-    init: function (tbName) {
-        var _that = this
-        $('#page').append(this.loginDom);
-        $(document).on('blur', '.chaqz-info-wrapper #phone', function () {
-            var phoneVal = $(this).val()
-            var phoneReg = /^1[34578]\d{9}$/;
-            if (!phoneVal) {
-                $(this).siblings('.tips').text('请输入手机号码').show()
-            } else if (!phoneReg.test(phoneVal)) {
-                $(this).siblings('.tips').text('请输入正确号码').show()
-            } else {
-                $(this).siblings('.tips').hide()
-            }
-        })
-        $(document).on('blur', '.chaqz-info-wrapper #pwd', function () {
-            var pwdValue = $(this).val()
-            if (!pwdValue) {
-                $(this).siblings('.tips').text('请输入密码').show()
-            } else {
-                $(this).siblings('.tips').hide()
-            }
-        })
-        // 登录处理
-        $('.chaqz-info-wrapper .login-btn').click(function () {
-            _that.login(tbName)
-        })
-        //回车搜索
-        $('.chaqz-info-wrapper #pwd').bind('keydown', function (event) {
-            var evt = window.event || event;
-            if (evt.keyCode == 13) {
-                _that.login()
-            }
-        });
-        // 关闭登录弹窗
-        $('.chaqz-info-wrapper .hided').click( function () {
-            $('.chaqz-info-wrapper.login').remove()
-        })
+    init: function () {
+         var curUrl = window.location.href.split('?')[0];
+         var dumpUrl = LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=' + curUrl + '&redirectUrl=' + LOGO_BASE_URL + '/login&check=GPFEX346'
+         window.open(dumpUrl, '_blank')
+         return
     },
     getInfo: function () {
         var userWrap = $('.chaqz-info-wrapper.user')
@@ -190,9 +165,10 @@ var anyDom = {
             } else if (val.code == -5500 || val.code == -5501 || val.code == -5502) {
                 popUp.init('renewal')
             } else if (val.code == 2030) {
-                searchWang = tbName;
-               logOut()
-               popUp.init('hasLogout')
+                setIntRefreshToken(anyDom.searchHei(tbName))
+                // searchWang = tbName;
+            //    logOut()
+            //    popUp.init('hasLogout')
             } else {
                 popTip('未查询到结果')
             }
@@ -229,22 +205,62 @@ var anyDom = {
               SAVE_MEMBER = res;
               isLogin = true;
           } else {
-              isLogin = false;
-              LogOut()
+              setIntRefreshToken(getUserInfo)
+            //   isLogin = false;
+            //   LogOut()
           }
       })
   }
+  function setIntRefreshToken(cb) {
+      var curToken = localStorage.getItem('chaqz_token');
+      chrome.runtime.sendMessage({
+          key: "getData",
+          options: {
+              url: BASE_URL + '/api/v1/user/Retoken',
+              type: "POST",
+              contentType: 'application/json',
+              data: JSON.stringify({
+                  token: curToken
+              }),
+          }
+      }, function (val) {
+          var token = val.data.token;
+          localStorage.setItem('chaqz_token', token);
+          var curTime = new Date().getTime();
+          var saveToke = {
+              expiration: curTime + val.data.expires * 1000,
+              token: token
+          }
+          chrome.storage.local.set({
+              'chaqz_token': saveToke
+          }, function () {});
+           // 背景页解决方案
+           // tellRefreshToken(val.data.expires,curToken)
+          cb && cb()
+      })
+  }
+//   function tellRefreshToken(time) {
+//       chrome.runtime.sendMessage({
+//           type: 'hasTefresToken',
+//           time,curToken
+//       }, function (res) {})
+//   }
+// chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+//     if (request.type == 'taTragePage') {
+//         localStorage.setItem('chaqz_token', request.resToken);
+//     }
+// })
 function logOut(){
     isLogin = false;
     SAVE_MEMBER = {};
-    chrome.storage.local.remove([ 'chaqzShopInfo'], function () {});
+    chrome.storage.local.remove(['chaqzShopInfo', 'chaqz_token'], function () {});
     localStorage.removeItem('chaqz_token');
 }
-  // 个人信息
-  $(document).on('click', '#userBtn', function () {
-    anyDom.getInfo();
-      return false
-  });
+// 个人信息
+$(document).on('click', '#userBtn', function () {
+anyDom.getInfo();
+    return false
+});
 function LoadingPop(status) {
     if (!status) {
         $('.load-pop').fadeOut(100)

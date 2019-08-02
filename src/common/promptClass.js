@@ -2,11 +2,8 @@
 import {
     BASE_URL,
     LOGO_BASE_URL,
-    redirectUrl
-    // LOCAL_VERSION
 } from './constState'
  // 弹窗模块
-//  var LOGO_BASE_URL = 'http://118.25.92.247:8099';
  export var popUp = {
      version: '<p class="tips">为了更好的体验，请到官网下载最新版本。</p><div class="cha-btns"><a class="btn" href="' + BASE_URL + '/pluginIntro" target="_blank"><button class="btn">前往下载</button></a></div>',
      orderMem: '<p class="tips">账户未开通会员，请联系客服或订购会员。</p><div class="cha-btns"><a class="mr_30 btn" href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><button class="btn">联系客服</button></a><button class="btn buyBtn">订购</button></div>',
@@ -172,7 +169,7 @@ import {
           return false
       }
        if (!isLogin) {
-           anyDom.init();
+           anyDom.login();
            return false
        }
       var allInfo = window.SAVE_MEMBER2
@@ -205,14 +202,13 @@ export function changeLoginStatus(type) {
 export function LogOut() {
     isLogin = false;
     changeLoginStatus('out');
-    chrome.storage.local.remove(['compareProduceData'], function () {});
+    chrome.storage.local.remove(['compareProduceData', 'chaqz_token'], function () {});
     localStorage.removeItem('chaqz_token');
     LoadingPop();
     $('#caseBlanche').remove();//词根管理弹窗
 }
 // d登录
  export var anyDom = {
-    loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/regist&check=GPFEX346" class="right" target="_blank">免费注册</a><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/retrieve&check=GPFEX346" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
     infoDom: function (memInfo, bindedInfo) {
         var acct = memInfo.username;
         var title = memInfo.member.title;
@@ -232,94 +228,17 @@ export function LogOut() {
             whetherOrder = '订购'
         }
         var wrap = '<div class="chaqz-info-wrapper user"><div class="c-cont"><span class="close2 hided">×</span><div class="help"><img src="https://file.cdn.chaquanzhong.com/wenhao.png" alt="?"><a href="' + BASE_URL + '/pluginIntro" target="_blank">帮助</a></div><div class="infoList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><ul class="user-list"><li><span class="name">账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户:</span><span>' + acct + '</span><span class="fr" id="logout">退出登录</span></li><li><span class="name">会员信息:</span><span>' + title + '</span></li><li><span class="name">到期时间:</span><span>' + expirTime + '</span><a href="' + BASE_URL + '/vipInfo?from=plugin" target="_blank" class="fr">' + whetherOrder + '</a></li><li><span class="name">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span><span>' + LOCAL_VERSION + '</span></li><li><span class="name">联系客服:</span><span><a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><img class="mr_10" src="https://file.cdn.chaquanzhong.com/qq_icon.png" alt="qq"></a><img src="https://file.cdn.chaquanzhong.com/wx_icon.png" alt="wx" class="wxpop"></span></li></ul></div></div></div>';
-        // <li><span class="name">店铺绑定</span><span>' + binded + '</span></li>
         $('#app').append(wrap);
-
     },
     login: function () {
-        var onLoading = false;
-        var _that = this
-        var user = $('.chaqz-info-wrapper #phone').val()
-        var pwd = $('.chaqz-info-wrapper #pwd').val()
-        if (!user || !pwd || onLoading) {
-            return false
-        }
-        chrome.runtime.sendMessage({
-            key: "getData",
-            options: {
-                url: LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/cqzLogin',
-                // url: 'http://192.168.2.168:8080/api/v1/platfrom/userAuth/cqzLogin',
-                type: "POST",
-                data: 'account=' + user + '&password=' + pwd + '&appId=M177293746593',
-                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-                processData: false,
-            }
-        }, function (val) {
-            if (val.code == 200) {
-                $('.chaqz-info-wrapper').remove();
-                // var member = val.data;
-                var token = val.data.token;
-                localStorage.setItem('chaqz_token', token);
-                // SAVE_MEMBER = member;
-                // window.SAVE_MEMBER2 = member;
-                var curTime = new Date().getTime();
-                var saveToke = {
-                    expiration: curTime+val.data.expires*1000,
-                    token: token
-                }
-                chrome.storage.local.set({
-                    'chaqz_token': saveToke,
-                    // 'chaqzShopInfo': member
-                }, function () {});
-                isLogin = true;
-                // window.isLogin = true;
-                // _that.getShopBind()
-                _that.getUserInfo();
-                changeLoginStatus()
-                $('.chaqz-info-wrapper.login').remove();
-            } else {
-                $('.chaqz-info-wrapper.login .pwd .tips').text('账号或密码错误').show()
-                onLoading = false
-            }
-        })
+            var curUrl = window.location.href.split('?')[0];
+            var dumpUrl = LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=' + curUrl + '&redirectUrl=' + LOGO_BASE_URL + '/login&check=GPFEX346'
+            window.open(dumpUrl, '_blank')
+            return 
     },
     init: function () {
         var _that = this
         $('#app').append(this.loginDom);
-        $('.chaqz-info-wrapper #phone').blur(function () {
-            var phoneVal = $(this).val()
-            var phoneReg = /^1[34578]\d{9}$/;
-            if (!phoneVal) {
-                $(this).siblings('.tips').text('请输入手机号码').show()
-            } else if (!phoneReg.test(phoneVal)) {
-                $(this).siblings('.tips').text('请输入正确号码').show()
-            } else {
-                $(this).siblings('.tips').hide()
-            }
-        })
-        $('.chaqz-info-wrapper #pwd').blur(function () {
-            var pwdValue = $(this).val()
-            if (!pwdValue) {
-                $(this).siblings('.tips').text('请输入密码').show()
-            } else {
-                $(this).siblings('.tips').hide()
-            }
-        })
-        // 登录处理
-        $('.chaqz-info-wrapper .login-btn').click(function () {
-            _that.login()
-        })
-        //回车搜索
-        $('.chaqz-info-wrapper #pwd').bind('keydown', function (event) {
-            var evt = window.event || event;
-            if (evt.keyCode == 13) {
-                _that.login()
-            }
-        });
-        // 关闭登录弹窗
-        $('.chaqz-info-wrapper .hided').click(function () {
-            $('.chaqz-info-wrapper.login').remove()
-        })
     },
     getInfo: function () {
         var userWrap = $('.chaqz-info-wrapper.user')
@@ -327,9 +246,7 @@ export function LogOut() {
             userWrap.show()
         } else {
             var memInfo = SAVE_MEMBER2;
-            // var bindInfo = SAVE_BIND;
             if (memInfo.member) {
-                // this.infoDom(memInfo, bindInfo)
                 this.infoDom(memInfo)
             } else {
                 popUp.init('noShopInfo')
@@ -347,36 +264,5 @@ export function LogOut() {
                 popUp.init('weixin')
             })
         }
-    },
-    getUserInfo:function(){
-            if (!isLogin) {
-                return false;
-            }
-            var saveToke = localStorage.getItem('chaqz_token');
-            chrome.runtime.sendMessage({
-                key: 'getData',
-                options: {
-                    url: BASE_URL + '/api/v1/user/userinfo',
-                    type: 'GET',
-                    headers: {
-                        Authorization: "Bearer " + saveToke
-                    }
-                }
-            }, function (val) {
-                if (val.code == 200) {
-                    var res = val.data;
-                    res.username = res.account;
-                    res.member.expireAt = res.member.expire_at;
-                    window.SAVE_MEMBER2 = res;
-                     chrome.storage.local.set({
-                        //  'chaqz_token': saveToke,
-                         'chaqzShopInfo': res
-                     }, function () {});
-                    isLogin = true;
-                    changeLoginStatus()
-                } else {
-                    LogOut()
-                }
-            })
     }
 }

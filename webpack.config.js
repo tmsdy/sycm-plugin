@@ -6,6 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const path = require('path')
 let ExtractTextWebpackPlugin = require('extract-text-webpack-plugin');//打包css
 const envStatus = process.env.NODE_ENV == 'production'?'prod':'dev';
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const releaseVersion = 'v1.0.19';
 module.exports = {
   // devtool: 'inline-source-map',
@@ -103,6 +104,7 @@ module.exports = {
     hotOnly: true
   },
   optimization: {
+    minimize: envStatus=='prod'?true:false,
     splitChunks: {
       cacheGroups: {
         commons: {
@@ -116,7 +118,15 @@ module.exports = {
     }
   },
    plugins: [
-     new UglifyJSPlugin(),
+     new UglifyJSPlugin({
+       uglifyOptions: {
+         compress: {
+           warnings: false,
+           drop_debugger: false,
+           drop_console: true
+         }
+       }
+     }),
      new CopyWebpackPlugin([
        {
          from:__dirname+'/src/assets',
@@ -127,7 +137,18 @@ module.exports = {
        new webpack.DefinePlugin({
          'process.env.ASSET_PATH': JSON.stringify(process.env.NODE_ENV)
        }),
-       new ExtractTextWebpackPlugin('css/style.css')
+       new ExtractTextWebpackPlugin('css/style.css'),
+        new OptimizeCssAssetsPlugin({
+            assetNameRegExp: /\.css$/g, //一个正则表达式，指示应优化/最小化的资产的名称。提供的正则表达式针对配置中ExtractTextPlugin实例导出的文件的文件名运行，而不是源CSS文件的文件名。默认为/\.css$/g
+            cssProcessor: require('cssnano'), //用于优化\最小化CSS的CSS处理器，默认为cssnano
+            cssProcessorOptions: {
+              safe: true,
+              discardComments: {
+                removeAll: true
+              }
+            }, //传递给cssProcessor的选项，默认为{}
+            canPrint: true //一个布尔值，指示插件是否可以将消息打印到控制台，默认为true
+          }),
       // new webpack.ProvidePlugin({
       //   $: 'jquery',
       //   jQuery: 'jquery',

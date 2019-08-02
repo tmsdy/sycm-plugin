@@ -1,18 +1,16 @@
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' : 'http://118.25.153.205:8090';
-// var BASE_URL = 'http://118.25.153.205:8090';
-var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
-  'http://118.25.92.247:8099';
-var redirectUrl = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' :
-  'http://118.25.92.247:8099'
+var LOGO_BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://account.chaquanzhong.com' : 'http://118.25.92.247:8099';
 var SAVE_CUR_PAGE = {};
 var LOCAL_VERSION = '1.0.14';
 var isLogin = false;
-var SAVE_MEMBER = {};
-var SAVE_HISTORY = {};
-var SAVE_PAGE_INFO = {}
+var SAVE_MEMBER = {};//保存用户信息
+var SAVE_HISTORY = {};//保存查询过历史价格
+var SAVE_PAGE_INFO = {} //保存页面信息
+var domClassName = 'isJan'
 var weekStr = ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-var webSite = judgeWebsite()
 var INIT_TIME = new Date().getTime();
+// 初始化
+ judgeWebsite()
 // 区域，下架，价格趋势图事件
 $(document).on('mouseenter', '.echart-tab', function () {
   $(this).find('.chaqz-trend-chart').addClass('chaqz-global-loading');
@@ -42,13 +40,14 @@ function judgeWebsite() {
   var link = window.location.href;
   if (link.indexOf('https://list.tmall.com/search_product.htm') != -1) {
     $(document).on('DOMNodeInserted', '#content', function (e) {
+      console.log(e.target.id, ',', e.target.className)
       if (e.target.id == 'J_FilterPlaceholder') {
         getPageInfo('tm')
-        setInterval(function () {
-          if (!$('#J_Recommend .chaqz-item-info').length) {
-            dealZtcFood(2, $('#J_Recommend'))
-          }
-        }, 1000)
+        dealZtcFood(2, $('#J_Recommend'))
+      } else if (e.target.className.indexOf(domClassName) != -1) {
+        if (!$('#J_Recommend .chaqz-item-info').length) {
+          dealZtcFood(2, $('#J_Recommend'))
+        }
       }
     })
     return 'tm'
@@ -56,16 +55,16 @@ function judgeWebsite() {
   if (link.indexOf('https://s.taobao.com/search') != -1) {
 
     $(document).on('DOMNodeInserted', '#main', function (e) {
-      console.log(e.target.id, ',', e.target.className)
+      
       if (e.target.id == 'mainsrp-itemlist') {
         SAVE_PAGE_INFO = getPageItemInfo()
         getPageInfo();
         dealZtcFood(0, $('#J_shopkeeper'))
-        setInterval(function(){
-          if(!$('#J_shopkeeper_bottom .chaqz-item-info').length){
-            dealZtcFood(1, $('#J_shopkeeper_bottom'))
-          }
-        },1000)
+        dealZtcFood(1, $('#J_shopkeeper_bottom'))
+      } else if (e.target.className.indexOf(domClassName)!=-1) {
+         if (!$('#J_shopkeeper_bottom .chaqz-item-info').length) {
+           dealZtcFood(1, $('#J_shopkeeper_bottom'))
+         }
       }
     })
   }
@@ -74,12 +73,22 @@ function judgeWebsite() {
   if (link.indexOf('https://detail') != -1) {
     $(function () {
       getDetailPage('tm');
+      // chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+      //     if (request.type == 'tmDetailPage') {
+      //         localStorage.setItem('chaqz_token', request.resToken);
+      //     }
+      // })
     })
     return false
   }
   if (link.indexOf('https://item.taobao.com/item.htm') != -1) {
     $(function () {
       getDetailPage();
+      // chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+      //     if (request.type == 'tbDetailPage') {
+      //         localStorage.setItem('chaqz_token', request.resToken);
+      //     }
+      // })
     })
   }
 }
@@ -149,8 +158,6 @@ function getPageInfo(type) {
   getPriceData(priceStatic.high, redData.oriData, type)
   // 获取下架数据
   getOfflineData(itemIdList, itemPrice)
-  // 一开始没有滚动的时候，出现在视窗中的图片也会加载
-  // categoryLazy();
 
 }
 // 直通车商品数据处理
@@ -163,11 +170,10 @@ function dealZtcFood(type, $el) {
     
     var tmZtcClass = getChangeId(type);
     var tmZtcList = $($el).find('.' + tmZtcClass + '-item');
-    console.log(tmZtcClass, $el, tmZtcList.length)
     if (!tmZtcClass || !tmZtcList.length) {
-      // setTimeout(function () {
-      //   dealZtcFood(type, $el)
-      // }, 500)
+      setTimeout(function () {
+        dealZtcFood(type, $el)
+      }, 500)
       return false;
     }
      
@@ -180,6 +186,7 @@ function dealZtcFood(type, $el) {
       var itemWrap = $(element).find('.' + tmZtcClass + "-item-inner")
       appendWrap(itemWrap, itemId)
     }
+    domClassName = tmZtcClass + '-global';
     $('#J_Recommend .' + tmZtcClass + '-shop-list').css('overflow', 'unset')
     $('#J_Recommend .' + tmZtcClass + '-global').css('height', 540)
     offlineRequest(tmItemList, tailWrap)
@@ -187,18 +194,18 @@ function dealZtcFood(type, $el) {
     var itemIdList = [];
     var ztcClass = getChangeId(type);
     var ztcList = $($el).find('.' + ztcClass + '-item');
-    console.log(ztcClass, $el, ztcList.length)
     if (!ztcClass || !ztcList.length) {
-      if(type){return false};
+      // if(type){return false};
       setTimeout(function () {
         dealZtcFood(type, $el)
       }, 500)
       return false;
     }
     if (!type) {
-      $($el).find('.' + ztcClass + '-feedback').hide()
-      $($el).find('.' + ztcClass + '-red').hide();
+      $($el).find('.' + ztcClass + '-feedback').css('bottom',115)
+      $($el).find('.' + ztcClass + '-red').css('bottom', 139);
     }else{
+      domClassName = ztcClass + '-global';
       $('#J_shopkeeper_bottom .' + ztcClass + '-global').css('height',540)
       $('#J_shopkeeper_bottom .' + ztcClass + '-global>ul').css('height',480)
     }
@@ -217,7 +224,6 @@ function appendWrap($el, itemId) {
   if (!$el) {
     return false
   }
-  console.log($el)
   var appendDom = '<ul class="chaqz-item-info item-id-' + itemId + '" data-id="' + itemId + '"><li><a href="' + BASE_URL + '" target="_blank"><i class="logo-smll-icon chaqz-icon tit"></i></a><a href="' + BASE_URL + '/infiniteRank" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao" target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">加权</a></li><li><i class="type-icon chaqz-icon tit">类</i><span class="cate-btn">查看</span><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon tit"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon tit"></i>下架：<span class="offtime"></span></li></ul><div></div>'
   $($el).append(appendDom);
   //===  <li><i class="natural-icon chaqz-icon"></i>自然搜索：<span></span></li><li><i class="ztc-icon chaqz-icon"></i>直通车：<span></span></li>
@@ -532,7 +538,7 @@ $(document).on('mouseenter', '.historyPrice', function () {
       }, isDetail, id)
     } else {
       var contentDom = '<div class="no-data">未查询到价格数据</div>';
-      $('.chaqz-trend-chart').append(contentDom);
+      $('.chaqz-item-info .chaqz-trend-chart').append(contentDom);
     }
     $('.chaqz-global-loading').removeClass('chaqz-global-loading');
   })
@@ -585,40 +591,6 @@ function historyStruct(lowHigh, edata, isDetail,itemId) {
   }
   myChart.setOption(option)
 }
-// 类目懒加载
-// 当页面开始滚动的时候，遍历图片，如果图片出现在视窗中，就加载图片
-var clock; //函数节流
-$(window).on('scroll', function () {
-  if (clock) {
-    clearTimeout(clock);
-  }
-  clock = setTimeout(function () {
-    // categoryLazy()
-  }, 200)
-})
-
-function categoryLazy() {
-
-  $('.chaqz-item-info').not('[data-isLoading]').each(function () {
-    if (isCategoryShow($(this))) {
-      loadCategrory($(this));
-    }
-  })
-}
-// 判断图片是否出现在视窗的函数
-function isCategoryShow($node) {
-  return $node.offset().top <= $(window).height() + $(window).scrollTop() + 350;
-}
-
-// 加载图片的函数，就是把自定义属性data-src 存储的真正的图片地址，赋值给src
-function loadCategrory($img) {
-  var itemId = $img.data('id');
-  $img.attr('data-isLoading', 1);
-  getCategroyList(itemId)
-  // 已经加载的图片，我给它设置一个属性，值为1，作为标识
-
-}
-
 function getCategroyList(itemId) {
   chrome.runtime.sendMessage({
     key: 'getData',
@@ -633,15 +605,6 @@ function getCategroyList(itemId) {
     $(cls).find('.cate-btn').remove();
     $(cls).find('.category').css('display', 'inline-block').text(cateDetail[cateDetail.length - 1]).attr('title', categoryName);
   })
-  //  $.ajax({
-  //    url: BASE_URL + '/api/v1/plugin/toolbox/getSearchMulu?param=' + itemId,
-  //    type: 'GET',
-  //    success: function (val) {
-  //      var categoryName = val.data ? val.data.RetObject : '';
-  //      var cateDetail = categoryName ? categoryName.split('->'):'';
-  //       $('.item-id-' + itemId).find('.category').text(cateDetail[cateDetail.length - 1]).attr('title', categoryName);
-  //    }
-  //  })
 }
 /**--------- detail page operator===========*/
 function getDetailPage(type) {
@@ -952,61 +915,8 @@ $(document).on('click', '.popover-header .left', function (ev) {
 // 详情页用户信息的弹窗
 function detailPagePop() {
   // 用户信息
-  chrome.storage.local.get(['chaqz_token', 'chaqzShopInfo'], function (valueArray) {
-    var tok = valueArray.chaqz_token;
-    SAVE_MEMBER = valueArray.chaqzShopInfo ? valueArray.chaqzShopInfo : {};
-    if (tok) {
-      localStorage.setItem('chaqz_token', tok.token);
-      isLogin = true;
-      getUserInfo()
-    } else {
-      isLogin = false;
-    }
-  });
   var anyDom = {
-    loginDom: '<div class="chaqz-info-wrapper login"><div class="c-cont"><span class="close2 hided" click="hideInfo">×</span><div class="formList"><div class="title"><img src="https://file.cdn.chaquanzhong.com/logo-info.png" alt="logo"></div><div class="phone"><input id="phone" type="text" placeholder="请输入手机号码"><p class="tips">请输入手机号码</p></div><div class="pwd"><input id="pwd" type="password" placeholder="请输入登录密码"><p class="tips">请输入登录密码</p></div><div class="router"><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/regist&check=GPFEX346" class="right" target="_blank">免费注册</a><a href="' + LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=https://sycm.taobao.com/mc/ci/shop/monito&redirectUrl=' + redirectUrl + '/retrieve&check=GPFEX346" target="_blank">忘记密码</a></div><button class="orange-default-btn login-btn">登录</button></div></div></div>',
-    login: function (tbName) {
-      var _that = this;
-      var onLoading = false;
-      var user = $('.chaqz-info-wrapper #phone').val()
-      var pwd = $('.chaqz-info-wrapper #pwd').val()
-      if (!user || !pwd || onLoading) {
-        return false
-      }
-      chrome.runtime.sendMessage({
-        key: "getData",
-        options: {
-          url: LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/cqzLogin',
-          type: "POST",
-          data: 'account=' + user + '&password=' + pwd + '&appId=M177293746593',
-          contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-          processData: false,
-        }
-      }, function (val) {
-        if (val.code == 200) {
-          var token = val.data.token;
-          localStorage.setItem('chaqz_token', token);
-          var curTime = new Date().getTime();
-          var saveToke = {
-            expiration: curTime + val.data.expires * 1000,
-            token: token
-          }
-          chrome.storage.local.set({
-            'chaqz_token': saveToke
-          }, function () {});
-          // SAVE_MEMBER = val.data;
-          isLogin = true;
-          $('.chaqz-info-wrapper.login').remove();
-          getUserInfo()
-          // tbName ? _that.searchHei(tbName) : '';
-        } else {
-          $('.chaqz-info-wrapper.login .pwd .tips').text('账号或密码错误').show();
-          logOut()
-          onLoading = false
-        }
-      })
-    },
-    infoDom: function (memInfo, bindedInfo) {
+    infoDom: function (memInfo) {
       var acct = memInfo.username;
       var title = memInfo.member.title;
       var expirTime = memInfo.member.expireAt;
@@ -1029,39 +939,15 @@ function detailPagePop() {
       $('#page').append(wrap);
 
     },
-    init: function (tbName) {
-      var _that = this
-      $('#page').append(this.loginDom);
-      $(document).on('blur', '.chaqz-info-wrapper #phone', function () {
-        var phoneVal = $(this).val()
-        var phoneReg = /^1[345789]\d{9}$/;
-        if (!phoneVal) {
-          $(this).siblings('.tips').text('请输入手机号码').show()
-        } else if (!phoneReg.test(phoneVal)) {
-          $(this).siblings('.tips').text('请输入正确号码').show()
-        } else {
-          $(this).siblings('.tips').hide()
-        }
-      })
-      $(document).on('blur', '.chaqz-info-wrapper #pwd', function () {
-        var pwdValue = $(this).val()
-        if (!pwdValue) {
-          $(this).siblings('.tips').text('请输入密码').show()
-        } else {
-          $(this).siblings('.tips').hide()
-        }
-      })
-      // 登录处理
-      $('.chaqz-info-wrapper .login-btn').click(function () {
-        _that.login(tbName)
-      })
-      //回车搜索
-      $('.chaqz-info-wrapper #pwd').bind('keydown', function (event) {
-        var evt = window.event || event;
-        if (evt.keyCode == 13) {
-          _that.login()
-        }
-      });
+    init: function () {
+        var curUrl = window.location.href;
+        var fontUrl = curUrl.split('?')[0];
+        // 登录回来放入的id
+        var saveItemId = getSearchPara(curUrl, 'id');
+        localStorage.saveItemId = saveItemId;
+        var dumpUrl = LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=' + fontUrl + '&redirectUrl=' + LOGO_BASE_URL + '/login&check=GPFEX346'
+        window.open(dumpUrl, '_blank')
+        return
     },
     getInfo: function () {
       var userWrap = $('.chaqz-info-wrapper.user')
@@ -1081,7 +967,69 @@ function detailPagePop() {
           logOut()
         })
       }
+    },
+    checkLoginCode:function(){
+      var url = window.location.href;
+      var hasCode = getSearchPara(url, 'code');
+      var hasAccout = getSearchPara(url, 'account');
+      if (hasCode && hasAccout) {
+        var cutPara = url.replace(/account=\d*&?/, '')
+        var cutPara2 = cutPara.replace(/code=\w*&?/, '')
+        chrome.runtime.sendMessage({
+          key: "getData",
+          options: {
+            url: BASE_URL + '/api/v1/user/token',
+            type: "POST",
+            contentType: 'application/json',
+            data: JSON.stringify({
+              account: hasAccout,
+              code: hasCode
+            }),
+          }
+        }, function (val) {
+          var token = val.data.token;
+          localStorage.setItem('chaqz_token', token);
+          var curTime = new Date().getTime();
+          var saveToke = {
+            expiration: curTime + val.data.expires * 1000,
+            token: token
+          }
+          chrome.storage.local.set({
+            'chaqz_token': saveToke
+          }, function () {});
+          var itemId = localStorage.saveItemId;
+          window.location.href = cutPara2 + '&id=' + itemId;
+        })
+      } else {
+        chrome.storage.local.get('chaqz_token', function (valueArray) {
+          var tok = valueArray.chaqz_token;
+          SAVE_MEMBER = valueArray.chaqzShopInfo ? valueArray.chaqzShopInfo : {};
+          if (tok) {
+            localStorage.setItem('chaqz_token', tok.token);
+            isLogin = true;
+            getUserInfo()
+          } else {
+            isLogin = false;
+          }
+        });
+      }
     }
+  }
+  anyDom.checkLoginCode()
+  function getSearchPara(url, key) {
+    if (!url) return '';
+    var params = url.split('?')[1];
+    var parList = params.split('&');
+    var res = '';
+    for (let i = 0; i < parList.length; i++) {
+      const element = parList[i];
+      var keyVale = element.split('=');
+      if (keyVale[0] == key) {
+        res = keyVale[1]
+        break;
+      }
+    }
+    return res;
   }
   // 关闭登录弹窗
   $(document).on('click', '.chaqz-info-wrapper .hided', function () {
@@ -1111,20 +1059,53 @@ function detailPagePop() {
         res.username = res.account;
         res.member.expireAt = res.member.expire_at;
         SAVE_MEMBER = res;
-        // window.SAVE_MEMBER2 = res;
         isLogin = true;
-        // changeLoginStatus()
       } else {
-        isLogin = false;
-        logOut()
+        setIntRefreshToken(getUserInfo)
+        // isLogin = false;
+        // logOut()
       }
     })
   }
+  function setIntRefreshToken(cb) {
+    var curToken = localStorage.getItem('chaqz_token');
+    chrome.runtime.sendMessage({
+      key: "getData",
+      options: {
+        url: BASE_URL + '/api/v1/user/Retoken',
+        type: "POST",
+        contentType: 'application/json',
+        data: JSON.stringify({
+          token: curToken
+        }),
+      }
+    }, function (val) {
+      var token = val.data.token;
+      localStorage.setItem('chaqz_token', token);
+      var curTime = new Date().getTime();
+      var saveToke = {
+        expiration: curTime + val.data.expires * 1000,
+        token: token
+      }
+      chrome.storage.local.set({
+        'chaqz_token': saveToke
+      }, function () {});
+       // 背景页解决方案
+       // tellRefreshToken(val.data.expires,curToken)
+      cb && cb()
+    })
+  }
+  // function tellRefreshToken(time,curToken) {
+  //   chrome.runtime.sendMessage({
+  //     type: 'hasTefresToken',
+  //     time,curToken
+  //   }, function (res) {})
+  // }
   //  退出
   function logOut() {
     isLogin = false;
     SAVE_MEMBER = {};
-    chrome.storage.local.remove(['chaqzShopInfo'], function () {});
+    chrome.storage.local.remove(['chaqzShopInfo', 'chaqz_token'], function () {});
     localStorage.removeItem('chaqz_token');
   }
 }
