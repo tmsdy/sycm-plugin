@@ -944,8 +944,9 @@ function detailPagePop() {
         var fontUrl = curUrl.split('?')[0];
         // 登录回来放入的id
         var saveItemId = getSearchPara(curUrl, 'id');
-        localStorage.saveItemId = saveItemId;
-        var dumpUrl = LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=' + fontUrl + '&redirectUrl=' + LOGO_BASE_URL + '/login&check=GPFEX346'
+        saveItemId = window.btoa('id=' + saveItemId)
+        // localStorage.saveItemId = saveItemId;
+        var dumpUrl = LOGO_BASE_URL + '/java/api/v1/platfrom/userAuth/acceptAppInfo?appId=M177293746593&callback=' + fontUrl + '&redirectUrl=' + LOGO_BASE_URL + '/login&check=GPFEX346&param=' + saveItemId
         window.open(dumpUrl, '_blank')
         return
     },
@@ -994,11 +995,12 @@ function detailPagePop() {
             expiration: curTime + val.data.expires * 1000,
             token: token
           }
+          isLogin = true;
           chrome.storage.local.set({
             'chaqz_token': saveToke
           }, function () {});
-          var itemId = localStorage.saveItemId;
-          window.location.href = cutPara2 + '&id=' + itemId;
+          // var itemId = localStorage.saveItemId;
+          window.location.href = cutPara2 ;
         })
       } else {
         chrome.storage.local.get('chaqz_token', function (valueArray) {
@@ -1080,6 +1082,11 @@ function detailPagePop() {
         }),
       }
     }, function (val) {
+       if (val.code != 200) {
+         isLogin = false;
+         logOut();
+         return false;
+       }
       var token = val.data.token;
       localStorage.setItem('chaqz_token', token);
       var curTime = new Date().getTime();

@@ -71,6 +71,7 @@ function checkLoginCode() {
             chrome.storage.local.set({
                 'chaqz_token': saveToke
             }, function () {});
+            isLogin = true;
             window.location.href = cutPara2;
         })
     } else {
@@ -165,7 +166,7 @@ var anyDom = {
             } else if (val.code == -5500 || val.code == -5501 || val.code == -5502) {
                 popUp.init('renewal')
             } else if (val.code == 2030) {
-                setIntRefreshToken(anyDom.searchHei(tbName))
+                setIntRefreshToken(anyDom.searchHei(tbName),1)
                 // searchWang = tbName;
             //    logOut()
             //    popUp.init('hasLogout')
@@ -211,7 +212,7 @@ var anyDom = {
           }
       })
   }
-  function setIntRefreshToken(cb) {
+  function setIntRefreshToken(cb,type) {
       var curToken = localStorage.getItem('chaqz_token');
       chrome.runtime.sendMessage({
           key: "getData",
@@ -224,6 +225,12 @@ var anyDom = {
               }),
           }
       }, function (val) {
+           if (val.code != 200 ) {
+               isLogin = false;
+               logOut();
+               type ? popUp.init('hasLogout'):'';
+               return false;
+           }
           var token = val.data.token;
           localStorage.setItem('chaqz_token', token);
           var curTime = new Date().getTime();

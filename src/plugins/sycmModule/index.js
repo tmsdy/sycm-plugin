@@ -123,7 +123,7 @@ checkLoginCode()
 $(function () {
     // 登录
     $(document).on('click', '#loginbtn', function () {
-        anyDom.init();
+        anyDom.login();
         return false
     });
      // 个人信息
@@ -368,6 +368,7 @@ function checkLoginCode(){
 }
 function setIntRefreshToken(cb){
     var curToken = localStorage.getItem('chaqz_token');
+    if(!curToken){LogOut();return false;}
         chrome.runtime.sendMessage({
             key: "getData",
             options: {
@@ -379,6 +380,11 @@ function setIntRefreshToken(cb){
                 }),
             }
         }, function (val) {
+            if(val.code != 200){
+                LogOut();
+                isLogin =false;
+                return false;
+            }
             var token = val.data.token;
             localStorage.setItem('chaqz_token', token);
             var curTime = new Date().getTime();

@@ -83,7 +83,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                      'chaqz_token': saveToke
                  }, function () {});
              })
-        },request.time)
+        },request.time*1000)
     }
     return true
 })

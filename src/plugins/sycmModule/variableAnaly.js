@@ -841,6 +841,11 @@ $(document).on('click', '.chaqz-info-wrapper.pop .analyBtn', function () { //竞
              }),
          }
      }, function (val) {
+          if (val.code != 200) {
+              LogOut();
+              LoadingPop();
+              return false;
+          }
          var token = val.data.token;
          localStorage.setItem('chaqz_token', token);
          var curTime = new Date().getTime();
