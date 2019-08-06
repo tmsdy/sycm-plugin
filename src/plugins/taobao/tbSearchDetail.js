@@ -34,6 +34,15 @@ $(document).on('click', '.cate-btn', function () {
   $(this).addClass('isloading')
   getCategroyList(itemId)
 })
+// 剩余时间
+$(document).on('mouseenter', '.chaqz-item-info .offtime', function () {
+  var time = $(this).data('time');
+  var dom = '<div class="showRemian">' + time + '</div>';
+  $(this).append(dom)
+})
+$(document).on('mouseleave', '.chaqz-item-info .offtime', function () {
+ $(this).find('.showRemian').remove();
+})
 
 function judgeWebsite() {
   // 判断天猫或者淘宝
@@ -149,7 +158,7 @@ function getPageInfo(type) {
   var saleStatic = getHeightLow(redData.sales)
   // 顶部展示区域
   var hasAddr = type == 'tm' ? '' : '<li class="echart-tab addr">区域图<span class="arrow"></span></li>';
-  var dom = '<ul class="chaqz_search_top"><li><i class="logo-icon chaqz-icon"></i><a href="' + BASE_URL + '" target="_blank">www.chaquanzhong.com</a></li><li class="page-static">本页统计</li>' + hasAddr + '<li class="echart-tab offline">下架图<span class="arrow"></span></li><li class="echart-tab price">价格图<span class="arrow"></span></li><li><span class="tab">价格</span></li><li>平均价:<span class="price">' + priceStatic.avg + '</span></li><li>最高价:<span class="price">' + priceStatic.high + '</span></li><li>最低价:<span class="price">' + priceStatic.low + '</span></li><li><span class="tab">销量</span></li><li>平均销:<span class="price">' + saleStatic.avg + '</span></li><li>最高销:<span class="price">' + saleStatic.high + '</span></li><li>最低销:<span class="price">' + saleStatic.low + '</span></li></ul>';
+  var dom = '<ul class="chaqz_search_top"><li class="top-logo"><a href="' + BASE_URL + '" target="_blank"><i class="logo-icon chaqz-icon"></i></a></li><li class="page-static">本页统计</li>' + hasAddr + '<li class="echart-tab offline">下架图<span class="arrow"></span></li><li class="echart-tab price">价格图<span class="arrow"></span></li><li><span class="tab">价格</span></li><li class="avg-tj">平均价：<span class="price">' + priceStatic.avg + '元</span></li><li class="avg-tj">最高价：<span class="price">' + priceStatic.high + '元</span></li><li class="avg-tj">最低价：<span class="price">' + priceStatic.low + '元</span></li><li><span class="tab">销量</span></li><li class="avg-tj">平均销：<span class="price">' + saleStatic.avg + '人</span></li><li class="avg-tj">最高销：<span class="price">' + saleStatic.high + '人</span></li><li class="avg-tj">最低销：<span class="price">' + saleStatic.low + '人</span></li></ul>';
   type == 'tm' ? $('#J_RelSearch').append(dom) : $('#mainsrp-itemlist').prepend(dom);
 
   //  获取区域图数据
@@ -224,7 +233,7 @@ function appendWrap($el, itemId) {
   if (!$el) {
     return false
   }
-  var appendDom = '<ul class="chaqz-item-info item-id-' + itemId + '" data-id="' + itemId + '"><li><a href="' + BASE_URL + '" target="_blank"><i class="logo-smll-icon chaqz-icon tit"></i></a><a href="' + BASE_URL + '/infiniteRank" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao" target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">加权</a></li><li><i class="type-icon chaqz-icon tit">类</i><span class="cate-btn">查看</span><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon tit"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon tit"></i>下架：<span class="offtime"></span></li></ul><div></div>'
+  var appendDom = '<ul class="chaqz-item-info item-id-' + itemId + '" data-id="' + itemId + '"><li><a href="' + BASE_URL + '" target="_blank"><i class="logo-smll-icon chaqz-icon"></i></a><a href="' + BASE_URL + '/infiniteRank" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao" target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis" target="_blank">一键加权</a></li><li><i class="type-icon chaqz-icon tit"></i><span class="cate-btn">点击查看</span><span class="category"></span><p class="price-wrap"><i class="history-icon chaqz-icon tit"></i><span class="historyPrice" data-id="' + itemId + '">历史价格</span></p></li><li><i class="offline-icon chaqz-icon tit"></i>下架：<span class="offtime"></span></li></ul><div></div>'
   $($el).append(appendDom);
   //===  <li><i class="natural-icon chaqz-icon"></i>自然搜索：<span></span></li><li><i class="ztc-icon chaqz-icon"></i>直通车：<span></span></li>
 }
@@ -364,7 +373,12 @@ function offlineRequest(itemIdList, tailWrap, cb) {
       var showTime = formate("MM-dd hh:mm", curDate) + " (" + weekStr[curDate.getDay()] + ")";
       var retime = curDate - newTime;
       var remainTime = getRemainTime(retime, !0)
-      $('.item-id-' + ele).find('.offtime').text(showTime + '[' + remainTime + ']').attr('title', '下架时间:' + showTime + ' 剩余天数:' + remainTime);
+      
+      if(tailWrap.type){
+        $('.item-id-' + ele).find('.offtime').text(showTime + '[' + remainTime + ']').attr('title', '下架时间:' + showTime + ' 剩余天数:' + remainTime);
+      }else{
+        $('.item-id-' + ele).find('.offtime').text(showTime).data('time', remainTime);
+      }
       tailWrap.res[ele] = formate("yyyy-MM-dd", curDate);
       // var itemCategory = getTbCateId(val);
       // tailWrap.cateGory[ele] = itemCategory;
@@ -612,9 +626,11 @@ function getDetailPage(type) {
   var itemId = getSearchPara(itemIdUrl, 'id');
   offlineRequest([itemId], {
     count: 0,
+    type:1,
     res: {}
   }, function (timeRes) {})
-  var dom = '<div class="chaqz-detail-wrap"><div class="content"><div class="left"><i class="logo-icon chaqz-icon"></i></div><div class="right item-id-' + itemId + '"><div class="item"><a href="' + BASE_URL + '"  target="_blank">www.chaquanzhong.com</a><span class="title">下架：</span><span class="offtime hot">7-12 11:15(周三)[4天22时48分]</span><span class="title">类目：</span><span class="category hot">保温杯</span><span class="title"><i class="chaqz-icon history-icon"></i><span class="historyPrice detail-history" data-id=' + itemId + '>历史价格</span></span></div><div class="item links"><span class="title-btn">提升权重</span><a href="' + BASE_URL + '/infiniteRank" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao"  target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">一键加权</a><a href="' + BASE_URL + '/sevenPlan"  target="_blank">7天上首页</a><a href="' + BASE_URL + '/directTrain"  target="_blank">直通车托管</a><a href="' + BASE_URL + '/moldbaby"  target="_blank">打造爆款</a></div></div></div><div class="advert"><a href="http://www.liuliang120.com/homePage/mainPage" target="_blank"><img src="https://file.cdn.chaquanzhong.com/adver-side.png"alt=""></a></div></div>';
+  //<a href="' + BASE_URL + '"  target="_blank">www.chaquanzhong.com</a>
+  var dom = '<div class="chaqz-detail-wrap"><div class="content"><div class="left"><i class="logo-detail-icon chaqz-icon"></i></div><div class="right item-id-' + itemId + '"><div class="item"><span class="title"><i class="type-icon chaqz-icon tit"></i></span><span class="category"></span><span class="title"><i class="chaqz-icon history-icon"></i></span><span class="historyPrice detail-history" data-id=' + itemId + '>历史价格</span><span class="title"><i class="offline-icon chaqz-icon tit"></i></span><span class="offtime"></span></div><div class="item links"><span class="title-btn">提升权重</span><a href="' + BASE_URL + '/infiniteRank" target="_blank">查排名</a><a href="' + BASE_URL + '/chaheihao"  target="_blank">查黑号</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">查权重</a><a href="https://sycm.taobao.com/mc/ci/item/analysis"  target="_blank">一键加权</a><a href="' + BASE_URL + '/sevenPlan"  target="_blank">7天上首页</a><a href="' + BASE_URL + '/directTrain"  target="_blank">直通车托管</a><a href="' + BASE_URL + '/moldbaby"  target="_blank">打造爆款</a></div></div></div><div class="advert"><a href="http://www.liuliang120.com/homePage/mainPage" target="_blank"><img src="https://file.cdn.chaquanzhong.com/adver-side.png"alt=""></a></div></div>';
   //  ==== <div class="item"><span class="title-btn">搜索展现</span><span class="search-tb">淘宝搜索</span><span class="offline hot">（23）</span><span class="title">淘宝直通车</span><span class="search-ztc hot">（23）</span><span class="title">无线搜索</span><span class="search-wx hot">（23）</span><span class="title">无线直通车</span><span class="search-wxztc hot">（23）</span></div>
   $('#detail').prepend(dom);
   skuPopup(itemId, type)
