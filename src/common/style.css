@@ -1543,15 +1543,15 @@
 }
 
 .chaqz_search_top li:nth-of-type(3) .chaqz-trend-chart {
-    left: -226px;
+    left: -118px;
 }
 
 .chaqz_search_top li:nth-of-type(4) .chaqz-trend-chart {
-    left: -277px;
+    left: -184px;
 }
 
 .chaqz_search_top li:nth-of-type(5) .chaqz-trend-chart {
-    left: -327px;
+    left: -250px;
 }
 
 .chaqz_search_top li.echart-tab.area-show .chaqz-trend-chart {
@@ -1571,6 +1571,7 @@
     border: 1px solid #e5e5e5;
     text-align: center;
     border-spacing: 0;
+    line-height: 1.2;
 }
 
 .chaqz-trend-chart table td {
