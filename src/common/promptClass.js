@@ -193,7 +193,7 @@ export function changeLoginStatus(type) {
         $('.chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button>' );
         $('.op-mc-item-analysis #itemAnalysisTrend .oui-card-header .chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button><button id="vesting" class="serachBtn vesting">一键加权</button>');
         $('.op-mc-search-analyze-container .ebase-Switch__root .chaqz-btns').html('<button id="search" class="serachBtn">一键分析</button>');
-        if ($('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index()==1){
+        if ($('.op-mc-market-rank-container .ebase-FaCommonFilter__root .oui-tab-switch .oui-tab-switch-item-active').index() == 1) {
             $('.op-mc-market-rank-container .oui-card-header .chaqz-btns').append('<button id="mergeItem" class="serachBtn ">合并转化</button>');
         }
     }

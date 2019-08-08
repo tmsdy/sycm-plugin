@@ -608,7 +608,7 @@ var rememberPropId = '';
  }
  function marketRank(pageType) {
     var chooseItem = $('.op-mc-market-rank-container .oui-card-header-wrapper .oui-tab-switch .oui-tab-switch-item-active').index() //0高交易，1高流量，2高意向
-    var chooseList = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index() //0店铺，1商品，2品牌
+    var chooseList = $('.op-mc-market-rank-container .oui-tab-switch .oui-tab-switch-item-active').index() //0店铺，1商品，2品牌
     var curPage = $('.op-mc-market-rank-container .ant-pagination .ant-pagination-item-active').attr('title')
     var curPageSize = $('.op-mc-market-rank-container .oui-page-size .ant-select-selection-selected-value').text()
     curPage = curPage ? Number(curPage) : 1;
@@ -1257,7 +1257,7 @@ function mergeItemFilter(data){
  function trendTable(paramsSwitch) {
      var maskWrap = $('.ant-modal-mask:not(.ant-modal-mask-hidden)').siblings('.ant-modal-wrap')
      var maskHead = maskWrap.find('.ant-modal-header')
-     var chooseList = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index() //0店铺，1商品，2品牌
+     var chooseList = $('.op-mc-market-rank-container .ebase-FaCommonFilter__root .oui-tab-switch .oui-tab-switch-item').index() //0店铺，1商品，2品牌
      var switchType = chooseList == 1 ? 'item' : chooseList == 2 ? 'brand' : 'shop';
      switchType = paramsSwitch ? paramsSwitch : switchType;
      if ($(maskHead).find('.serachBtn').length) {
@@ -1636,7 +1636,7 @@ function searchRankTable(){
     if (!isNewVersion()) {
         return false
     }
-    var wordType = $('.op-mc-search-rank-container .ebase-FaCommonFilter__left .op-ebase-switch .ebase-Switch__activeItem').index();//哪种词
+    var wordType = $('.op-mc-search-rank-container .ebase-FaCommonFilter__left .oui-tab-switch .oui-tab-switch-item-active').index(); //哪种词
     var wordTabType = $('.op-mc-search-rank-container .oui-card-header .oui-tab-switch .oui-tab-switch-item-active').index(); //词的种类
     var loaclKey = getSearchParams('SearchRanking', 1, 10, 'local', {
         selType: wordType,
@@ -1909,7 +1909,7 @@ function analyRelatedTable(){//相关分析
         return false
     }
      var searchWord = $('.op-mc-search-analyze-container .op-cc-item-info .item-keyword').text().toLocaleLowerCase();
-     var selectItem = $('.op-mc-search-analyze-container .oui-tab-switch .oui-tab-switch-item-active').index();
+     var selectItem = $('.op-mc-search-analyze-container .oui-card .oui-tab-switch .oui-tab-switch-item-active').index();
      var keyType = selectItem == 1 ? 'relatedBrand' : selectItem == 2 ? 'relatedProperty' : selectItem == 3 ? 'relatedHotWord' : 'relatedWord';
     var localKey = getSearchParams(keyType, 1, 10, 'loacl', {
         keyword: searchWord
@@ -2679,12 +2679,12 @@ function getHotRankSelct() {
 }
 function listPropTable(pageType) {
     // 热销榜单
-     var chooseTop = $('.op-mc-property-insight-container .oui-tab-switch .oui-tab-switch-item-active').index()
-     var curPage = $('.op-mc-property-insight-container .ant-pagination .ant-pagination-item-active').attr('title')
-     var curPageSize = $('.op-mc-property-insight-container .oui-page-size .ant-select-selection-selected-value').text()
-     curPageSize = Number(curPageSize)
-     var backT = chooseTop == 1 ? 'listPropitem' : 'listPropshop';
-     var loaclKey = getSearchParams(backT, curPage, curPageSize);
+    var chooseTop = $('.op-mc-property-insight-container .oui-card-header .oui-tab-switch .oui-tab-switch-item-active').index();
+    var curPage = $('.op-mc-property-insight-container .ant-pagination .ant-pagination-item-active').attr('title');
+    var curPageSize = $('.op-mc-property-insight-container .oui-page-size .ant-select-selection-selected-value').text();
+    curPageSize = Number(curPageSize);
+    var backT = chooseTop == 1 ? 'listPropitem' : 'listPropshop';
+    var loaclKey = getSearchParams(backT, curPage, curPageSize);
     var localData = localStorage.getItem(loaclKey);
     if (!localData) {
         popTip('获取数据失败！')
@@ -2842,7 +2842,7 @@ function getProdSelectId(){
 }
 function listProductTable(pageType) {
     // 产品洞察-热销榜单
-    var chooseTop = $('.op-mc-product-insight-container .oui-tab-switch .oui-tab-switch-item-active').index()
+    var chooseTop = $('.op-mc-product-insight-container .oui-card-header .oui-tab-switch .oui-tab-switch-item-active').index()
     var curPage = $('.op-mc-product-insight-container .ant-pagination .ant-pagination-item-active').attr('title')
     var curPageSize = $('.op-mc-product-insight-container .oui-page-size .ant-select-selection-selected-value').text()
     curPageSize = Number(curPageSize)

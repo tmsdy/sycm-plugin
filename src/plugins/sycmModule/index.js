@@ -157,11 +157,11 @@ competePop();
                 $('.op-mc-search-analyze-container .oui-card-header-wrapper .oui-card-header').append(showBtn());
             }
              if (!$('.op-mc-market-rank-container .oui-card-header .chaqz-btns').length) {
-                  var chooseIndex = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index();
+                  var chooseIndex = $('.op-mc-market-rank-container .ebase-FaCommonFilter__root .oui-tab-switch .oui-tab-switch-item-active').index();
                   var isItem = chooseIndex == 1 ? 'mergeItem' : '';
                  $('.op-mc-market-rank-container .oui-card-header').append(showBtn(isItem))
              }else{
-                 var chooseIndex = $('.op-mc-market-rank-container .op-ebase-switch .ebase-Switch__activeItem').index();
+                 var chooseIndex = $('.op-mc-market-rank-container .ebase-FaCommonFilter__root .oui-tab-switch .oui-tab-switch-item-active').index();
                  var isItem = chooseIndex == 1 ? 'mergeItem' : '';
                   chooseIndex == 1 ? $('.op-mc-market-rank-container .oui-card-header .chaqz-btns').html('<button id="search" class="serachBtn">一键转化</button><button id="mergeItem" class="serachBtn ">合并转化</button>') : $('.op-mc-market-rank-container .oui-card-header .chaqz-btns #mergeItem').remove();
              }
@@ -188,7 +188,7 @@ competePop();
         }  else if (e.target.className == 'ebase-metaDecorator__root') { // 市场-搜索分析
              if (judgeCor()) {
                   $('.op-mc-search-analyze-container .oui-card-content').append('<div class="root-word-entry">输入关键词,按回车键</div>');
-                  $('.op-mc-search-analyze-container .ebase-Switch__root').parent().append(showBtn('isRootWord'));
+                  $('.op-mc-search-analyze-container .ebase-FaCommonFilter__left .oui-tab-switch').parent().append(showBtn('isRootWord'));
              } 
         } else if (e.target.className == 'index-area-multiple-root-container') { //market-市场大盘
             if (!$('.op-mc-market-overview-container #cateTrend .cardHeader .chaqz-btns').length) {
@@ -411,7 +411,7 @@ function setIntRefreshToken(cb){
 function getSearchPara(url, key) {
     if (!url) return '';
     var params = url.split('?')[1];
-    var parList = params.split('&');
+    var parList = params?params.split('&'):[];
     var res = '';
     for (let i = 0; i < parList.length; i++) {
         const element = parList[i];
