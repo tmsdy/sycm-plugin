@@ -45,6 +45,9 @@ function receiveResponse(reqParams, resData, xhrType) {
 }
 
 function judgeGetData() {
+     if (!(self.name == 'polling')) {
+         return false;
+     }
     chrome.storage.local.get('ztcAreaData', function (val) {
         var baseData = val.ztcAreaData;
         var isFinshed = baseData ? baseData.ISFINSH : true;
@@ -174,6 +177,18 @@ function bubbleSort(arr) { //排序
 // 判断是否为获取数据页面
 function testPages(curStep){
     var href = window.location.href;
+    if (href.indexOf('target=suberror') != -1) {
+        console.log('未开通权限')
+        // 未授权
+        chrome.runtime.sendMessage({
+            type: 'chaqzRootWordEnd',
+            cont: {
+                hasZTCDone: false,
+                type: 'ztcBreak'
+            }
+        }, function () {})
+    }
+
     var testRes = href.indexOf('https://subway.simba.taobao.com/#!/tools/insight');
     // console.log(href)
     if (testRes != -1 || curStep>0) {

@@ -2005,7 +2005,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                              hasDone: true
                          }
                      }, function () {})
-            popTip('获取数据失败，请刷新重试！');
+            popTip('获取数据失败，请确保直通车权限开通！',{time:1500});
              $('#chaqz_frame').remove();
             textLoading('', 'hide');
         }
