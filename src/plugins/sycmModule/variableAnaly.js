@@ -890,7 +890,7 @@ $(document).on('click', '.op-mc-search-analyze-container .ebase-FaCommonFilter__
          textLoading('', 'hide')
          return false;
      };
-    $('.op-mc-search-analyze-container .ebase-Switch__root .ebase-Switch__item').eq(1).trigger('click');
+    $('.op-mc-search-analyze-container .ebase-FaCommonFilter__root .oui-tab-switch .oui-tab-switch-item').eq(1).trigger('click');
     $('.op-mc-search-analyze-container .oui-card .oui-card-header-wrapper .oui-tab-switch-item:contains("相关搜索词")').trigger('click');
     var searchWord = $('.op-mc-search-analyze-container .op-cc-item-info .item-keyword').text().toLocaleLowerCase();
     var searchTime = $('.op-mc-search-analyze-container .oui-date-picker-current-date').text()

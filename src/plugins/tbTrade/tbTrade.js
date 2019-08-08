@@ -90,7 +90,7 @@ function checkLoginCode() {
 function getSearchPara(url, key) {
     if (!url) return '';
     var params = url.split('?')[1];
-    var parList = params.split('&');
+    var parList = params?params.split('&'):[];
     var res = '';
     for (let i = 0; i < parList.length; i++) {
         const element = parList[i];

@@ -1034,21 +1034,21 @@ function detailPagePop() {
     }
   }
   anyDom.checkLoginCode()
-  function getSearchPara(url, key) {
-    if (!url) return '';
-    var params = url.split('?')[1];
-    var parList = params.split('&');
-    var res = '';
-    for (let i = 0; i < parList.length; i++) {
-      const element = parList[i];
-      var keyVale = element.split('=');
-      if (keyVale[0] == key) {
-        res = keyVale[1]
-        break;
-      }
-    }
-    return res;
-  }
+  // function getSearchPara(url, key) {
+  //   if (!url) return '';
+  //   var params = url.split('?')[1];
+  //   var parList = params.split('&');
+  //   var res = '';
+  //   for (let i = 0; i < parList.length; i++) {
+  //     const element = parList[i];
+  //     var keyVale = element.split('=');
+  //     if (keyVale[0] == key) {
+  //       res = keyVale[1]
+  //       break;
+  //     }
+  //   }
+  //   return res;
+  // }
   // 关闭登录弹窗
   $(document).on('click', '.chaqz-info-wrapper .hided', function () {
     $('.chaqz-info-wrapper').remove()
@@ -1163,7 +1163,7 @@ function getHeightLow(data) {
 function getSearchPara(url, key) {
   if (!url) return '';
   var params = url.split('?')[1];
-  var parList = params.split('&');
+  var parList = params?params.split('&'):[];
   var res = '';
   for (let i = 0; i < parList.length; i++) {
     const element = parList[i];
