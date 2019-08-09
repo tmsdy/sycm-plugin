@@ -3544,9 +3544,7 @@ function getBackgroundRquest(idNum, cb) {
        if (val.code == 200) {
             cb && cb(val)
        } else if (val.code == 2030) {
-           popTip('登录过期')
-           LogOut();
-           textLoading();
+          setIntRefreshToken(getBackgroundRquest(idNum, cb))
        } else if (val.code == 5004 || val.code == 5004) {
         getBackgroundRquest(idNum, cb)
        } else {
@@ -3599,13 +3597,49 @@ function manyWordRquest(titleInfo, cb) {
        if (val.code == 200) {
             cb && cb(val)
        } else if (val.code == 2030) {
-           LogOut();
-           textLoading();
+          setIntRefreshToken(manyWordRquest(titleInfo, cb))
        } else {
         popTip('获取分词失败')
         textLoading();
        }
    })
+}
+function setIntRefreshToken(cb) {
+    var curToken = localStorage.getItem('chaqz_token');
+    if (!curToken) {
+        LogOut();
+        return false;
+    }
+    chrome.runtime.sendMessage({
+        key: "getData",
+        options: {
+            url: BASE_URL + '/api/v1/user/Retoken',
+            type: "POST",
+            contentType: 'application/json',
+            data: JSON.stringify({
+                token: curToken
+            }),
+        }
+    }, function (val) {
+        if (val.code != 200) {
+            LogOut();
+            textLoading()
+            return false;
+        }
+        var token = val.data.token;
+        localStorage.setItem('chaqz_token', token);
+        var curTime = new Date().getTime();
+        var saveToke = {
+            expiration: curTime + val.data.expires * 1000,
+            token: token
+        }
+        chrome.storage.local.set({
+            'chaqz_token': saveToke
+        }, function () {});
+        // 背景页解决方案
+        // tellRefreshToken(val.data.expires,curToken)
+        cb && cb()
+    })
 }
 // 累加
 function cumulative(arr){

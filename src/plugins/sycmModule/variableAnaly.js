@@ -1901,36 +1901,6 @@ function getCompareData(resData, resultWrap, itemInfo) {
 
             // 过期刷新获取新token
             getWeightResult(requestData, itemInfo)
-            // var saveToke = localStorage.getItem('chaqz_token')
-            // chrome.runtime.sendMessage({
-            //     key: 'getData',
-            //     options: {
-            //         url: BASE_URL + '/py/api/v1/weight',
-            //         type: 'POST',
-            //         headers: {
-            //             Authorization: "Bearer " + saveToke
-            //         },
-            //         data: JSON.stringify(requestData),
-            //         contentType: "application/json,charset=utf-8",
-            //     }
-            // }, function (val3) {
-            //     if (val3.code == 200) {
-            //         localStorage.setItem(itemInfo.locaKey, JSON.stringify({
-            //             itemInfo:itemInfo,
-            //             data: val3.data
-            //         }))
-            //         domStructweightPars(itemInfo, val3.data)
-            //         // console.log('接收后台处理数据', val3.data)
-            //     } else if (val3.code == 2030) {
-            //         LogOut()
-            //     } else {
-            //         popTip('解析失败');
-            //     }
-            //     $('.chaqz-info-wrapper.pop').hide();
-            //     LoadingPop();
-            // })
-        //  })
-    // })
 }
 function getWeightResult(requestData, itemInfo) {
      var saveToke = localStorage.getItem('chaqz_token')
