@@ -1,5 +1,5 @@
-.chaqz-wrapper {
-    position: fixed;
+    .chaqz-wrapper {
+        position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -41,6 +41,17 @@
 
 .chaqz-wrapper .content .table-box {
     margin: 0 15px;
+}
+.chaqz-wrapper .content .table-box td .propt-chose {
+     display: inline-block;
+     width: 20px;
+     height: 20px;
+     border: 1px solid #DDDDDD;
+     border-radius: 50%;
+}
+.chaqz-wrapper .content .table-box td .propt-chose.active {
+    border:0;
+    background: url('https://file.cdn.chaquanzhong.com/prompt-check.png') no-repeat center/contain;
 }
 
 .chaqz-wrapper .content .head {
@@ -84,7 +95,6 @@
 .chaqz-wrapper div.dt-buttons {
     float: right;
     margin-top: -44px;
-
 }
 
 .chaqz-wrapper div.dt-buttons button {
@@ -95,7 +105,6 @@
 .chaqz-wrapper .content .head .btns {
     float: right;
     margin-left: 15px;
-
 }
 
 .chaqz-wrapper .content table {
@@ -104,11 +113,11 @@
     color: #222;
     font-size: 12px;
     border-collapse: collapse;
+    border-bottom: 0 !important;
 }
 
 .chaqz-wrapper table .info {
     white-space: nowrap;
-
 }
 
 .chaqz-wrapper table .info img {
@@ -116,7 +125,6 @@
     height: 36px;
     margin-right: 5px;
     vertical-align: middle;
-
 }
 
 .chaqz-wrapper table .info span {
@@ -184,7 +192,6 @@
     text-align: center;
     line-height: 30px;
     cursor: pointer;
-
 }
 
 /* 权重解析 */
@@ -323,7 +330,6 @@
     background: #EB6F3C;
 }
 
-
 .chaqz-btns {
     padding-left: 105px;
     background: url("https://img.chaquanzhong.com/cqz.png") no-repeat 0 center;
@@ -352,10 +358,7 @@
     background: #fff;
 }
 
-/* .chaqz-btns .serachBtn.vesting {
-    background: #EB6F3C;
-} */
-
+/* .chaqz-btns .serachBtn.vesting { background: #EB6F3C; } */
 .chaqz-btns.btnsItem1 {
     float: right;
 }
@@ -428,8 +431,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.75);
-    z-index: 10000000000;
-
+    z-index: 10000000;
 }
 
 .chaqz-info-wrapper .c-cont {
@@ -562,9 +564,7 @@
     height: 100%;
     background: rgba(255, 255, 255, 0.8);
     border-radius: 0;
-    /* display: flex;
-    justify-content: center;
-    align-items: center; */
+    /* display: flex; justify-content: center; align-items: center; */
     z-index: 10000000;
 }
 
@@ -1163,7 +1163,6 @@
     width: 10px;
     height: 10px;
     background-color: #2062E6;
-
     border-radius: 100%;
     position: absolute;
     -webkit-animation: bouncedelay 1.2s infinite ease-in-out;
@@ -1353,6 +1352,7 @@
     }
 }
 
+<<<<<<< HEAD:src/common/style.css
 /* 淘宝 */
 .chaqz-adver-top {
     text-align: center;
@@ -1883,3 +1883,30 @@
 }
 
 
+=======
+
+/* 推荐竞品 */
+.chaqz-wrapper .recommed-btns{
+    text-align: center;
+    margin-top: 40px;
+}
+.chaqz-wrapper .recommed-btns button:first-child{
+    width: 100px;
+    height: 46px;
+    border: 1px solid #E5E5E5;
+    border-radius: 5px;
+    color: #222222;
+    font-size: 16px;
+    background: #fff;
+}
+.chaqz-wrapper .recommed-btns button:last-child{
+    margin-left: 30px;
+    width: 100px;
+    height: 46px;
+    border: 0;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    background: #FFA200;
+}
+>>>>>>> feature/zh-20190712-autoRights:src/assets/css/style.css

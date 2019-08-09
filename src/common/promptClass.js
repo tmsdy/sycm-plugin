@@ -8,53 +8,18 @@ import {
      version: '<p class="tips">为了更好的体验，请到官网下载最新版本。</p><div class="cha-btns"><a class="btn" href="' + BASE_URL + '/pluginIntro" target="_blank"><button class="btn">前往下载</button></a></div>',
      orderMem: '<p class="tips">账户未开通会员，请联系客服或订购会员。</p><div class="cha-btns"><a class="mr_30 btn" href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes"><button class="btn">联系客服</button></a><button class="btn buyBtn">订购</button></div>',
      overdue: '<p class="tips">会员已过期，请重新订购。</p><div class="cha-btns"><button class="btn buyBtn">订购</button></div>',
-     overdue2: '<p class="tips">登录账户未绑定本店铺，<br>如有疑问请联系客服。</p><div class="cha-btns"><a class="mr_30 btn" href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes" ><button class="btn">联系客服</button></a><button class="btn hides">取消</button></div>',
-     binding: '<p class="tips">店铺暂未绑定，是否绑定店铺？</p><div class="cha-btns"><button class="hides mr_30 btn">取消</button><button id="goBind" class="btn">绑定</button></div>',
-     nonBind: '<p class="tips">店铺已绑定其余账户，<br>若非本人操作请联系客服。</p><div class="cha-btns"><a class="mr_30 btn" href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes" ><button class="btn">联系客服</button></a><button class="btn hides">确定</button></div>',
      renewal: '<p class="tips"> 会员已过期， 为不影响正常使用，<br>请前往官网续费。</p><div class="cha-btns"><button class="cancel mr_30 btn">暂不处理</button><button class="btn">续费</button></div>',
      orderSucc: '<p class="tips">若订购成功请刷新。</p><div class="cha-btns"><button id="pageRefresh" class="btn">确定</button></div>',
      noShopInfo: '<p class="tips">未获取用户信息，请刷新页面重试。</p><div class="cha-btns"><button id="pageRefresh" class="btn">确定</button></div>',
-     upLimit: '<p class="tips">该账户会员已达绑定上限，请升级会员。</p><div class="cha-btns"><button class="btn buyBtn">升级会员</button></div>',
-     bindLimit: '<p class="tips">已达插件绑定上限，请联系客服。</p><div class="cha-btns"><a class="mr_30 btn" href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes" ><button class="btn">联系客服</button></div>',
      weixin: '<p class="head">查权重客服很高兴为您服务</p><img src="https://file.cdn.chaquanzhong.com/wx_contact.jpg" alt="wx"><p class="foot">微信扫一扫 添加客服</p>',
-     goChoose: '<p class="tips">请在竞品分析界面，选择目标竞品。</p><div class="cha-btns"><button class="btn mr_30 hides cancel">取消</button><a href="https://sycm.taobao.com/mc/ci/item/analysis"><button class="btn">去选择</button></div>',
     onlyOne: '<p class="tips">竞品选择有误，现仅支持单项竞品加权。</p><div class="cha-btns"><button class="btn hides">确定</button></div>',
     emptyChoose: '<p class="tips">未选择竞品，请先选择竞品<br><span style="font-size:14px;">现仅支持单项竞品加权</span></p><div class="cha-btns"><button class="btn hides">确定</button></div>',
      competingGoodsAnalysis: '<p class="head-title">竞品分析</p><div class="cross-tabs"><span class="cross-btn hasCross">监控商品</span><span class="cross-btn">跨类目商品</span></div><div class="analy-goods"><input type="text" class="anayEditor selcet" placeholder="请输入url或者商品id"><p class="good-tips"></p></div><div class="cha-btns"><button class="btn analyBtn">数据解析</button><button class="btn analyBtn">流量解析</button><button class="btn analyBtn ">关键词解析</button></div><p class="bot-tips ">暂只支持同类目竞品解析</p>',
      competingTopAnalysis: '<p class="head-title">权重解析</p><div class="analy-goods"><input type="text" class="anayEditor selcet" placeholder="请输入url或者商品id"><p class="good-tips"></p></div><div class="cha-btns"><button class="btn hides mr_30 cancel">取消</button><button class="btn analyBtn2">确定</button></div><p class="bot-tips">暂只支持监控商品权重解析</p>',
-     goOperator: '<p class="tips">前往将商品添加到监控</p><div class="cha-btns"><a class="btn" href="https://sycm.taobao.com/mc/ci/config/rival?activeKey=item"><button class="btn mr_30">前往添加</button></a><button class="btn hides mr_30 cancel">取消</button></div>',
-     selectPlan: function (data) {
-         var html = '';
-         if (data) {
-             data.forEach(function (item) {
-                 html += '<option value="' + item.title + '">' + item.title + '</option>'
-             })
-         } else {
-             html += '<option value="0">请选择</option>'
-         }
-         return '<p class="head-title">加入加权计划</p><div class="form-list"><div><span>计划名称</span><select class="selcet" placeholder="请选择">' + html + '</select></div><p class="ctPlan">创建新计划</p></div><div class="cha-btns"><button id="vestBtn" class="btn">确定</button></div>';
-     },
-     createPlan: '<p class="head-title" id="giveupPlan">新建计划</p><div class="form-list"><div class="item"><span>计划目的</span><select class="selcet"><option value="新品">新品</option></select></div><div><span>计划名称</span><input type="text" class="editor selcet" placeholder="请输入计划名称"></div></div><div class="cha-btns"><button class="btn planBtn">确定</button></div>',
-     active2: function () {
-         var bindList = SAVE_BIND2.data;
-         var len = bindList.length;
-         var html = '';
-         for (var i = 0; i < len; i++) {
-             if (bindList[i]) {
-                 var isClosed = bindList[i].closed
-                 var name = bindList[i].mainUname
-                 var hasClose = isClosed == 1 ? '未激活' : '已激活';
-                 var status = isClosed == 1 ? '' : 'checked disabled';
-                 var runShopId = bindList[i].runShopId;
-                 var hasActive = isClosed == 1 ? '' : 'chose';
-                 var order = i + 1
-                 var idNum = 'label' + order
-                 html += '<tr><td><label for="' + idNum + '" class="' + hasActive + '"></label><input id=' + idNum + ' type="checkbox" ' + status + ' data-id="' + runShopId + '" hidden><span class="num">' + order + '</span></td><td>' + name + '</td><td>' + hasClose + '</td></tr>'
-             }
-         }
-         var ret = '<div class="chaqz-info-wrapper pop"><div class="c-cont"><span class="close hides" click="hideInfo">×</span><div class="alert"><div class="table-wrap"><table><thead><tr><td>序号</td><td>店铺名</td><td>状态</td></tr></thead><tbody>' + html + '</tbody></table></div><div class="cha-btns"><button class="btn activeShop">激活</button></div><p class="foot-tips">如有绑定疑问，请<a href="tencent://message/?uin=3531553166&amp;Site=qq&amp;Menu=yes">联系客服</a></p></div></div></div>'
-         return ret
-     },
+     goOperator: '<p class="tips">前往将商品添加到监控</p><div class="cha-btns"><a class="btn" href="https://sycm.taobao.com/mc/ci/config/rival?activeKey=item"><button class="btn mr_30">前往添加</button></a><button class="btn hides  cancel">取消</button></div>',
+     addMointored: '<p class="tips">前往将商品添加到监控</p><div class="cha-btns"><button class="btn mr_30 addMointored">前往添加</button><button class="btn hides  cancel">取消</button></div>',
+     wantPromptTitle: '<p class="tips"> 标题对加权计划及效果影响较大，<br/>是否需优化宝贝标题 </p><div class="cha-btns"><button class="cancel mr_30 btn jugdeItem">忽略</button><button class="btn promptTitle">优化</button></div> ',
+     promptTitle: '<p class="head">添加客服领取标题优化教程，按照教程并修改标题，点击下一步</p><img src="https://file.cdn.chaquanzhong.com/promt-wx.png" alt="wx" style="margin-top: -20px;margin-bottom: 20px;"><div class="cha-btns"><button class="cancel mr_30 btn jugdeItem">忽略</button><button class="btn jugdeItem">下一步</button></div>',
      init: function (type, data) {
          if ($('.chaqz-info-wrapper.pop').length) {
              this.changeDom(type, data)
@@ -79,34 +44,28 @@ import {
          $('.chaqz-info-wrapper.pop').on('click', '#pageRefresh', function () { //刷新
              window.location.reload();
          })
-         $(document).on('click', '.chaqz-info-wrapper.pop .ctPlan', function () {
-             _that.init('createPlan')
+         $('.chaqz-info-wrapper.pop').on('click', '.promptTitle',function () { //标题优化
+            _that.init('promptTitle')
          })
-         $(document).on('blur', '.chaqz-info-wrapper.pop .editor', function () {
-             if ($(this).val().length > 8) {
-                 $(this).val($(this).val().slice(0, 8))
-                 popTip('最多可输入8个汉字', 'top:10%;')
-                 return false
-             }
+         $('.chaqz-info-wrapper.pop').on('click', '.hides ',function () {
+            $('.chaqz-info-wrapper.pop').hide();
+            $('#caseBlanche').remove();
          })
-         $(document).on('blur', '.chaqz-info-wrapper.pop .anayEditor', function () {
+         $('.chaqz-info-wrapper.pop').on('blur', '.chaqz-info-wrapper.pop .anayEditor', function () {
              $(this).siblings('.good-tips').removeClass('alert')
          })
-         $(document).on('click', '.chaqz-info-wrapper.pop .contactService', function () {
-             _that.init('weixin')
-         })
      },
-     changeDom: function (type, data) {
+     changeDom: function(types, data1) {
          //弹窗存在更换内容
          var changeHtml = ''
-         if (typeof this[type] == 'function') {
-             changeHtml = this[type](data)
+         if (typeof this[types] == 'function') {
+             changeHtml = this[types](data1)
          } else {
-             changeHtml = this[type]
+             changeHtml = this[types]
          }
          $('.chaqz-info-wrapper.pop .c-cont .alert').html(changeHtml)
          $('.chaqz-info-wrapper.pop').show()
-     },
+     }
 
  }
  // loading
@@ -139,12 +98,7 @@ import {
  }
   // 获取店铺信息
   export function dealShopInfo() {
-      //  var info = dataWrapper.shopInfo.data
       var localShop = localStorage.getItem('chaqz_shopInfo')
-      //  if (info.length) {
-      //      var ret = JSON.parse(info).data
-      //      return ret
-      //  }
       if (localShop) {
           var resd = JSON.parse(localShop)
           return resd

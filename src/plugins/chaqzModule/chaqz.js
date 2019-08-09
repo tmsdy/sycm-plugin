@@ -1,6 +1,6 @@
 var BASE_URL = (process.env.NODE_ENV == 'production' && !process.env.ASSET_PATH) ? 'https://www.chaquanzhong.com' :
     'http://118.25.153.205:8090';
-chrome.storage.local.get(['chaqz_token', 'compareProduceData'], function (valueArray) {
+chrome.storage.local.get(['chaqz_token', 'AutomaticWeightedData'], function (valueArray) {
     var local = localStorage.getItem('saveToken');
     var newLoacal = valueArray.chaqz_token;
     local = local ? JSON.parse(local) : {};
@@ -31,9 +31,9 @@ chrome.storage.local.get(['chaqz_token', 'compareProduceData'], function (valueA
             }, '*');
         }
     }
-    var quiltyFoods = valueArray.compareProduceData
+    var quiltyFoods = valueArray.AutomaticWeightedData
     if (quiltyFoods) {
-        sessionStorage.CompetingGoodsData = JSON.stringify(quiltyFoods)
+        sessionStorage.AutomaticWeightedData = JSON.stringify(quiltyFoods)
     }
 })
 

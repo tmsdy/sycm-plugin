@@ -1876,44 +1876,23 @@ function getTopItem(category, itemInfo, localCateId, selfCoreData) {
 }
 // 获取竞品数据
 function getCompareData(resData, resultWrap, itemInfo) {
-    dealIndex({
-        type:'dealTrend',
-        dataType: {
-            seIpvUvHits: [resData.seIpvUvHits.value],
-            cartHits: [resData.cartHits.value],
-            payRateIndex: [resData.payRateIndex.value],
-            uvIndex: [resData.uvIndex.value],
-            cltHits: [resData.cltHits.value],
-        }
-    },function(val){
-         dealIndex({
-             type: 'dealTrend',
-             dataType: {
-                seIpvUvHits: [resultWrap.seIpvUvHits],
-                payRateIndex: [resultWrap.payRateIndex],
-                tradeIndex: [resultWrap.tradeIndex],
-                uvIndex: [resultWrap.uvIndex],
-                cartHits: [resultWrap.cartHits],
-                cltHits: [resultWrap.cltHits]
-             }
-         }, function (val2) {
             var requestData = {};
             requestData.selfItem={
-                seIpvUvHits: val.value.seIpvUvHits[0],
-                uvIndex: val.value.uvIndex[0],
-                cltHits: val.value.cltHits[0],
-                cartHits: val.value.cartHits[0],
+                seIpvUvHits: resData.seIpvUvHits.value,
+                uvIndex: resData.uvIndex.value,
+                cltHits: resData.cltHits.value,
+                cartHits: resData.cartHits.value,
                 payItemCnt: resData.payItemCnt.value,
                 // tradeIndex: val.value.tradeIndex,
-                payRateIndex: val.value.payRateIndex[0]
+                payRateIndex: resData.payRateIndex.value
             }
             requestData.item={
-                seIpvUvHits: val2.value.seIpvUvHits[0],
-                uvIndex: val2.value.uvIndex[0],
-                cltHits: val2.value.cltHits[0],
-                cartHits: val2.value.cartHits[0],
-                payItemCnt: Math.floor(val2.value.uvIndex[0] * val2.value.payRateIndex[0]),
-                payRateIndex: val2.value.payRateIndex[0],
+                seIpvUvHits: resultWrap.seIpvUvHits,
+                uvIndex: resultWrap.uvIndex,
+                cltHits: resultWrap.cltHits,
+                cartHits: resultWrap.cartHits,
+                payItemCnt: Math.floor(resultWrap.uvIndex * resultWrap.payRateIndex),
+                payRateIndex: resultWrap.payRateIndex,
                 // tradeIndex: val2.value.tradeIndex
             }
             requestData.topItem = '';
@@ -1950,8 +1929,8 @@ function getCompareData(resData, resultWrap, itemInfo) {
             //     $('.chaqz-info-wrapper.pop').hide();
             //     LoadingPop();
             // })
-         })
-    })
+        //  })
+    // })
 }
 function getWeightResult(requestData, itemInfo) {
      var saveToke = localStorage.getItem('chaqz_token')
