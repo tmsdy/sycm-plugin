@@ -188,7 +188,7 @@ competePop();
         }  else if (e.target.className == 'ebase-metaDecorator__root') { // 市场-搜索分析
              if (judgeCor()) {
                   $('.op-mc-search-analyze-container .oui-card-content').append('<div class="root-word-entry">输入关键词,按回车键</div>');
-                  $('.op-mc-search-analyze-container .ebase-FaCommonFilter__left .oui-tab-switch').parent().append(showBtn('isRootWord'));
+                  $('.op-mc-search-analyze-container .ebase-FaCommonFilter__left .oui-tab-switch').append(showBtn('isRootWord'));
              } 
         } else if (e.target.className == 'index-area-multiple-root-container') { //market-市场大盘
             if (!$('.op-mc-market-overview-container #cateTrend .cardHeader .chaqz-btns').length) {
@@ -540,7 +540,7 @@ var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
                      var dataTypes = getParamsItem(baseUrl,'passCateid')
                      var rankKey = marketRankType(baseUrl)
                      var saveData = bubbleSort(finaData)
-                     localStorage.setItem(rankKey + '/' + k + dataTypes, saveData)
+                     sessionStorage.setItem(rankKey + '/' + k + dataTypes, saveData)
                  } else if (k == 'allTrend') {
                      var rankKey = marketRankType(baseUrl)
                      var dataTypes = getParamsItem(baseUrl, 'trend', rankKey)
@@ -566,7 +566,12 @@ var DECRYPT_WHITE_LIST = ['shopInfo', 'relatedHotWord', 'currentDate']
                  } else if (k == 'ShopItemBrand') {
                     var kind = searchWhatType(baseUrl);
                     var kindtyps = getParamsItem(baseUrl)
-                    localStorage.setItem('monit'+kind + kindtyps, finaData)
+                    try {
+                        localStorage.setItem('monit' + kind + kindtyps, finaData)
+                    } catch (error) {
+                        console.log('存储错误', kindtyps)
+                    }
+                    
                  } else if (k == 'marketHot' || k == 'listProp') {
                      var kind = searchWhatType(baseUrl);
                      var kindtyps = getParamsItem(baseUrl)

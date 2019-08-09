@@ -1092,7 +1092,10 @@
 }
 
 .op-mc-search-analyze-container .chaqz-btns.btnsItem1 {
-    float: left;
+    margin-right: -190px;
+}
+.op-mc-search-analyze-container .chaqz-btns.btnsItem1 button {
+   vertical-align: bottom;
 }
 
 .mc-brandCustomer .mc-Portrait .chaqz-btns.btnsItem1 {
