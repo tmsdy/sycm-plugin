@@ -145,8 +145,8 @@ competePop();
     }, SET_WAIT_TIME)
     /**竞争模块添加事件 */
     $('#app').on('DOMNodeInserted', function (e) {
-        // console.log(e.target.id, ',', e.target.className)
-        if (e.target.className == 'oui-index-picker') { //竞争-监控店铺
+        console.log(e.target.id, ',', e.target.className)
+        if (e.target.id == 'completeShop') { //竞争-监控店铺
             $('.mc-shopMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn())
         } else if (e.target.className == 'oui-index-picker-group') { //竞争-监控商品
             $('.mc-ItemMonitor .oui-card-header-wrapper .oui-card-header').append(showBtn());

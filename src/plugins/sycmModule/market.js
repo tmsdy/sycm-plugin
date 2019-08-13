@@ -986,16 +986,16 @@ function mergeItemFilter(data){
     var curPageSize = $('.mc-marketMonitor .oui-page-size .ant-select-selection-selected-value').text()
     curPageSize = Number(curPageSize)
     var backT = chooseTop == 1 ? 'monititem' : chooseTop == 2?'monitbrand': 'monitshop';
-   var localCache = false;
-   var finalKey = '';
-   var itemKey = getSearchParams(backT, curPage, curPageSize);
-   var localKey = getSearchParams(backT, curPage, curPageSize, 'local')
-   if (localStorage.getItem(itemKey)) {
-       finalKey = itemKey;
-   } else {
-       finalKey = localKey;
-       localCache = true;
-   }
+    var localCache = false;
+    var finalKey = '';
+    var itemKey = getSearchParams(backT, curPage, curPageSize);
+    var localKey = getSearchParams(backT, curPage, curPageSize, 'local')
+    if (localStorage.getItem(itemKey)) {
+        finalKey = itemKey;
+    } else {
+        finalKey = localKey;
+        localCache = true;
+    }
    dealIndex({
         type: backT,
         dataType: finalKey,
